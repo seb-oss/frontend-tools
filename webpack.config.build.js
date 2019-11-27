@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const components = require('./src/index');
+const utils = require('./src/index');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
@@ -8,10 +8,10 @@ module.exports = {
     mode: 'production',
     devtool: false,
     target: 'web',
-    entry: components.paths,
+    entry: utils.paths,
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name]/[name].js',
+        filename: '[name].js',
         library: 'frontend-tools',
         libraryTarget: 'umd',
         umdNamedDefine: true
@@ -20,7 +20,7 @@ module.exports = {
         extensions: [".ts", ".tsx", ".js", ".json"]
     },
     externals: {
-        react: {
+        "react": {
             commonjs: "react",
             commonjs2: "react",
             amd: "React",
@@ -31,13 +31,16 @@ module.exports = {
             commonjs2: "react-dom",
             amd: "ReactDOM",
             root: "ReactDOM"
+        },
+        "moment": {
+            commonjs: "moment",
+            commonjs2: "moment"
         }
     },
     plugins: [
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
         }),
-        new CopyWebpackPlugin(components.indexes),
         new CaseSensitivePathsPlugin()
     ],
     module: {
