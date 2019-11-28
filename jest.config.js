@@ -1,13 +1,3 @@
-
-/**
- * Read the variable `comp` passed with npm command.
- * @example
- * To test only the App component you
- * would run the following command
- * `npm test App`
- * Multiple components can be tested using
- * `npm test Button RadioGroup`
- */
 const { argv } = process;
 const specific = argv.slice(4, argv.length); // Skipping test properties
 
@@ -55,6 +45,6 @@ module.exports = {
     // some coverage and results processing options
     collectCoverage: true,
     collectCoverageFrom,
-    coverageDirectory: "./coverage",
+    coverageDirectory: "./tests/coverage",
     coverageReporters: ["json", "lcov", "text"]
 };

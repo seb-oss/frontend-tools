@@ -8,7 +8,7 @@
     "build:production": "webpack --config webpack.config.build.js",
     "clean:docs": "rimraf ./docs",
     "clean:dist": "rimraf ./dist",
-    "clean:test": "rimraf ./coverage",
+    "clean:test": "rimraf ./tests/coverage",
     "clean": "npm run clean:dist && npm run clean:test",
     "copy": "cp package.json dist/ && cp README.md dist/",
     "lint": "tslint -p tsconfig.json",
