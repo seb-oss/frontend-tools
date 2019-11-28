@@ -2,15 +2,19 @@ import moment from "moment";
 import { isEmpty } from "./isEmpty";
 import { isPhoneNumber } from "./isPhoneNumber";
 import { isEmail } from "./isEmail";
-import { Logger, LoggerOptions } from "./logger";
 import { checkStringLength } from "./checkStringLength";
 
-interface AttributeMapItem {
+type AttributeMapItem = object & {
     name: string;
     type: string;
-}
+};
 
-interface ValidatorModelItem {
+export type ValidatorSpec = {
+    min?: number;
+    max?: number;
+};
+
+type ValidatorModelItem = object & {
     name: string;
     value: any;
     type?: string;
@@ -23,54 +27,57 @@ interface ValidatorModelItem {
     specs?: { min?: number, max?: number };
     extraValidators?: Array<string>;
     criteria?: Array<validateTypes>;
-}
+};
 
-interface FormModel {
-    [index: string]: ValidatorModelItem;
-}
+export type ModelErrors<T> = {
+    [K in keyof T]?: ModelErrorItem;
+};
 
-interface FormErrors {
-    [index: string]: string | Array<{ [index: string]: string }>;
-}
+export type ModelErrorItem = {
+    errorCode: string;
+    spec: any;
+};
 
-interface ExtraValidator {
-    fields: Array<string>;
+type FormModel<T> = Object & {
+    [K in keyof T]?: ValidatorModelItem;
+};
+
+type FormFields<T> = Object & {
+    [K in keyof T]: T[K];
+};
+
+type ExtraValidator<T> = Object & {
+    fields: Array<keyof T>;
     validate: (...valuesOfFields) => string;
-    errorFields: Array<string>;
-}
+    errorFields: Array<keyof T>;
+};
 
-export class FormValidator {
-    private extraValidators: Array<ExtraValidator> = [];
-    private logger: Logger = new Logger("Form Validator");
-    private formObject: FormModel = {};
-    private errors: FormErrors = {};
+export class FormValidator<T> {
+    private extraValidators: Array<ExtraValidator<T>> = [];
+    private formObject: FormModel<T> = {};
+    private errors: ModelErrors<T> = {};
 
     /**
      * Validates values captured in form fields and stored to a formObject
      * @param {any} formObject The formObject to be validated
      */
-    constructor(formObject: any) {
+    constructor(formObject: T) {
         this.storeFormObject(formObject);
     }
 
     /**
      * Defined the type of the fields in the formObject
-     * @param {Array<string>} fields The fields needed to be defined
+     * @param {Array<keyof T>} fields The fields needed to be defined
      * @param {FormFieldTypes} type The type of the fields passed
      * @returns {FormValidator} The form validator object
      */
-    defineTypes(fields: Array<string>, type: FormFieldTypes): FormValidator {
-        const methodLog: Array<any> = [];
+    defineTypes(fields: Array<keyof T>, type: FormFieldTypes): FormValidator<T> {
         if (fields && fields.length) {
-            fields.map((field: string) => {
+            fields.map((field: keyof T) => {
                 if (this.formObject.hasOwnProperty(field)) {
                     this.formObject[field].type = type;
-                    methodLog.push(this.formObject[field]);
                 }
             });
-            this.logger.insert("defineTypes", `Define types for ${methodLog.length} fields`, methodLog.length ? methodLog : { params: { fields, type } });
-        } else {
-            this.logger.insert("defineTypes", "Invalid params passed", { fields, type });
         }
         return this;
     }
@@ -82,18 +89,13 @@ export class FormValidator {
      * @returns {FormValidator} The form validator object
      * @example `defineTypesByKeyword("Id", FormFieldTypes.NUMBER)` will select fields like `userId` and `optionId`
      */
-    defineTypesByKeyword(keyword: string, type: FormFieldTypes): FormValidator {
-        const methodLog: Array<any> = [];
+    defineTypesByKeyword(keyword: string, type: FormFieldTypes): FormValidator<T> {
         if (keyword && type) {
             for (const field in this.formObject) {
                 if (field.indexOf(keyword) !== -1) {
                     this.formObject[field].type = type;
-                    methodLog.push(this.formObject[field]);
                 }
             }
-            this.logger.insert("defineTypesByKeyword", `Define types for ${methodLog.length} fields`, methodLog.length ? methodLog : { params: { keyword, type } });
-        } else {
-            this.logger.insert("defineTypesByKeyword", "Invalid params passed", { keyword, type });
         }
         return this;
     }
@@ -105,141 +107,13 @@ export class FormValidator {
      * The attribute map is used to map the types of each field.
      * @returns {FormValidator} The form validator object
      */
-    defineTypesByAttributeMap(attributeMap: Array<AttributeMapItem>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (attributeMap && attributeMap.length) {
+    defineTypesByAttributeMap(attributeMap: Array<AttributeMapItem>): FormValidator<T> {
+        if (attributeMap && attributeMap.length && attributeMap instanceof Array) {
             attributeMap.map((item: AttributeMapItem) => {
                 if (this.formObject.hasOwnProperty(item.name)) {
                     this.formObject[item.name].type = item.type;
-                    methodLog.push(this.formObject[item.name]);
                 }
             });
-            this.logger.insert("defineTypesByAttributeMap", `Defined types for ${methodLog.length} fields`, methodLog.length ? methodLog : { params: { attributeMap } });
-        } else {
-            this.logger.insert("defineTypesByAttributeMap", "Invalid params passed", { attributeMap });
-        }
-        return this;
-    }
-
-    /**
-     * Define the type of specific fields in an array of objects in the form object
-     * @param {string} arrayParameterName The name of the parameter that contains the array
-     * @param {Array<string>} fields The fields in the array parameter needed to be defined
-     * @param {string} type The type of the fields
-     * @returns {FormValidator} The form validator object
-     */
-    defineArrayOfObjects(arrayParameterName: string, fields: Array<string>, type: string): FormValidator {
-        const methodLog: Array<any> = [];
-        if (arrayParameterName && fields && fields.length && type) {
-            if (this.formObject.hasOwnProperty(arrayParameterName) && this.formObject[arrayParameterName].value) {
-                (this.formObject[arrayParameterName].value as Array<any>).map((item: FormModel) => {
-                    fields.map((field: string) => {
-                        if (item.hasOwnProperty(field)) {
-                            item[field].type = type;
-                            methodLog.push(item[field]);
-                        }
-                    });
-                });
-            }
-            this.logger.insert("defineArrayOfObjects", `Defined types for ${methodLog.length} fields`, methodLog.length ? methodLog : { params: { arrayParameterName, fields, type } });
-        } else {
-            this.logger.insert("defineArrayOfObjects", "Invalid params passed", { arrayParameterName, fields, type });
-        }
-        return this;
-    }
-
-    /**
-     * Define the type of specific fields in an array of objects in the form object
-     * @param {string} arrayParameterName The name of the parameter that contains the array
-     * @param {Array<AttributeMapItem>} attributeMap An array of each attribute with its type
-     * @description An attribute map is an array of objects where each object has two parameters: `name` and `type`.
-     * The attribute map is used to map the types of each field.
-     * @returns {FormValidator} The form validator object
-     */
-    defineArrayOfObjectByAttributeMap(arrayParameterName: string, attributeMap: Array<AttributeMapItem>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (arrayParameterName && attributeMap) {
-            if (
-                this.formObject.hasOwnProperty(arrayParameterName)
-                && this.formObject[arrayParameterName].value
-                && (this.formObject[arrayParameterName].value instanceof Array)
-            ) {
-                (this.formObject[arrayParameterName].value as Array<any>).map((item: FormModel) => {
-                    attributeMap.map((attributeMapItem: AttributeMapItem) => {
-                        if (item.hasOwnProperty(attributeMapItem.name)) {
-                            item[attributeMapItem.name].type = attributeMapItem.type;
-                            methodLog.push(item[attributeMapItem.name]);
-                        }
-                    });
-                });
-            }
-            this.logger.insert("defineArrayOfObjectByAttributeMap", `Defined types for ${methodLog.length} fields`, methodLog.length ? methodLog : { params: { arrayParameterName, attributeMap } });
-        } else {
-            this.logger.insert("defineArrayOfObjectByAttributeMap", "Invalid params passed", { arrayParameterName, attributeMap });
-        }
-        return this;
-    }
-
-    /**
-     * Define an object in the form model
-     * @param {string} objectParameterName Object name
-     * @param {Array<string>} fields The fields in the object needed to be defined
-     * @param {string} type The type of the fields specified
-     * @returns {FormValidator} The form validator object
-     */
-    defineObject(objectParameterName: string, fields: Array<string>, type: string): FormValidator {
-        const methodLog: Array<any> = [];
-        if (objectParameterName && fields && type) {
-            if (this.formObject.hasOwnProperty(objectParameterName)) {
-                fields.map((field: string) => {
-                    const objectItem: ValidatorModelItem = {
-                        name: field,
-                        type: type,
-                        value: null
-                    };
-                    if (this.formObject[objectParameterName].value) {
-                        if (this.formObject[objectParameterName].value.hasOwnProperty(field)) {
-                            objectItem.value = this.formObject[objectParameterName].value[field];
-                        }
-                        this.formObject[objectParameterName].value[field] = objectItem;
-                    } else {
-                        this.formObject[objectParameterName].value = { [field]: objectItem };
-                    }
-                    methodLog.push(this.formObject[objectParameterName].value[field]);
-                });
-            }
-            this.logger.insert("defineObject", `Defined types for ${methodLog.length} fields`, methodLog.length ? methodLog : { params: { objectParameterName, fields, type } });
-        } else {
-            this.logger.insert("defineObject", "Invalid params passed", { objectParameterName, fields, type });
-        }
-        return this;
-    }
-
-    /**
-     * Define an object in the form model using the attribute map
-     * @param {string} objectParameterName Object name
-     * @param {Array<AttributeMapItem>} attributeMap An array of each attribute with its type
-     * @returns {FormValidator} The form validator object
-     */
-    defineObjectByAttributeMap(objectParameterName: string, attributeMap: Array<AttributeMapItem>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (objectParameterName && attributeMap) {
-            if (this.formObject.hasOwnProperty(objectParameterName)) {
-                attributeMap.map((objectItem: AttributeMapItem) => {
-                    if (this.formObject[objectParameterName].value && this.formObject[objectParameterName].value.hasOwnProperty(objectItem.name)) {
-                        this.formObject[objectParameterName].value[objectItem.name] = {
-                            name: objectItem.name,
-                            type: objectItem.type,
-                            value: this.formObject[objectParameterName].value[objectItem.name]
-                        };
-                        methodLog.push(this.formObject[objectParameterName].value[objectItem.name]);
-                    }
-                    this.logger.insert("defineObjectByAttributeMap", `finding ${objectItem.name}`, { ...this.formObject[objectParameterName].value });
-                });
-            }
-            this.logger.insert("defineObjectByAttributeMap", `Defined types for ${methodLog.length} fields`, methodLog.length ? methodLog : { params: { objectParameterName, attributeMap } });
-        } else {
-            this.logger.insert("defineObjectByAttributeMap", "Invalid params passed", { objectParameterName, attributeMap });
         }
         return this;
     }
@@ -249,18 +123,13 @@ export class FormValidator {
      * @param {Array<string>} fields The fields needed to be defined as mandatory
      * @returns {FormValidator} The form validator object
      */
-    defineMandatoryFields(fields: Array<string>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (fields && fields.length) {
+    defineMandatoryFields(fields: Array<string>): FormValidator<T> {
+        if (fields && fields.length && fields instanceof Array) {
             fields.map((field: string) => {
                 if (this.formObject.hasOwnProperty(field)) {
                     this.formObject[field].required = true;
-                    methodLog.push(this.formObject[field]);
                 }
             });
-            this.logger.insert("defineMandatoryFields", `Defined ${methodLog.length} fields as mandatory`, methodLog.length ? methodLog : { params: { fields } });
-        } else {
-            this.logger.insert("defineMandatoryFields", "Invalid params passed", { fields });
         }
         return this;
     }
@@ -270,18 +139,13 @@ export class FormValidator {
      * @param {Array<string>} fields The fields needed to be defined as mandatory
      * @returns {FormValidator} The form validator object
      */
-    definePhoneNumberFields(fields: Array<string>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (fields && fields.length) {
+    definePhoneNumberFields(fields: Array<string>): FormValidator<T> {
+        if (fields && fields.length && fields instanceof Array) {
             fields.map((field: string) => {
                 if (this.formObject.hasOwnProperty(field)) {
                     this.formObject[field].type = "phone";
-                    methodLog.push(this.formObject[field]);
                 }
             });
-            this.logger.insert("definePhoneNumberFields", `Defined ${methodLog.length} phoneNumber fields`, methodLog.length ? methodLog : { params: { fields } });
-        } else {
-            this.logger.insert("definePhoneNumberFields", "Invalid params passed", { fields });
         }
         return this;
     }
@@ -291,18 +155,13 @@ export class FormValidator {
      * @param {Array<string>} fields The fields needed to be defined
      * @returns {FormValidator} The form validator object
      */
-    defineEmailFields(fields: Array<string>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (fields && fields.length) {
+    defineEmailFields(fields: Array<string>): FormValidator<T> {
+        if (fields && fields.length && fields instanceof Array) {
             fields.map((field: string) => {
                 if (this.formObject.hasOwnProperty(field)) {
                     this.formObject[field].type = "email";
-                    methodLog.push(this.formObject[field]);
                 }
             });
-            this.logger.insert("defineEmailFields", `Defined ${methodLog.length} email fields`, methodLog.length ? methodLog : { params: { fields } });
-        } else {
-            this.logger.insert("defineEmailFields", "Invalid params passed", { fields });
         }
         return this;
     }
@@ -313,11 +172,10 @@ export class FormValidator {
      * @param {Array<string>} fields The fields in the array parameter needed to be marked as mandatory
      * @returns {FormValidator} The form validator object
      */
-    defineMandatoryFieldsInArrayOfObjects(arrayParameterName: string, fields: Array<string>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (arrayParameterName && fields && fields.length) {
+    defineMandatoryFieldsInArrayOfObjects(arrayParameterName: string, fields: Array<string>): FormValidator<T> {
+        if (arrayParameterName && fields && fields.length && fields instanceof Array) {
             if (this.formObject.hasOwnProperty(arrayParameterName) && this.formObject[arrayParameterName].value && (this.formObject[arrayParameterName].value instanceof Array)) {
-                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel) => {
+                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel<T>) => {
                     fields.map((field: string) => {
                         if (arrayItem.hasOwnProperty(field)) {
                             arrayItem[field].required = true;
@@ -325,16 +183,12 @@ export class FormValidator {
                     });
                 });
             }
-            this.logger.insert("defineMandatoryFieldsInArrayOfObjects", `Defined ${methodLog.length} fields as mandatory`, methodLog.length ? methodLog : { params: { arrayParameterName, fields } });
-        } else {
-            this.logger.insert("defineMandatoryFieldsInArrayOfObjects", "Invalid params passed", { arrayParameterName, fields });
         }
         return this;
     }
 
-    defineMandatoryFieldsInSubObject(objectParameterName: string, fields: Array<string>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (objectParameterName && fields && fields.length) {
+    defineMandatoryFieldsInSubObject(objectParameterName: string, fields: Array<string>): FormValidator<T> {
+        if (objectParameterName && fields && fields.length && fields instanceof Array) {
             if (this.formObject.hasOwnProperty(objectParameterName) && this.formObject[objectParameterName].value) {
                 fields.map((field: string) => {
                     if (this.formObject[objectParameterName].value.hasOwnProperty(field) && !isEmpty(this.formObject[objectParameterName].value[field])) {
@@ -342,9 +196,6 @@ export class FormValidator {
                     }
                 });
             }
-            this.logger.insert("defineMandatoryFieldsInSubObject", `Defined ${methodLog.length} fields as mandatory`, methodLog.length ? methodLog : { params: { objectParameterName, fields } });
-        } else {
-            this.logger.insert("defineMandatoryFieldsInSubObject", "Invalid params passed", { objectParameterName, fields });
         }
         return this;
     }
@@ -353,17 +204,14 @@ export class FormValidator {
      * Defines all fields to be required
      * @returns {FormValidator} The form validator object
      */
-    makeAllMandatory(): FormValidator {
-        const methodLog: Array<any> = [];
+    makeAllMandatory(): FormValidator<T> {
         for (const field in this.formObject) {
             if (this.formObject[field].value instanceof Array) {
                 this.makeAllMandatoryInArray(field);
             } else {
                 this.formObject[field].required = true;
             }
-            methodLog.push(this.formObject[field]);
         }
-        this.logger.insert("makeAllMandatory", `Defined ${methodLog.length} fields as mandatory`, methodLog);
         return this;
     }
 
@@ -372,20 +220,15 @@ export class FormValidator {
      * @param {string} arrayParameterName The name of the parameter that contains the array
      * @returns {FormValidator} The form validator object
      */
-    makeAllMandatoryInArray(arrayParameterName: string): FormValidator {
-        const methodLog: Array<any> = [];
+    makeAllMandatoryInArray(arrayParameterName: string): FormValidator<T> {
         if (arrayParameterName) {
             if (this.formObject.hasOwnProperty(arrayParameterName) && this.formObject[arrayParameterName].value) {
-                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel) => {
+                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel<T>) => {
                     for (const item in arrayItem) {
                         arrayItem[item].required = true;
-                        methodLog.push(arrayItem[item]);
                     }
                 });
             }
-            this.logger.insert("makeAllMandatoryInArray", `Defined ${methodLog.length} fields as mandatory`, methodLog.length ? methodLog : { params: { arrayParameterName } });
-        } else {
-            this.logger.insert("makeAllMandatoryInArray", "Invalid params passed", { arrayParameterName });
         }
         return this;
     }
@@ -395,19 +238,14 @@ export class FormValidator {
      * @param {Array<string>} fields The date fields that should be limited to past and current date
      * @returns {FormValidator} The form validator object
      */
-    defineNoFutureDateFields(fields: Array<string>): FormValidator {
-        const methodLog: Array<any> = [];
+    defineNoFutureDateFields(fields: Array<string>): FormValidator<T> {
         if (fields && fields.length) {
             fields.map((field: string) => {
                 if (this.formObject.hasOwnProperty(field) && this.formObject[field].type && this.formObject[field].type.toLowerCase() === "date") {
                     this.formObject[field].allowFutureDates = false;
 
-                    methodLog.push(this.formObject[field]);
                 }
             });
-            this.logger.insert("defineNoFutureDateFields", `Defined ${methodLog.length} fields to deny future dates`, methodLog.length ? methodLog : { params: { fields } });
-        } else {
-            this.logger.insert("defineNoFutureDateFields", "Invalid params passed", { fields });
         }
         return this;
     }
@@ -418,26 +256,17 @@ export class FormValidator {
      * @param {Array<string>} fields The date fields that should be limited to past and current date
      * @returns {FormValidator} The form validator object
      */
-    defineNoFutureDateFieldsInArrayOfObjects(arrayParameterName: string, fields: Array<string>): FormValidator {
-        const methodLog: Array<any> = [];
-        if (arrayParameterName && fields && fields.length) {
+    defineNoFutureDateFieldsInArrayOfObjects(arrayParameterName: string, fields: Array<string>): FormValidator<T> {
+        if (arrayParameterName && fields && fields.length && fields instanceof Array) {
             if (this.formObject[arrayParameterName] && this.formObject[arrayParameterName].value) {
-                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel) => {
+                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel<T>) => {
                     fields.map((field: string) => {
                         if (arrayItem.hasOwnProperty(field) && arrayItem[field].type && arrayItem[field].type.toLowerCase() === "date") {
                             arrayItem[field].allowFutureDates = false;
-                            methodLog.push(arrayItem[field]);
                         }
                     });
                 });
             }
-            this.logger.insert(
-                "defineNoFutureDateFieldsInArrayOfObjects",
-                `Defined ${methodLog.length} fields to deny future dates`,
-                methodLog.length ? methodLog : { params: { arrayParameterName, fields } }
-            );
-        } else {
-            this.logger.insert("defineNoFutureDateFieldsInArrayOfObjects", "Invalid params passed", { arrayParameterName, fields });
         }
         return this;
     }
@@ -449,23 +278,14 @@ export class FormValidator {
      * @returns {FormValidator} The form validator object
      * @example limitLength(["password"], { min: 6, max: 12 })
      */
-    defineLimitedFields(fields: Array<string>, specs: { min: number, max: number }): FormValidator {
-        const methodLog: Array<any> = [];
+    defineLimitedFields(fields: Array<string>, specs: { min: number, max: number }): FormValidator<T> {
         if (fields && fields.length && !isEmpty(specs) && !isEmpty(specs.min) && !isEmpty(specs.max)) {
             fields.map((field: string) => {
                 if (this.formObject.hasOwnProperty(field)) {
                     this.formObject[field].limitLength = true;
                     this.formObject[field].specs = specs;
-                    methodLog.push(this.formObject[field]);
                 }
             });
-            this.logger.insert(
-                "defineLimitedFields",
-                `Defined ${methodLog.length} fields as limited between ${specs.min} and ${specs.max}`,
-                methodLog.length ? methodLog : { params: { fields, specs } }
-            );
-        } else {
-            this.logger.insert("defineLimitedFields", "Invalid params passed", { fields, specs });
         }
         return this;
     }
@@ -478,11 +298,10 @@ export class FormValidator {
      * @returns {FormValidator} The form validator object
      * @example limitLength("credentials", ["password"], { min: 6, max: 12 })
      */
-    defineLimitedFieldsInArrayOfObjects(arrayParameterName: string, fields: Array<string>, specs: { min: number, max: number }): FormValidator {
-        const methodLog: Array<any> = [];
+    defineLimitedFieldsInArrayOfObjects(arrayParameterName: string, fields: Array<string>, specs: { min: number, max: number }): FormValidator<T> {
         if (arrayParameterName && fields && fields.length && !isEmpty(specs) && !isEmpty(specs.min) && !isEmpty(specs.max)) {
             if (this.formObject[arrayParameterName] && this.formObject[arrayParameterName].value) {
-                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel) => {
+                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel<T>) => {
                     fields.map((field: string) => {
                         if (arrayItem.hasOwnProperty(field)) {
                             arrayItem[field].limitLength = true;
@@ -491,13 +310,6 @@ export class FormValidator {
                     });
                 });
             }
-            this.logger.insert(
-                "defineLimitedFieldsInArrayOfObjects",
-                `Defined ${methodLog.length} fields in ${arrayParameterName} array as limited between ${specs.min} and ${specs.max}`,
-                methodLog.length ? methodLog : { params: { arrayParameterName, fields, specs } }
-            );
-        } else {
-            this.logger.insert("defineLimitedFieldsInArrayOfObjects", "Invalid params passed", { arrayParameterName, fields, specs });
         }
         return this;
     }
@@ -509,23 +321,14 @@ export class FormValidator {
      * @returns {FormValidator} The form validator object
      * @example defineMinValueFields(["amount"], 5)
      */
-    defineMinValueFields(fields: Array<string>, min: number): FormValidator {
-        const methodLog: Array<any> = [];
+    defineMinValueFields(fields: Array<string>, min: number): FormValidator<T> {
         if (fields && fields.length && !isEmpty(min)) {
             fields.map((field: string) => {
                 if (this.formObject.hasOwnProperty(field)) {
                     this.formObject[field].minValue = true;
                     this.formObject[field].specs = this.formObject[field].specs ? { ...this.formObject[field].specs, min } : { min };
-                    methodLog.push(this.formObject[field]);
                 }
             });
-            this.logger.insert(
-                "defineMinValueFields",
-                `Defined ${methodLog.length} fields as limited to at least ${min}`,
-                methodLog.length ? methodLog : { params: { fields, min } }
-            );
-        } else {
-            this.logger.insert("defineMinValueFields", "Invalid params passed", { fields, min });
         }
         return this;
     }
@@ -537,23 +340,14 @@ export class FormValidator {
      * @returns {FormValidator} The form validator object
      * @example defineMaxValueFields(["amount"], 5)
      */
-    defineMaxValueFields(fields: Array<string>, max: number): FormValidator {
-        const methodLog: Array<any> = [];
+    defineMaxValueFields(fields: Array<string>, max: number): FormValidator<T> {
         if (fields && fields.length && !isEmpty(max)) {
             fields.map((field: string) => {
                 if (this.formObject.hasOwnProperty(field)) {
                     this.formObject[field].maxValue = true;
                     this.formObject[field].specs = this.formObject[field].specs ? { ...this.formObject[field].specs, max } : { max };
-                    methodLog.push(this.formObject[field]);
                 }
             });
-            this.logger.insert(
-                "defineMaxValueFields",
-                `Defined ${methodLog.length} fields as limited to me maximum ${max}`,
-                methodLog.length ? methodLog : { params: { fields, max } }
-            );
-        } else {
-            this.logger.insert("defineMaxValueFields", "Invalid params passed", { fields, max });
         }
         return this;
     }
@@ -566,11 +360,10 @@ export class FormValidator {
      * @returns {FormValidator} The form validator object
      * @example defineMinValueFieldsInArrayOfObjects("person", ["age"], min: 0)
      */
-    defineMinValueFieldsInArrayOfObjects(arrayParameterName: string, fields: Array<string>, min: number): FormValidator {
-        const methodLog: Array<any> = [];
+    defineMinValueFieldsInArrayOfObjects(arrayParameterName: string, fields: Array<string>, min: number): FormValidator<T> {
         if (arrayParameterName && fields && fields.length && !isEmpty(min)) {
             if (this.formObject[arrayParameterName] && this.formObject[arrayParameterName].value) {
-                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel) => {
+                (this.formObject[arrayParameterName].value as Array<any>).map((arrayItem: FormModel<T>) => {
                     fields.map((field: string) => {
                         if (arrayItem.hasOwnProperty(field)) {
                             arrayItem[field].minValue = true;
@@ -579,13 +372,6 @@ export class FormValidator {
                     });
                 });
             }
-            this.logger.insert(
-                "defineLimitedFieldsInArrayOfObjects",
-                `Defined ${methodLog.length} fields in ${arrayParameterName} array as limited to ${min}`,
-                methodLog.length ? methodLog : { params: { arrayParameterName, fields, min } }
-            );
-        } else {
-            this.logger.insert("defineLimitedFieldsInArrayOfObjects", "Invalid params passed", { arrayParameterName, fields, min });
         }
         return this;
     }
@@ -598,20 +384,13 @@ export class FormValidator {
      * @returns {FormValidator} The form validator object
      * @example addValidator(["balance", "payment"], ["payment"], (balance: number, payment: number) => { return payment > balance ? "The payment exceeds your balance" : null; });
      */
-    addCustomValidator(fields: Array<string>, errorFields: Array<string>, validator: (...params) => string): FormValidator {
+    addCustomValidator(fields: Array<string>, errorFields: Array<string>, validator: (...params) => string): FormValidator<T> {
         if (fields && fields.length && errorFields && errorFields.length && validator) {
             const extraValidatorIndex: number = this.extraValidators.push({
                 fields: fields,
                 validate: validator,
                 errorFields: errorFields
             });
-            this.logger.insert(
-                "addCustomValidator",
-                `Added a custom validator for \`${fields.toString()}\``,
-                { ...this.extraValidators[extraValidatorIndex - 1], validator: this.extraValidators[extraValidatorIndex - 1].validate.toString() }
-            );
-        } else {
-            this.logger.insert("addCustomValidator", "Invalid params passed", { fields, errorFields, validator });
         }
         return this;
     }
@@ -632,9 +411,8 @@ export class FormValidator {
      * Validates the form object passed in the constructor
      * @returns {FormValidator} The form validator object
      */
-    validate(): FormValidator {
+    validate(): FormValidator<T> {
         let error: string;
-        const methodLog: Array<any> = [];
         for (const field in this.formObject) {
             error = null;
             if (["string", "number"].indexOf(this.formObject[field].type) !== -1) { // String and number validations
@@ -674,45 +452,31 @@ export class FormValidator {
                 if (arrayOfErrors.filter((item: { [index: string]: string }) => item !== null).length) {
                     this.errors[field] = arrayOfErrors;
                 }
-                methodLog.push({ field, value: this.formObject[field].value, type: this.formObject[field].type, error: this.errors[field] });
             } else {
                 if (this.formObject[field].required) {
                     this.formObject[field].criteria = [validateTypes.isEmpty];
                     error = this.validateField(this.formObject[field]);
                     if (error) { this.errors[field] = error; }
                 }
-                methodLog.push({ field, value: this.formObject[field].value, type: this.formObject[field].type, error: this.errors[field] });
             }
         }
 
         if (this.extraValidators.length) {
-            this.extraValidators.map((extraValidator: ExtraValidator) => {
+            this.extraValidators.map((extraValidator: ExtraValidator<T>) => {
                 const valuesOfFields: Array<any> = [];
-                extraValidator.fields.map((field: string) => {
+                extraValidator.fields.map((field: keyof T) => {
                     if (this.formObject.hasOwnProperty(field)) {
                         valuesOfFields.push(this.formObject[field].value);
                     }
                 });
                 const extraValidatorError: string = extraValidator.validate(...valuesOfFields);
-                extraValidator.errorFields.map((field: string) => {
+                extraValidator.errorFields.map((field: keyof T) => {
                     if (this.formObject.hasOwnProperty(field) && !this.errors[field]) {
                         (extraValidatorError) && (this.errors[field] = extraValidatorError);
-                        methodLog.push({ field, value: this.formObject[field].value, type: this.formObject[field].type, error: this.errors[field] });
                     }
                 });
             });
         }
-        this.logger.insert("validate", `Validated ${methodLog.length} times`, methodLog);
-        return this;
-    }
-
-    /**
-     * Show log
-     * @param {LoggerOptions} [options] The context of the log that needed to be displayed
-     * @returns {FormValidator} The form validator object
-     */
-    showLog(options?: LoggerOptions): FormValidator {
-        this.logger.displayLog(options);
         return this;
     }
 
@@ -737,7 +501,6 @@ export class FormValidator {
             criteria.push(validateTypes.maxValue);
         }
         fieldObject.criteria = criteria;
-        this.logger.insert("prepareCriteraForTextFields", `[P] Generated ${criteria.length} validation criteria for ${fieldObject.name}`, criteria);
         return fieldObject;
     }
 
@@ -753,7 +516,6 @@ export class FormValidator {
         }
         criteria.push(validateTypes.noWhitespace, validateTypes.validEmail);
         fieldObject.criteria = criteria;
-        this.logger.insert("prepareCriteraForTextFields", `[P] Generated ${criteria.length} validation criteria for ${fieldObject.name}`, criteria);
         return fieldObject;
     }
 
@@ -769,7 +531,6 @@ export class FormValidator {
         }
         criteria.push(validateTypes.validPhoneNumber);
         fieldObject.criteria = criteria;
-        this.logger.insert("prepareCriteriaforPhoneNumberFields", `[P] Generated ${criteria.length} validation criteria for ${fieldObject.name}`, criteria);
         return fieldObject;
     }
 
@@ -788,7 +549,6 @@ export class FormValidator {
         }
 
         fieldObject.criteria = criteria;
-        this.logger.insert("prepareCriteraForDateFields", `[P] Generated ${criteria.length} validation criteria for ${fieldObject.name}`, criteria);
         return fieldObject;
     }
 
@@ -796,7 +556,7 @@ export class FormValidator {
      * Store the passed form object locally
      * @param {any} formObject The formObject to be validated
      */
-    private storeFormObject(formObject: any): void {
+    private storeFormObject(formObject: T): void {
         if (!isEmpty(formObject)) {
             for (const field in formObject) {
                 if ((formObject[field] instanceof Array)) {
@@ -807,7 +567,7 @@ export class FormValidator {
                     };
                     if (formObject[field].length) {
                         (formObject[field] as Array<any>).map((arrayItem: any) => {
-                            const arrayItemObject: FormModel = {};
+                            const arrayItemObject: FormModel<T> = {};
                             for (const item in arrayItem) {
                                 arrayItemObject[item] = {
                                     name: item,
@@ -843,9 +603,6 @@ export class FormValidator {
                     };
                 }
             }
-            this.logger.insert("storeFormObject", "[P] Stored form object locally", this.formObject);
-        } else {
-            console.error("Form Validator: Invalid form object provided.");
         }
     }
 
@@ -857,7 +614,6 @@ export class FormValidator {
     private validateField(fieldObject: ValidatorModelItem): string {
         let i: number = 0;
         let error: string = null;
-        const methodLog: Array<any> = [];
         if (fieldObject.criteria && fieldObject.criteria.length) {
             do {
                 switch (fieldObject.criteria[i]) {
@@ -909,11 +665,9 @@ export class FormValidator {
                     default:
                         console.error(`Uncaught validation criteria passed with ${fieldObject.name} - Criteria: `, fieldObject.criteria[i]);
                 }
-                methodLog.push({ ...fieldObject, error, criteria: fieldObject.criteria[i] });
                 i++;
             } while (i < fieldObject.criteria.length && !error);
         }
-        this.logger.insert("validateField", `Validating \`${fieldObject.name}\` field resulted in: ${error ? "invalid" : "valid"}`, methodLog);
         return error;
     }
 }
@@ -981,8 +735,4 @@ const enum ErrorTypes {
     INVALID_PHONE_NUMBER = "Invalid phone number"
 }
 
-export const enum FormFieldTypes {
-    DATE = "date",
-    STRING = "string",
-    NUMBER = "number"
-}
+export type FormFieldTypes = "date" | "string" | "number" | "array" | "object";
