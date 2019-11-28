@@ -1,7 +1,7 @@
 require("raf/polyfill");
 require("jsdom-global/register");
-require("./__mocks__/mutationObserverMock");
-require("./__mocks__/canvasMock");
+require("./tests/__mocks__/mutationObserverMock");
+require("./tests/__mocks__/canvasMock");
 const Enzyme = require("enzyme");
 const EnzymeAdapter = require("enzyme-adapter-react-16");
 // at the top of file , even  , before importing react
