@@ -5,7 +5,7 @@
  * @param objectA the first object
  * @param objectB the second object to compare against
  */
-export function compareTwoObjects<T>(objectA: T, objectB: T, deep?: boolean): boolean {
+export function isSameObject<T>(objectA: T, objectB: T, deep?: boolean): boolean {
     if (deep) {
         const objAKeys = Object.keys(objectA);
         const objBKeys = Object.keys(objectB);
@@ -18,8 +18,9 @@ export function compareTwoObjects<T>(objectA: T, objectB: T, deep?: boolean): bo
                     return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     } else {
         try {
             return JSON.stringify(objectA) === JSON.stringify(objectB);

@@ -7,7 +7,7 @@ import { clearTime } from "./clearTime";
  * @param {Date} b The second date
  * @returns {boolean} True if date are the same
  */
-export function isDateAfter(a: Date, b: Date): boolean {
+export function isSameDate(a: Date, b: Date): boolean {
     console.table({ a: moment(clearTime(a)).toString(), b: moment(clearTime(b)).toString() });
     return moment(clearTime(a)).isSame(moment(clearTime(b)));
 }
