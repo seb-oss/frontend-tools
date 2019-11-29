@@ -1,21 +1,24 @@
 const { argv } = process;
-const specific = argv.slice(4, argv.length); // Skipping test properties
+/**
+ * Retrives the specified components only by eliminating:
+ *  - The first two are `node` and `jest` URLs
+ *  - Anything with `--` is an inline property such as `--watch` and `--detectOpenHandles`
+ */
+const specific = argv.slice(2, argv.length).filter((value) => value.indexOf("--") === -1);
 
 const collectCoverageFrom = [];
 const testMatch = [];
 
-if (specific.length) {
-    collectCoverageFrom.push(...extractSpecifics("src/**/%inject%.(ts|tsx|js|jsx)"));
-    testMatch.push(...extractSpecifics("**/%inject%.test.(ts|tsx|js|jsx)"))
-} else {
-    collectCoverageFrom.push("src/**/*.(ts|tsx|js|jsx)");
-    testMatch.push("**/*.test.(ts|tsx|js|jsx)");
-}
-
-collectCoverageFrom.push("!src/**/index.(ts|js)");
-
 function extractSpecifics(injectTo) {
     return specific.map((item) => injectTo.replace("%inject%", item))
+}
+
+if (specific.length) {
+    collectCoverageFrom.push(...extractSpecifics("src/%inject%.(ts|tsx|js|jsx)"));
+    testMatch.push(...extractSpecifics("**/%inject%.test.(ts|tsx|js|jsx)"))
+} else {
+    collectCoverageFrom.push("src/*.(ts|tsx|js|jsx)");
+    testMatch.push("**/*.test.(ts|tsx|js|jsx)");
 }
 
 module.exports = {
