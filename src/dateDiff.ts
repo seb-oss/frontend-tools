@@ -8,7 +8,7 @@ import moment from "moment";
  * @returns {number} The difference based on the range type
  */
 export function dateDiff(firstDate: Date, secondDate: Date, range: moment.DurationInputArg2): number {
-    if (!moment(firstDate).isValid() || !moment(secondDate)) {
+    if (!moment(firstDate).isValid() || !moment(secondDate).isValid()) {
         throw new Error("from parameter must be of date type");
     }
     return moment.utc(firstDate).diff(secondDate, range);

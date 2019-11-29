@@ -3,7 +3,7 @@
  * @note This method detects the browser version by the navigator's user agent (`navigator.userAgent`)
  * @returns {number} The browser version, it will return `0` if it fails to find it
  */
-export function getBrowserDetails(): number {
+export function getBrowserVersion(): number {
     const userAgent: string = navigator.userAgent;
     let temp: RegExpMatchArray;
     let match: RegExpMatchArray = userAgent.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
