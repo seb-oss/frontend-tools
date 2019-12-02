@@ -6,7 +6,7 @@ import { deepCopy } from "./deepCopy";
 import { clearTime } from "./clearTime";
 import { isStrongPassword } from "./isStrongPassword";
 
-export type ValidationSpecs = {
+export type ValidationSpecs = Object & {
     minLength?: number;
     maxLength?: number;
     minValue?: number;
@@ -119,10 +119,6 @@ export class FormValidator<T> {
                         }
                     }
                 });
-            } else if (fields && fields.length === 1 && fields[0] === "ALL") { // Means all field
-                for (const field in this.formObject) {
-                    this.formObject[field as string].validations.push(type);
-                }
             }
         }
         return this;
