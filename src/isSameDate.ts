@@ -8,6 +8,5 @@ import { clearTime } from "./clearTime";
  * @returns {boolean} True if date are the same
  */
 export function isSameDate(a: Date, b: Date): boolean {
-    console.table({ a: moment(clearTime(a)).toString(), b: moment(clearTime(b)).toString() });
     return moment(clearTime(a)).isSame(moment(clearTime(b)));
 }

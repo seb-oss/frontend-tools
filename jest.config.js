@@ -6,7 +6,7 @@ const { argv } = process;
  */
 const specific = argv.slice(2, argv.length).filter((value) => value.indexOf("--") === -1);
 
-const collectCoverageFrom = [];
+const collectCoverageFrom = ["!src/index.js"];
 const testMatch = [];
 
 function extractSpecifics(injectTo) {

@@ -18,7 +18,6 @@ export function deepCopy<T = any>(obj, hash = new WeakMap()): T {
             : obj.constructor ? new obj.constructor()
                 : Object.create(null);
     hash.set(obj, result);
-    console.log(obj, hash);
     if (obj instanceof Map) {
         Array.from(obj, ([key, val]) => result.set(key, deepCopy(val, hash)));
     }
