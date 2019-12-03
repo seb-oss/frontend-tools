@@ -8,6 +8,5 @@ import { clearTime } from "./clearTime";
  * @returns {boolean} True if date `a` comes after than date `b`
  */
 export function isDateAfter(a: Date, b: Date): boolean {
-    console.table({ a: moment(clearTime(a)).toString(), b: moment(clearTime(b)).toString() });
     return moment(clearTime(a)).isAfter(moment(clearTime(b)));
 }

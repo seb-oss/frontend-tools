@@ -59,13 +59,11 @@
                 "typeParameter": false
             }
         ],
-        "only-arrow-functions": [
-            true,
-            "allow-declarations",
-            "allow-named-functions"
-        ],
+        "only-arrow-functions": false,
         "no-submodule-imports": false,
         "no-string-literal": false,
-        "interface-over-type-literal": false
+        "interface-over-type-literal": false,
+        "ban-types": false,
+        "max-classes-per-file": false
     }
 }
