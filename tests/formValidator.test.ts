@@ -85,7 +85,7 @@ describe("Form Validator", () => {
     it("Should allow passing a custom validator", () => {
         const expectedErrors: ModelErrors<CustomType> = { first: { errorCode: "moreThanMaxValue" } };
         const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
-            .addCustomValidator(["first", "second"], ["first"], (model: CustomType): ModelFieldError => {
+            .addCustomValidation(["first", "second"], ["first"], (model: CustomType): ModelFieldError => {
                 if (model.first > model.second) {
                     return expectedErrors.first;
                 } else {
@@ -100,7 +100,7 @@ describe("Form Validator", () => {
         const expectedCustomErrors: ModelErrors<CustomType> = { first: { errorCode: "moreThanMaxValue" } };
         const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
             .addValidation(["first"], "valueRange", { minValue: 1000 })
-            .addCustomValidator(["first", "second"], ["first"], (model: CustomType): ModelFieldError => {
+            .addCustomValidation(["first", "second"], ["first"], (model: CustomType): ModelFieldError => {
                 if (model.first > model.second) {
                     return expectedCustomErrors.first;
                 } else {
@@ -134,7 +134,7 @@ describe("Form Validator", () => {
         testCases.map((testCase: TestCase2) => {
             test(testCase.title, () => {
                 const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
-                    .addCustomValidator(testCase.fields, testCase.fields, () => ({ errorCode: "afterMaxDate" }))
+                    .addCustomValidation(testCase.fields, testCase.fields, () => ({ errorCode: "afterMaxDate" }))
                     .validate();
                 expect(validator.getErrors()).toEqual({});
             });

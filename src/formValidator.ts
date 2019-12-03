@@ -15,9 +15,9 @@ export type ValidationSpecs = Object & {
     maxDate?: Date;
 };
 
-export type ModelFieldError = Object & {
-    errorCode: ValidationErrors;
-    specs?: ValidationSpecs;
+export type ModelFieldError<K extends string = "empty", J = {}> = Object & {
+    errorCode: ValidationErrors | K;
+    specs?: ValidationSpecs | J;
 };
 
 export type ModelErrors<T> = { [K in keyof T]?: ModelFieldError; };
@@ -40,7 +40,7 @@ export type ValidationErrors = "empty"
 export type FormFieldTypes = "date" | "string" | "number" | "array" | "object";
 type SpecialPick<T, K extends keyof T, P extends keyof T> = Required<Pick<T, K>> | Required<Pick<T, P>> | Required<Pick<T, K | P>>;
 
-type CustomValidatorSpec<T> = {
+type CustomValidatorSpec<T, K extends string = "empty"> = {
     fields: Array<keyof T>;
     errorFields: Array<keyof T>;
     validator: (...args: any) => ModelFieldError;
@@ -131,7 +131,7 @@ export class FormValidator<T> {
      * @returns {FormValidator} The form validator object
      * @example addValidator(["balance", "payment"], ["payment"], (balance: number, payment: number) => { return payment > balance ? "The payment exceeds your balance" : null; });
      */
-    public addCustomValidator(fields: Array<keyof T>, errorFields: Array<keyof T>, validator: (model: T) => ModelFieldError): FormValidator<T> {
+    public addCustomValidation(fields: Array<keyof T>, errorFields: Array<keyof T>, validator: (model: T) => ModelFieldError<any>): FormValidator<T> {
         if (fields && fields instanceof Array && fields.length && errorFields && errorFields instanceof Array && errorFields.length && validator && validator instanceof Function) {
             this.customValidators.push({ fields, errorFields, validator });
         }
