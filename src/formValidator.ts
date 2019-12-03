@@ -40,37 +40,36 @@ export type ValidationErrors = "empty"
 export type FormFieldTypes = "date" | "string" | "number" | "array" | "object";
 type SpecialPick<T, K extends keyof T, P extends keyof T> = Required<Pick<T, K>> | Required<Pick<T, P>> | Required<Pick<T, K | P>>;
 
-type CustomValidator<T> = {
+type CustomValidatorSpec<T> = {
     fields: Array<keyof T>;
     errorFields: Array<keyof T>;
     validator: (...args: any) => ModelFieldError;
 };
 
-class ValidatorModelItem<T> extends Object {
+class ValidatorModelItem<T> {
     name: keyof T;
     value: any = null;
     specs: ValidationSpecs = {};
     validations: Array<ValidationType> = [];
 
     constructor(name: keyof T, value: any) {
-        super();
-        if (name && typeof name === "string") {
-            this.name = name;
-            this.value = value;
-            this.specs = {};
-            this.validations = [];
-        }
+        this.name = name;
+        this.value = value;
+        this.specs = {};
+        this.validations = [];
     }
 }
 
 export class FormValidator<T> {
+    private originalFormObject: T;
     private formObject: Map<keyof T, ValidatorModelItem<T>> = new Map<keyof T, ValidatorModelItem<T>>();
     private formObjectErrors: ModelErrors<T> = {};
-    private customValidators: Array<CustomValidator<T>> = [];
+    private customValidators: Array<CustomValidatorSpec<T>> = [];
 
     constructor(formObject: T) {
         if (!isEmpty(formObject) && typeof formObject === "object") {
             const clone: T = deepCopy<T>(formObject);
+            this.originalFormObject = clone;
             for (const field in clone) {
                 this.formObject.set(field, new ValidatorModelItem<T>(field, clone[field]));
             }
@@ -83,7 +82,7 @@ export class FormValidator<T> {
      * @important Not matching `ValidationTypeWithoutSpecs` typescript error means that you need to provide a specs object as a third paramenter for the selected type
      * @returns The form validator
      */
-    addValidation(fields: Array<keyof T>, type: ValidationTypeWithoutSpecs): FormValidator<T>;
+    public addValidation(fields: Array<keyof T>, type: ValidationTypeWithoutSpecs): FormValidator<T>;
     /**
      * Validates the specified fields based on the validation type
      * @param fields The fields to be validated
@@ -91,7 +90,7 @@ export class FormValidator<T> {
      * @param spec The specifications of the validation (`minDate` and/or `maxDate`)
      * @returns The form validator
      */
-    addValidation(fields: Array<keyof T>, type: "dateRange", specs: SpecialPick<ValidationSpecs, "minDate", "maxDate">): FormValidator<T>;
+    public addValidation(fields: Array<keyof T>, type: "dateRange", specs: SpecialPick<ValidationSpecs, "minDate", "maxDate">): FormValidator<T>;
     /**
      * Validates the specified fields based on the validation type
      * @param fields The fields to be validated
@@ -99,7 +98,7 @@ export class FormValidator<T> {
      * @param spec The specifications of the validation (`minLength` and/or `maxLength`)
      * @returns The form validator
      */
-    addValidation(fields: Array<keyof T>, type: "textLength", specs: SpecialPick<ValidationSpecs, "minLength", "maxLength">): FormValidator<T>;
+    public addValidation(fields: Array<keyof T>, type: "textLength", specs: SpecialPick<ValidationSpecs, "minLength", "maxLength">): FormValidator<T>;
     /**
      * Validates the specified fields based on the validation type
      * @param fields The fields to be validated
@@ -107,8 +106,8 @@ export class FormValidator<T> {
      * @param spec The specifications of the validation (`minValue` and/or `maxValue`)
      * @returns The form validator
      */
-    addValidation(fields: Array<keyof T>, type: "valueRange", specs: SpecialPick<ValidationSpecs, "minValue", "maxValue">): FormValidator<T>;
-    addValidation(fields: Array<keyof T>, type: ValidationType, specs?: ValidationSpecs): FormValidator<T> {
+    public addValidation(fields: Array<keyof T>, type: "valueRange", specs: SpecialPick<ValidationSpecs, "minValue", "maxValue">): FormValidator<T>;
+    public addValidation(fields: Array<keyof T>, type: ValidationType, specs?: ValidationSpecs): FormValidator<T> {
         if (fields && fields instanceof Array && type && typeof type === "string" && this.isValidType(type)) {
             if (fields.length) {
                 (fields as Array<keyof T>).map((field: keyof T) => {
@@ -132,7 +131,7 @@ export class FormValidator<T> {
      * @returns {FormValidator} The form validator object
      * @example addValidator(["balance", "payment"], ["payment"], (balance: number, payment: number) => { return payment > balance ? "The payment exceeds your balance" : null; });
      */
-    addCustomValidator(fields: Array<keyof T>, errorFields: Array<keyof T>, validator: (...params: Array<any>) => ModelFieldError): FormValidator<T> {
+    public addCustomValidator(fields: Array<keyof T>, errorFields: Array<keyof T>, validator: (model: T) => ModelFieldError): FormValidator<T> {
         if (fields && fields instanceof Array && fields.length && errorFields && errorFields instanceof Array && errorFields.length && validator && validator instanceof Function) {
             this.customValidators.push({ fields, errorFields, validator });
         }
@@ -143,7 +142,7 @@ export class FormValidator<T> {
      * Get the error found in the form object. Has to be called after `validate` method has been called.
      * @returns {any} The form object object populated by validation errors, if found any. Otherwise, it's an empty object.
      */
-    getErrors(): ModelErrors<T> {
+    public getErrors(): ModelErrors<T> {
         return this.formObjectErrors;
     }
 
@@ -151,7 +150,7 @@ export class FormValidator<T> {
      * Get a specific error found during validation, if any. Has to be called after `validate` method has been called.
      * @returns {any} The error of the specific item in the form, if any.
      */
-    getError(name: keyof T): ModelFieldError {
+    public getError(name: keyof T): ModelFieldError {
         return this.formObjectErrors[name];
     }
 
@@ -159,7 +158,7 @@ export class FormValidator<T> {
      * Validates the form object passed in the constructor
      * @returns {FormValidator} The form validator object
      */
-    validate(): FormValidator<T> {
+    public validate(): FormValidator<T> {
         this.formObject.forEach((item: ValidatorModelItem<T>) => {
             if (item.validations.length) {
                 let fieldError: ModelFieldError;
@@ -170,26 +169,20 @@ export class FormValidator<T> {
                         this.formObjectErrors[item.name] = fieldError;
                     }
                     i++;
-                } while (i < item.validations.length && this.formObjectErrors[item.name]);
+                } while (i < item.validations.length && !fieldError);
             }
         });
 
-        // if (this.extraValidators.length) {
-        //     this.extraValidators.map((extraValidator: ExtraValidator<T>) => {
-        //         const valuesOfFields: Array<any> = [];
-        //         extraValidator.fields.map((field: keyof T) => {
-        //             if (this.formObject.hasOwnProperty(field)) {
-        //                 valuesOfFields.push(this.formObject[field].value);
-        //             }
-        //         });
-        //         const extraValidatorError: string = extraValidator.validate(...valuesOfFields);
-        //         extraValidator.errorFields.map((field: keyof T) => {
-        //             if (this.formObject.hasOwnProperty(field) && !this.errors[field]) {
-        //                 (extraValidatorError) && (this.errors[field] = extraValidatorError);
-        //             }
-        //         });
-        //     });
-        // }
+        if (this.customValidators.length) {
+            this.customValidators.map((customValidator: CustomValidatorSpec<T>) => {
+                const customValidatorError: ModelFieldError = customValidator.validator(this.originalFormObject);
+                customValidator.errorFields.map((field: keyof T) => {
+                    if (this.formObject.has(field) && !this.getError(field) && customValidatorError) {
+                        this.formObjectErrors[field] = customValidatorError;
+                    }
+                });
+            });
+        }
         return this;
     }
 
@@ -243,7 +236,6 @@ export class FormValidator<T> {
             case "validEmail": return isEmail(value) ? null : { errorCode: "invalidEmail" };
             case "strongPassword": return isStrongPassword(value) ? null : { errorCode: "weakPassword" };
             case "isPhoneNumber": return isPhoneNumber(value) ? null : { errorCode: "invalidPhoneNumber" };
-            default: return null;
         }
     }
 

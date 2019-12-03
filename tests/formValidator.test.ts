@@ -1,23 +1,31 @@
-import { FormValidator, ValidationType, ValidationSpecs, ModelFieldError } from "../src/formValidator";
+import { FormValidator, ValidationType, ValidationSpecs, ModelFieldError, ModelErrors } from "../src/formValidator";
 import { modifyDate } from "../src/modifyDate";
 import { isEmpty } from "../src/isEmpty";
 
-type TestCase = {
+type TestCase1 = {
     type: ValidationType;
     value: any;
     specs?: ValidationSpecs;
     expected: ModelFieldError;
 };
 
+type TestCase2 = {
+    fields: Array<keyof CustomType>;
+    type: ValidationType;
+    title: string;
+};
+
 type CustomType = {
-    subject: any;
+    typeAny?: any;
+    first?: number;
+    second?: number;
 };
 
 describe("Form Validator", () => {
     const now: Date = new Date();
     const noError = undefined;
     describe("Testing each validation type individually", () => {
-        const testCases: Array<TestCase> = [
+        const testCases: Array<TestCase1> = [
             { type: "required", value: null, expected: { errorCode: "empty" } },
             { type: "required", value: 2, expected: noError },
             { type: "isDate", value: null, expected: { errorCode: "invalidDate" } },
@@ -55,22 +63,99 @@ describe("Form Validator", () => {
             { type: "isPhoneNumber", value: "0123549874", expected: noError },
         ];
 
-        testCases.map((testCase: TestCase) => {
+        testCases.map((testCase: TestCase1) => {
             let title: string = `- ${testCase.type}`;
             title += ` | Value(${Object(testCase.value) !== testCase.value ? testCase.value : JSON.stringify(testCase.value)})`;
             title += !isEmpty(testCase.specs) ? ` | Specs(${JSON.stringify(testCase.specs)})` : "";
             title += ` | Expected Error(${JSON.stringify(testCase.expected)})`;
             test(title, () => {
-                const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ subject: testCase.value })
-                    .addValidation(["subject"], testCase.type as any, testCase.specs as any)
+                const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ typeAny: testCase.value })
+                    .addValidation(["typeAny"], testCase.type as any, testCase.specs as any)
                     .validate();
-                const error: ModelFieldError = validator.getError("subject");
+                const expectedErrors: ModelErrors<CustomType> = { typeAny: testCase.expected };
                 if (testCase.expected) {
-                    expect(error).toMatchObject(testCase.expected);
+                    expect(validator.getErrors()).toMatchObject(expectedErrors);
                 } else {
-                    expect(error).not.toBeDefined();
+                    expect(Object.keys(validator.getErrors()).length).toEqual(0); // no errors
                 }
             });
+        });
+    });
+
+    it("Should allow passing a custom validator", () => {
+        const expectedErrors: ModelErrors<CustomType> = { first: { errorCode: "moreThanMaxValue" } };
+        const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
+            .addCustomValidator(["first", "second"], ["first"], (model: CustomType): ModelFieldError => {
+                if (model.first > model.second) {
+                    return expectedErrors.first;
+                } else {
+                    return null;
+                }
+            }).validate();
+        expect(validator.getErrors()).toMatchObject(expectedErrors);
+    });
+
+    it("Should run normal validations before custom validation", () => {
+        const expectedNormalErrors: ModelErrors<CustomType> = { first: { errorCode: "lessThanMinValue" } };
+        const expectedCustomErrors: ModelErrors<CustomType> = { first: { errorCode: "moreThanMaxValue" } };
+        const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
+            .addValidation(["first"], "valueRange", { minValue: 1000 })
+            .addCustomValidator(["first", "second"], ["first"], (model: CustomType): ModelFieldError => {
+                if (model.first > model.second) {
+                    return expectedCustomErrors.first;
+                } else {
+                    return null;
+                }
+            }).validate();
+        expect(validator.getErrors()).toMatchObject(expectedNormalErrors);
+    });
+
+    describe("Should not add validation if wrong parameters are passed", () => {
+        const testCases: Array<TestCase2> = [
+            { title: "Wrong validation type", fields: ["first"], type: "TEST" as any },
+            { title: "Wrong field name", fields: ["TEST" as any], type: "required" },
+            { title: "No fields passed", fields: [], type: "required" },
+        ];
+        testCases.map((testCase: TestCase2) => {
+            test(testCase.title, () => {
+                const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
+                    .addValidation(testCase.fields, testCase.type as any)
+                    .validate();
+                expect(validator.getErrors()).toEqual({});
+            });
+        });
+    });
+
+    describe("Should not add custom validation if wrong parameters are passed", () => {
+        const testCases: Array<TestCase2> = [
+            { title: "Wrong field name", fields: ["TEST" as any], type: "required" },
+            { title: "No fields passed", fields: [], type: "required" },
+        ];
+        testCases.map((testCase: TestCase2) => {
+            test(testCase.title, () => {
+                const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
+                    .addCustomValidator(testCase.fields, testCase.fields, () => ({ errorCode: "afterMaxDate" }))
+                    .validate();
+                expect(validator.getErrors()).toEqual({});
+            });
+        });
+    });
+
+    it("Should proceed to the next validation if the first one doesn't return an error", () => {
+        const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ typeAny: "ABCD" })
+            .addValidation(["typeAny"], "required")
+            .addValidation(["typeAny"], "textLength", { minLength: 5 })
+            .validate();
+        const expectedErrors: ModelErrors<CustomType> = { typeAny: { errorCode: "lessThanMinLength", specs: { minLength: 5 } } };
+        expect(validator.getErrors()).toMatchObject(expectedErrors);
+    });
+
+    describe("Should not store the form model if it's invalid", () => {
+        test("Empty object", () => {
+            expect(new FormValidator<CustomType>({}).validate().getErrors()).toMatchObject({});
+        });
+        test("Non object", () => {
+            expect(new FormValidator<CustomType>([] as any).validate().getErrors()).toMatchObject({});
         });
     });
 });
