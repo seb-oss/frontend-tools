@@ -22,7 +22,7 @@ if (specific.length) {
 }
 
 module.exports = {
-    setupFilesAfterEnv: ["<rootDir>/setupTests.ts"],
+    setupFilesAfterEnv: ["<rootDir>/setupTests.js"],
     testEnvironment: "jsdom",
     testMatch,
     modulePaths: [
@@ -37,7 +37,7 @@ module.exports = {
     transform: {
         "^.+\\.ts$": "ts-jest"
     },
-    transformIgnorePatterns: [], // <-- this allows babel to load only the node modules I need (which is lodash-es) and ignore the rest
+    transformIgnorePatterns: [],
     testEnvironment: "node",
     moduleNameMapper: {
         "aurelia-(.*)": "<rootDir>/node_modules/$1"

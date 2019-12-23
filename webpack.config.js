@@ -30,7 +30,11 @@ module.exports = {
         }),
         new CaseSensitivePathsPlugin()
     ],
-    module: {},
+    module: {
+        rules: [
+            { test: /\.ts$/, loader: "ts-loader", exclude: [/node_modules/, /\.(test)\.ts$/] }
+        ]
+    },
     node: {
         console: false,
         global: true,
