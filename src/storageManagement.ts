@@ -36,18 +36,18 @@ export class StorageManagement implements Storage {
     }
 
     /**
-     * Retrives the list of keys in the stored cookie
-     * @returns The list of keys in the stored cookie
+     * Retrieves the list of keys in the stored storage
+     * @returns The list of keys in the stored storage
      */
     keys(): Array<string> {
-        const aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
-        for (let nLen = aKeys.length, nIdx = 0; nIdx < nLen; nIdx++) {
-            aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]);
+        if (this.handler.keys) {
+            return this.handler.keys();
+        } else {
+            return Object.keys(this.handler);
         }
-        return aKeys;
     }
 
     key(index: number): string {
-        return this.keys[index];
+        return this.keys()[index];
     }
 }
