@@ -31,7 +31,6 @@ describe("CookieStorage", () => {
             });
 
             it("Should allow setting a cookie with options", () => {
-                // TODO: Currently setting the cookie to `secure` is not supported in jest. A solution to cover this unit test is needed
                 const expires: Date = new Date(((new Date()).getFullYear() + 2).toString()); // Two years from now
                 const result: boolean = storage.setItem("TEST", "TESTING", { expires, maxAge: 10 * 60 });
                 expect(result).toBeTruthy();

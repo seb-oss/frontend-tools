@@ -14,11 +14,11 @@ function extractSpecifics(injectTo) {
 }
 
 if (specific.length) {
-    collectCoverageFrom.push(...extractSpecifics("src/%inject%.(ts|tsx|js|jsx)"));
-    testMatch.push(...extractSpecifics("**/%inject%.test.(ts|tsx|js|jsx)"))
+    collectCoverageFrom.push(...extractSpecifics("src/%inject%.(ts|js)"));
+    testMatch.push(...extractSpecifics("**/%inject%.test.(ts|js)"))
 } else {
-    collectCoverageFrom.push("src/*.(ts|tsx|js|jsx)");
-    testMatch.push("**/*.test.(ts|tsx|js|jsx)");
+    collectCoverageFrom.push("src/*.(ts|js)");
+    testMatch.push("**/*.test.(ts|js)");
 }
 
 module.exports = {
@@ -33,17 +33,14 @@ module.exports = {
         "NODE_ENV": "test"
     },
     verbose: true,
-    moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
+    moduleFileExtensions: ["ts", "js", "json"],
     transform: {
-        "^.+\\.tsx?$": "ts-jest"
+        "^.+\\.ts$": "ts-jest"
     },
-    transformIgnorePatterns: ["/node_modules/(?!(lodash-es|react)/)"], // <-- this allows babel to load only the node modules I need (which is lodash-es) and ignore the rest
+    transformIgnorePatterns: [],
     testEnvironment: "node",
     moduleNameMapper: {
-        "aurelia-(.*)": "<rootDir>/node_modules/$1",
-        "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
-            "<rootDir>/__mocks__/fileMock.js",
-        "\\.(css|less|scss)$": "<rootDir>/__mocks__/styleMock.js"
+        "aurelia-(.*)": "<rootDir>/node_modules/$1"
     },
     // some coverage and results processing options
     collectCoverage: true,
