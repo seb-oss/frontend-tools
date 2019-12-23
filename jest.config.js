@@ -37,7 +37,7 @@ module.exports = {
     transform: {
         "^.+\\.tsx?$": "ts-jest"
     },
-    transformIgnorePatterns: ["/node_modules/(?!(lodash-es|react)/)"], // <-- this allows babel to load only the node modules I need (which is lodash-es) and ignore the rest
+    transformIgnorePatterns: ["/node_modules/(?!(lodash-es)/)"], // <-- this allows babel to load only the node modules I need (which is lodash-es) and ignore the rest
     testEnvironment: "node",
     moduleNameMapper: {
         "aurelia-(.*)": "<rootDir>/node_modules/$1",

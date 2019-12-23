@@ -2,12 +2,6 @@ require("raf/polyfill");
 require("jsdom-global/register");
 require("./tests/__mocks__/mutationObserverMock");
 require("./tests/__mocks__/canvasMock");
-const Enzyme = require("enzyme");
-const EnzymeAdapter = require("enzyme-adapter-react-16");
-// at the top of file , even  , before importing react
-
-// Setup enzyme"s react adapter
-Enzyme.configure({ adapter: new EnzymeAdapter() });
 
 function doNothing() {
     // nothing
