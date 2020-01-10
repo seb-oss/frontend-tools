@@ -1,0 +1,1 @@
+export { isBrowserChrome } from "./isBrowserChrome";

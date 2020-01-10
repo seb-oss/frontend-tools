@@ -45,6 +45,6 @@ module.exports = {
     // some coverage and results processing options
     collectCoverage: true,
     collectCoverageFrom,
-    coverageDirectory: "./tests/coverage",
+    coverageDirectory: "./coverage",
     coverageReporters: ["json", "lcov", "text"]
 };

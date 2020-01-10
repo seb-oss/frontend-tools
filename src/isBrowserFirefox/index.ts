@@ -1,0 +1,1 @@
+export { isBrowserFirefox } from "./isBrowserFirefox";

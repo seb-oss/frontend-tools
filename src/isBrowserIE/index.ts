@@ -1,0 +1,1 @@
+export { isBrowserIE } from "./isBrowserIE";
