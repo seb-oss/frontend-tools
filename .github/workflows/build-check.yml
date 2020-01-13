@@ -7,23 +7,14 @@ on:
       - develop
 
 jobs:
-  install:
+  build-check:
     runs-on: [ubuntu-latest]
     steps:
       - run: npm install
         name: install dependencies
-  lint:
-    runs-on: [ubuntu-latest]
-    steps:
       - run: npm run lint
         name: checking lint
-  test:
-    runs-on: [ubuntu-latest]
-    steps:
       - run: npm test
         name: running test
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - run: npm run build:production
-      name: building
+      - run: npm run build:production
+        name: building
