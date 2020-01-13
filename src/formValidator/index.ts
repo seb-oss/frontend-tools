@@ -1,1 +1,1 @@
-export { FormValidator, ValidationType, ValidationSpecs, ModelFieldError, ModelErrors } from "./formValidator";
+export { FormValidator, ValidationType, ValidationSpecs, ModelFieldError, ModelErrors } from "./FormValidator";
