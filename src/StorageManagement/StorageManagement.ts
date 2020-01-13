@@ -1,4 +1,4 @@
-import { CookieStorage } from "../cookieStorage/CookieStorage";
+import { CookieStorage } from "../CookieStorage/CookieStorage";
 
 export type StorageManagementType = "LOCAL" | "SESSION" | "COOKIE";
 
