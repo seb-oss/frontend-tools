@@ -12,26 +12,40 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2.0.0
+
     - name: Setup node
       uses: actions/setup-node@v1.1.0
       with:
         node-version: '10.x'
+
     - name: installing dependencies
       run: npm ci
+
     - name: building
       run: npm run build
+
     - name: preparing to publish
       run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       env:
         CI: true
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
     - name: publishing
       run: npm run publish || true
       env:
         CI: true
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
     - name: semantic release
       run: npm run semantic-release
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        
+    - name: publish coverage
+      uses: coverallsapp/github-action@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        github-token: ${{ secrets.GH_TOKEN }}
