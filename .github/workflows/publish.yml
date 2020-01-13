@@ -20,11 +20,18 @@ jobs:
       run: npm ci
     - name: building
       run: npm run build
-    - run:
-        npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-        npm run publish
+    - name: preparing to publish
+      run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       env:
         CI: true
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - name: publishing
+      run: npm run publish || true
+      env:
+        CI: true
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     - name: semantic release
       run: npm run semantic-release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
