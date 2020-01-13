@@ -49,9 +49,4 @@ describe("Util: isSameObject", () => {
             expect(isSameObject(testCase.objectA, testCase.objectB, testCase.isDeep)).toEqual(testCase.result);
         });
     });
-    it("should console error when not able to stringify object", () => {
-        console.error = jest.fn();
-        isSameObject("", BigInt("123") as any);
-        expect(console.error).toBeCalledTimes(1);
-    });
 });

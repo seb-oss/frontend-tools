@@ -22,11 +22,6 @@ export function isSameObject<T>(objectA: T, objectB: T, deep?: boolean): boolean
         }
         return false;
     } else {
-        try {
-            return JSON.stringify(objectA) === JSON.stringify(objectB);
-        } catch (err) {
-            console.error(err);
-            return false;
-        }
+        return JSON.stringify(objectA) === JSON.stringify(objectB);
     }
 }
