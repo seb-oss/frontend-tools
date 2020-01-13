@@ -1,4 +1,4 @@
-name: CI
+name: Build Check
 
 on:
   pull_request:
@@ -9,12 +9,20 @@ on:
 jobs:
   build-check:
     runs-on: [ubuntu-latest]
+    strategy:
+      matrix:
+        node: ['10', '8']
     steps:
-      - run: npm install
-        name: install dependencies
-      - run: npm run lint
-        name: checking lint
-      - run: npm test
-        name: running test
-      - run: npm run build:production
-        name: building
+      - uses: actions/checkout@v2.0.0
+      - name: Setup node
+        uses: actions/setup-node@v1.1.0
+        with:
+          version: ${{ matrix.node }}
+      - name: installing dependencies
+        run: npm install
+      - name: checking lint
+        run: npm run lint
+      - name: running unit tests
+        run: npm test
+      - name: building
+        run: npm run build:production
