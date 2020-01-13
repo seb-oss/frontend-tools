@@ -26,7 +26,7 @@
         "webpack",
         "dist",
         "develop",
-        "tests",
+        "**/*.test.ts",
     ],
     "types": [
         "typePatches"

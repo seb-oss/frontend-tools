@@ -1,0 +1,1 @@
+export { stringInsert } from "./stringInsert";

@@ -1,0 +1,1 @@
+export { checkStringLength } from "./checkStringLength";

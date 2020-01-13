@@ -1,0 +1,1 @@
+export { getBrowserName } from "./getBrowserName";

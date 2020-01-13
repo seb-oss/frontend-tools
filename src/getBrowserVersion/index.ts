@@ -1,0 +1,1 @@
+export { getBrowserVersion } from "./getBrowserVersion";

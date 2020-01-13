@@ -1,0 +1,1 @@
+export { dateDiff } from "./dateDiff";

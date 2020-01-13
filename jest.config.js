@@ -14,10 +14,10 @@ function extractSpecifics(injectTo) {
 }
 
 if (specific.length) {
-    collectCoverageFrom.push(...extractSpecifics("src/%inject%.(ts|js)"));
+    collectCoverageFrom.push(...extractSpecifics("src/**/%inject%.(ts|js)"));
     testMatch.push(...extractSpecifics("**/%inject%.test.(ts|js)"))
 } else {
-    collectCoverageFrom.push("src/*.(ts|js)");
+    collectCoverageFrom.push("src/**/*.(ts|js)");
     testMatch.push("**/*.test.(ts|js)");
 }
 
@@ -45,6 +45,6 @@ module.exports = {
     // some coverage and results processing options
     collectCoverage: true,
     collectCoverageFrom,
-    coverageDirectory: "./tests/coverage",
+    coverageDirectory: "./coverage",
     coverageReporters: ["json", "lcov", "text"]
 };

@@ -1,0 +1,1 @@
+export { isBrowserEdge } from "./isBrowserEdge";

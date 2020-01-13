@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const utils = require('./src/index');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 module.exports = {
@@ -10,8 +11,8 @@ module.exports = {
     entry: utils.paths,
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name].js',
-        library: 'frontend-tools',
+        filename: '[name]/[name].js',
+        library: '@sebgroup/frontend-tools',
         libraryTarget: 'umd',
         umdNamedDefine: true
     },
@@ -28,6 +29,7 @@ module.exports = {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
         }),
+        new CopyWebpackPlugin(utils.indexes),
         new CaseSensitivePathsPlugin()
     ],
     module: {

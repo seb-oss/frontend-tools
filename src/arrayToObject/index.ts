@@ -1,0 +1,1 @@
+export { arrayToObject } from "./arrayToObject";
