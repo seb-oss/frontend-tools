@@ -11,10 +11,8 @@
         "lint": "tslint -p tsconfig.json",
         "build": "npm run clean && npm run lint &&  npm run test && npm run build:production",
         "test": "npm run clean:test && jest --forceExit --detectOpenHandles",
-        "coveralls": "cat ./coverage/lcov.info | coveralls",
         "commit": "git-cz",
-        "travis-deploy-once": "travis-deploy-once --pro",
-        "semantic-release": "semantic-release && npm run build",
+        "semantic-release": "semantic-release",
         "package-lock-sanitizer": "package-lock-sanitizer"
     },
     "publishConfig": {
