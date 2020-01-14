@@ -25,4 +25,8 @@ jobs:
       run: npm run build
         
     - name: publish coverage
-      run: npm run coveralls
+      uses: coverallsapp/github-action@v1.0.1
+      with:
+        github-token: ${{ secrets.GH_TOKEN }}
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
