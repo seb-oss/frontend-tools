@@ -3,8 +3,6 @@ export interface SetItemOptions {
     expires?: Date;
     /** Maximum age in seconds */
     maxAge?: number;
-    /** Secure cookie. Set the security to `true` if you want it to be encrypted in **HTTPS** connections */
-    secure?: boolean;
 }
 /**
  * CookieStorage is a handler for reading and writing cookies in Javascript
@@ -38,7 +36,6 @@ export class CookieStorage implements Storage {
         }
         let expires: string = "";
         let maxAge: string = "";
-        const secure: string = options && options.secure ? "; Secure" : "";
         if (options) {
             if (options.expires && options.expires instanceof Date) {
                 expires = "; Expires=" + options.expires.toUTCString();
@@ -47,7 +44,7 @@ export class CookieStorage implements Storage {
                 maxAge = `; Max-age=${options.maxAge}`;
             }
         }
-        document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}${expires}${maxAge}${secure}`;
+        document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}${expires}${maxAge}`;
         return this.hasItem(key);
     }
 

@@ -1,6 +1,6 @@
 import { isEmpty } from "../isEmpty/isEmpty";
 
-interface LogItem {
+export interface LogItem {
     context: string;
     message?: string;
     details?: any;
