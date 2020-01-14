@@ -12,6 +12,7 @@
         "build": "npm run clean && npm run lint &&  npm run test && npm run build:production",
         "test": "npm run clean:test && jest --forceExit --detectOpenHandles",
         "commit": "git-cz",
+        "coveralls": "cat ./coverage/lcov.info | coveralls",
         "semantic-release": "semantic-release",
         "package-lock-sanitizer": "package-lock-sanitizer"
     },
