@@ -4,7 +4,7 @@ export type StorageManagementType = "LOCAL" | "SESSION" | "COOKIE";
 
 export class StorageManagement implements Storage {
     private handler: Storage;
-    get length(): number { return this.keys.length; }
+    get length(): number { return this.keys().length; }
 
     constructor(type: StorageManagementType = "LOCAL") {
         switch (type) {

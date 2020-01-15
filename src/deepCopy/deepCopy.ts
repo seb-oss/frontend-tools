@@ -3,23 +3,29 @@
  * @param obj any complex object
  * @returns {Object} The generated object
  */
-export function deepCopy<T = any>(obj, hash = new WeakMap()): T {
-    if (Object(obj) !== obj) {// primitives
+export function deepCopy<T = any>(obj: T, hash = new WeakMap()): T {
+    if (Object(obj) !== obj) { // Primitive type
         return obj;
-    }
-    if (obj instanceof Set) { // See note about this!
+    } else if (obj instanceof Set) { // Setter
         return new Set(obj) as any;
+    } else if (hash.has(obj as any)) { // Cyclic reference
+        return hash.get(obj as any);
+    } else {
+        let result: any = Object.create(null);
+
+        if (obj instanceof Date) { // Date object
+            result = new Date(obj.getTime());
+        } else if (obj instanceof RegExp) { // Regular expression
+            result = new RegExp(obj.source, obj.flags);
+        } else if (obj.constructor) {
+            result = new (obj as any).constructor();
+        }
+
+        hash.set(obj as any, result);
+
+        if (obj instanceof Map) { // Map object
+            Array.from(obj, ([key, val]: [any, any]) => result.set(key, deepCopy(val, hash)));
+        }
+        return Object.assign(result, ...Object.keys(obj).map((key: string) => ({ [key]: deepCopy(obj[key], hash) })));
     }
-    if (hash.has(obj)) { // cyclic reference
-        return hash.get(obj);
-    }
-    const result = obj instanceof Date ? new Date(obj.getTime())
-        : obj instanceof RegExp ? new RegExp(obj.source, obj.flags)
-            : obj.constructor ? new obj.constructor()
-                : Object.create(null);
-    hash.set(obj, result);
-    if (obj instanceof Map) {
-        Array.from(obj, ([key, val]) => result.set(key, deepCopy(val, hash)));
-    }
-    return Object.assign(result, ...Object.keys(obj).map((key) => ({ [key]: deepCopy(obj[key], hash) })));
 }
