@@ -1,6 +1,6 @@
 import { toDate } from ".";
 
-describe("Util: formatDate", () => {
+describe("Util: toDate", () => {
     it("Should covert a string date to a date object", () => {
         expect(toDate("2015-01-01") instanceof Date).toBeTruthy();
         expect(toDate(new Date()) instanceof Date).toBeTruthy();
