@@ -28,8 +28,10 @@ module.exports = utils = {
         randomId: "./src/randomId/index.ts",
         StorageManagement: "./src/StorageManagement/index.ts",
         stringInsert: "./src/stringInsert/index.ts",
+        toCurrency: "./src/toCurrency/index.ts",
         toDate: "./src/toDate/index.ts",
         toggleBodyOverflow: "./src/toggleBodyOverflow/index.ts",
+        toLocalDateString: "./src/toLocalDateString/index.ts",
     },
     indexes: [
         { from: "./src/arrayToObject/index.ts", to: "./arrayToObject/index.js", },
@@ -60,7 +62,9 @@ module.exports = utils = {
         { from: "./src/randomId/index.ts", to: "./randomId/index.js", },
         { from: "./src/StorageManagement/index.ts", to: "./StorageManagement/index.js", },
         { from: "./src/stringInsert/index.ts", to: "./stringInsert/index.js", },
+        { from: "./src/toCurrency/index.ts", to: "./toCurrency/index.js", },
         { from: "./src/toDate/index.ts", to: "./toDate/index.js", },
         { from: "./src/toggleBodyOverflow/index.ts", to: "./toggleBodyOverflow/index.js", },
+        { from: "./src/toLocalDateString/index.ts", to: "./toLocalDateString/index.js", },
     ]
 }
