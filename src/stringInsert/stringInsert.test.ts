@@ -3,7 +3,7 @@ import { stringInsert } from ".";
 interface TestCase {
     statement: string;
     params: any;
-    symbols?: string;
+    symbols?: string | [string, string];
     result: string;
 }
 
@@ -17,7 +17,9 @@ describe("Util: stringInsert", () => {
         { statement: "@varslvarsl", params: { var: "something" }, symbols: "sl", result: "@varsomething" },
         { statement: "@vars", params: { vars: "something" }, result: "@vars" },
         { statement: "@vars@", params: {}, result: "@vars@" },
-        { statement: {} as any, params: {}, result: {} as any }
+        { statement: "{{vars}}", params: { vars: "something" }, symbols: ["{{", "}}"], result: "something" },
+        { statement: "{vars}", params: { vars: "something" }, symbols: [] as any, result: "{vars}" },
+        { statement: {} as any, params: {}, result: {} as any },
     ];
     testCases.map((testCase: TestCase) => {
         test(`- Statement: ${testCase.statement} | params: ${JSON.stringify(testCase.params)} | symbol: ${testCase.symbols} | result: ${testCase.result}`, () => {
