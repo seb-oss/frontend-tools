@@ -28,6 +28,7 @@ module.exports = utils = {
         randomId: "./src/randomId/index.ts",
         StorageManagement: "./src/StorageManagement/index.ts",
         stringInsert: "./src/stringInsert/index.ts",
+        toDate: "./src/toDate/index.ts",
         toggleBodyOverflow: "./src/toggleBodyOverflow/index.ts",
     },
     indexes: [
@@ -59,6 +60,7 @@ module.exports = utils = {
         { from: "./src/randomId/index.ts", to: "./randomId/index.js", },
         { from: "./src/StorageManagement/index.ts", to: "./StorageManagement/index.js", },
         { from: "./src/stringInsert/index.ts", to: "./stringInsert/index.js", },
+        { from: "./src/toDate/index.ts", to: "./toDate/index.js", },
         { from: "./src/toggleBodyOverflow/index.ts", to: "./toggleBodyOverflow/index.js", },
     ]
 }
