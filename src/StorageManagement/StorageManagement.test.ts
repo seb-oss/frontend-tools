@@ -438,4 +438,13 @@ describe("Storage management", () => {
             });
         });
     });
+
+    describe("length", () => {
+        (global as any).localStorage = new LocalSessionStorageMock();
+        const storage: StorageManagement = new StorageManagement("LOCAL");
+        storage.setItem("A", "A");
+        storage.setItem("B", "B");
+        storage.setItem("C", "C");
+        expect(storage.length).toEqual(3);
+    });
 });
