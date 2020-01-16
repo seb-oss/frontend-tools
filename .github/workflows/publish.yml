@@ -31,7 +31,7 @@ jobs:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: publishing
-      run: npm run publish || true
+      run: npm publish || true
       env:
         CI: true
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
