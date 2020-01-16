@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { isEmpty } from "../isEmpty/isEmpty";
 import { isPhoneNumber } from "../isPhoneNumber/isPhoneNumber";
 import { isEmail } from "../isEmail/isEmail";
@@ -15,18 +15,17 @@ export type ValidationSpecs = Object & {
     maxDate?: Date;
 };
 
-export type ModelFieldError<K extends string = "empty", J = {}> = Object & {
+export type ModelFieldError<K extends string = "empty", J = never> = Object & {
     errorCode: ValidationErrors | K;
     specs?: ValidationSpecs | J;
 };
 
-export type ModelErrors<T> = { [K in keyof T]?: ModelFieldError; };
-export type ValidationTypeWithoutSpecs = "required" | "isDate" | "noWhitespace" | "validEmail" | "strongPassword" | "isPhoneNumber";
+export type ModelErrors<T, J extends string = "empty"> = { [K in keyof T]?: ModelFieldError<J>; };
+export type ValidationTypeWithoutSpecs = "required" | "isDate" | "validEmail" | "strongPassword" | "isPhoneNumber";
 export type ValidationTypeWithSpecs = "dateRange" | "valueRange" | "textLength";
 export type ValidationType = ValidationTypeWithoutSpecs | ValidationTypeWithSpecs;
 export type ValidationErrors = "empty"
     | "invalidDate"
-    | "isWhitespace"
     | "invalidEmail"
     | "weakPassword"
     | "beforeMinDate"
@@ -40,7 +39,7 @@ export type ValidationErrors = "empty"
 export type FormFieldTypes = "date" | "string" | "number" | "array" | "object";
 type SpecialPick<T, K extends keyof T, P extends keyof T> = Required<Pick<T, K>> | Required<Pick<T, P>> | Required<Pick<T, K | P>>;
 
-type CustomValidatorSpec<T, K extends string = "empty"> = {
+type CustomValidatorSpec<T> = {
     fields: Array<keyof T>;
     errorFields: Array<keyof T>;
     validator: (...args: any) => ModelFieldError;
@@ -118,6 +117,13 @@ export class FormValidator<T> {
                         }
                     }
                 });
+            } else {
+                this.formObject.forEach((item: ValidatorModelItem<T>) => {
+                    item.validations.push(type);
+                    if (!isEmpty(specs)) {
+                        item.specs = { ...item.specs, ...specs };
+                    }
+                });
             }
         }
         return this;
@@ -131,7 +137,7 @@ export class FormValidator<T> {
      * @returns {FormValidator} The form validator object
      * @example addValidator(["balance", "payment"], ["payment"], (balance: number, payment: number) => { return payment > balance ? "The payment exceeds your balance" : null; });
      */
-    public addCustomValidation(fields: Array<keyof T>, errorFields: Array<keyof T>, validator: (model: T) => ModelFieldError<any>): FormValidator<T> {
+    public addCustomValidation(fields: Array<keyof T>, errorFields: Array<keyof T>, validator: () => ModelFieldError<any>): FormValidator<T> {
         if (fields && fields instanceof Array && fields.length && errorFields && errorFields instanceof Array && errorFields.length && validator && validator instanceof Function) {
             this.customValidators.push({ fields, errorFields, validator });
         }
@@ -194,20 +200,20 @@ export class FormValidator<T> {
     private validateField(value: any, type: ValidationType, specs: ValidationSpecs): ModelFieldError {
         let fieldError: ModelFieldError = null;
         switch (type) {
-            case "required": return isEmpty(value) ? { errorCode: "empty" } : null;
+            case "required": return isEmpty(value) || (typeof value === "string" && value.trim() === "") ? { errorCode: "empty" } : null;
             case "isDate": return value instanceof Date ? null : { errorCode: "invalidDate" };
-            case "noWhitespace": return value && (value as string).trim() === "" ? { errorCode: "isWhitespace" } : null;
             case "dateRange":
-                if (value instanceof Date) {
+                const date: Moment = moment(value);
+                if (date.isValid()) {
                     if (specs.minDate) {
-                        fieldError = moment(clearTime(value)).isBefore(clearTime(specs.minDate)) ? { errorCode: "beforeMinDate", specs: { minDate: specs.minDate } } : null;
+                        fieldError = moment(clearTime(date.toDate())).isBefore(clearTime(specs.minDate)) ? { errorCode: "beforeMinDate", specs: { minDate: specs.minDate } } : null;
                     }
                     if (!fieldError && specs.maxDate) {
-                        fieldError = moment(clearTime(value)).isAfter(clearTime(specs.maxDate)) ? { errorCode: "afterMaxDate", specs: { maxDate: specs.maxDate } } : null;
+                        fieldError = moment(clearTime(date.toDate())).isAfter(clearTime(specs.maxDate)) ? { errorCode: "afterMaxDate", specs: { maxDate: specs.maxDate } } : null;
                     }
                     return fieldError;
                 } else {
-                    return { errorCode: "invalidDate" };
+                    return null;
                 }
             case "textLength":
                 if (typeof value === "string") {
@@ -219,7 +225,7 @@ export class FormValidator<T> {
                     }
                     return fieldError;
                 } else {
-                    return { errorCode: "invalidInput" };
+                    return null;
                 }
             case "valueRange":
                 if (typeof value === "number") {
@@ -231,7 +237,7 @@ export class FormValidator<T> {
                     }
                     return fieldError;
                 } else {
-                    return { errorCode: "invalidInput" };
+                    return null;
                 }
             case "validEmail": return isEmail(value) ? null : { errorCode: "invalidEmail" };
             case "strongPassword": return isStrongPassword(value) ? null : { errorCode: "weakPassword" };
@@ -244,7 +250,6 @@ export class FormValidator<T> {
         const availableValidationTypes: Object & { [K in ValidationType]-?: any } = {
             required: true,
             isDate: true,
-            noWhitespace: true,
             dateRange: true,
             textLength: true,
             valueRange: true,
