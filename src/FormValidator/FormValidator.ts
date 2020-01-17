@@ -6,7 +6,7 @@ import { deepCopy } from "../deepCopy/deepCopy";
 import { clearTime } from "../clearTime/clearTime";
 import { isStrongPassword } from "../isStrongPassword/isStrongPassword";
 
-export type ValidationSpecs = Object & {
+export type ValidationSpecs = {
     minLength?: number;
     maxLength?: number;
     minValue?: number;
@@ -15,9 +15,9 @@ export type ValidationSpecs = Object & {
     maxDate?: Date;
 };
 
-export type ModelFieldError<K extends string = "empty", J = never> = Object & {
+export type ModelFieldError<K extends string = "empty", J extends { [key in string | number]: any } = {}> = {
     errorCode: ValidationErrors | K;
-    specs?: ValidationSpecs | J;
+    specs?: ValidationSpecs & J;
 };
 
 export type ModelErrors<T, J extends string = "empty"> = { [K in keyof T]?: ModelFieldError<J>; };
@@ -247,7 +247,7 @@ export class FormValidator<T> {
 
     // Helpers
     private isValidType(type: ValidationType): boolean {
-        const availableValidationTypes: Object & { [K in ValidationType]-?: any } = {
+        const availableValidationTypes: { [K in ValidationType]-?: any } = {
             required: true,
             isDate: true,
             dateRange: true,

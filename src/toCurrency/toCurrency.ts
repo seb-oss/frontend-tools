@@ -24,8 +24,8 @@ export function toCurrency(value: number | string, options: ToCurrencyOptions = 
             cents = options && options.noCents ? null : Number((val - Math.floor(val)).toFixed(options && options.decimals ? options.decimals : 2).replace("0.", ""));
         }
         const list: Array<string> = String(num).split("");
-        const newList = [];
-        list.map((item, index) => {
+        const newList: Array<string> = [];
+        list.map((item: string, index: number) => {
             if (((list.length - (index + 1)) || 1) % 3 === 0) {
                 newList.push(item);
                 newList.push(options && options.separator ? options.separator : ",");
