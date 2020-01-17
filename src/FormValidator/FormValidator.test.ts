@@ -30,13 +30,11 @@ describe("Form Validator", () => {
             { type: "required", value: 2, expected: noError },
             { type: "isDate", value: null, expected: { errorCode: "invalidDate" } },
             { type: "isDate", value: now, expected: noError },
-            { type: "noWhitespace", value: " ", expected: { errorCode: "isWhitespace" } },
-            { type: "noWhitespace", value: " test ", expected: noError },
             { type: "dateRange", value: modifyDate(now, 1, "SUBTRACT", "year"), specs: { minDate: now }, expected: { errorCode: "beforeMinDate", specs: { minDate: now } } },
             { type: "dateRange", value: modifyDate(now, 1, "ADD", "year"), specs: { maxDate: now }, expected: { errorCode: "afterMaxDate", specs: { maxDate: now } } },
             { type: "dateRange", value: now, specs: { minDate: modifyDate(now, 1, "SUBTRACT", "day"), maxDate: modifyDate(now, 1, "ADD", "day") }, expected: noError },
-            { type: "dateRange", value: null, specs: { maxDate: now }, expected: { errorCode: "invalidDate" } },
-            { type: "textLength", value: true, specs: { minLength: 5 }, expected: { errorCode: "invalidInput" } },
+            { type: "dateRange", value: null, specs: { maxDate: now }, expected: null },
+            { type: "textLength", value: true, specs: { minLength: 5 }, expected: null },
             { type: "textLength", value: "ABCDEFG", specs: { minLength: 5 }, expected: noError },
             { type: "textLength", value: "ABC", specs: { minLength: 5 }, expected: { errorCode: "lessThanMinLength", specs: { minLength: 5 } } },
             { type: "textLength", value: "ABCDEFG", specs: { maxLength: 8 }, expected: noError },
@@ -44,7 +42,7 @@ describe("Form Validator", () => {
             { type: "textLength", value: "ABCDEFG", specs: { minLength: 5, maxLength: 8 }, expected: noError },
             { type: "textLength", value: "ABC", specs: { minLength: 5, maxLength: 8 }, expected: { errorCode: "lessThanMinLength", specs: { minLength: 5 } } },
             { type: "textLength", value: "ABCDEFGHIJK", specs: { minLength: 5, maxLength: 8 }, expected: { errorCode: "moreThanMaxLength", specs: { maxLength: 8 } } },
-            { type: "valueRange", value: "TESTING", specs: { minValue: 5 }, expected: { errorCode: "invalidInput" } },
+            { type: "valueRange", value: "TESTING", specs: { minValue: 5 }, expected: null },
             { type: "valueRange", value: 6, specs: { minValue: 5 }, expected: noError },
             { type: "valueRange", value: 3, specs: { minValue: 5 }, expected: { errorCode: "lessThanMinValue", specs: { minValue: 5 } } },
             { type: "valueRange", value: 6, specs: { maxValue: 8 }, expected: noError },
@@ -84,9 +82,10 @@ describe("Form Validator", () => {
 
     it("Should allow passing a custom validator", () => {
         const expectedErrors: ModelErrors<CustomType> = { first: { errorCode: "moreThanMaxValue" } };
-        const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
-            .addCustomValidation(["first", "second"], ["first"], (model: CustomType): ModelFieldError => {
-                if (model.first > model.second) {
+        const test: CustomType = { first: 123, second: 100 };
+        const validator: FormValidator<CustomType> = new FormValidator<CustomType>(test)
+            .addCustomValidation(["first", "second"], ["first"], (): ModelFieldError => {
+                if (test.first > test.second) {
                     return expectedErrors.first;
                 } else {
                     return null;
@@ -98,10 +97,11 @@ describe("Form Validator", () => {
     it("Should run normal validations before custom validation", () => {
         const expectedNormalErrors: ModelErrors<CustomType> = { first: { errorCode: "lessThanMinValue" } };
         const expectedCustomErrors: ModelErrors<CustomType> = { first: { errorCode: "moreThanMaxValue" } };
-        const validator: FormValidator<CustomType> = new FormValidator<CustomType>({ first: 123, second: 100 })
+        const test: CustomType = { first: 123, second: 100 };
+        const validator: FormValidator<CustomType> = new FormValidator<CustomType>(test)
             .addValidation(["first"], "valueRange", { minValue: 1000 })
-            .addCustomValidation(["first", "second"], ["first"], (model: CustomType): ModelFieldError => {
-                if (model.first > model.second) {
+            .addCustomValidation(["first", "second"], ["first"], (): ModelFieldError => {
+                if (test.first > test.second) {
                     return expectedCustomErrors.first;
                 } else {
                     return null;
@@ -148,6 +148,23 @@ describe("Form Validator", () => {
             .validate();
         const expectedErrors: ModelErrors<CustomType> = { typeAny: { errorCode: "lessThanMinLength", specs: { minLength: 5 } } };
         expect(validator.getErrors()).toMatchObject(expectedErrors);
+    });
+
+    it("Should allow applying validation with specs to all fields by passing an empty array", () => {
+        const test: CustomType = { first: 100, second: 100 };
+        const validator: FormValidator<CustomType> = new FormValidator<CustomType>(test)
+            .addValidation([], "valueRange", { minValue: 110 })
+            .validate();
+        expect(validator.getErrors()).toMatchObject({
+            first: {
+                errorCode: "lessThanMinValue",
+                specs: { minValue: 110 },
+            },
+            second: {
+                errorCode: "lessThanMinValue",
+                specs: { minValue: 110 },
+            },
+        });
     });
 
     describe("Should not store the form model if it's invalid", () => {
