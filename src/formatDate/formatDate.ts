@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment, { Moment } from "moment";
 
 /**
  * Reformats any date string to any desired format
@@ -13,7 +13,7 @@ import moment from "moment";
  */
 export function formatDate(date: string | Date, inputFormat: string, outputFormat: string, locale?: moment.LocaleSpecifier): string {
     if (date) {
-        let momentDate = moment(date, inputFormat);
+        let momentDate: Moment = moment(date, inputFormat);
         if (momentDate.isValid()) {
             if (locale) {
                 momentDate = momentDate.locale(locale);
