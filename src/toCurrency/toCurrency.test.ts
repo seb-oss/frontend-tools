@@ -23,10 +23,6 @@ describe("Util: toCurrency", () => {
         expect(toCurrency("1000.123456", { decimals: 4 })).toEqual("1,000.1235");
     });
 
-    it("Should allow passing a currency string", () => {
-        expect(toCurrency(1000, { currency: "kr" })).toEqual("1,000 kr");
-    });
-
     it("Should return empty string if value passed is not a string or number", () => {
         expect(toCurrency(new Date() as any)).toEqual("");
     });

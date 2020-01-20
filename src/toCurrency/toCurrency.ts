@@ -3,13 +3,12 @@ export interface ToCurrencyOptions {
     radix?: string;
     noCents?: boolean;
     decimals?: number;
-    currency?: string;
 }
 
 /**
  * Formats a number or a string number to a currency format
  * @param {number} value raw number value
- * @param {ToCurrencyOptions} options You can control the sperator, radix, currency string and showing cents using these options
+ * @param {ToCurrencyOptions} options You can control the sperator, radix string and showing cents using these options
  * @returns {string} The formatted currency string
  */
 export function toCurrency(value: number | string, options: ToCurrencyOptions = {}): string {
@@ -34,7 +33,7 @@ export function toCurrency(value: number | string, options: ToCurrencyOptions = 
             }
         });
         amount = newList.join("");
-        return amount + (cents ? `${options && options.radix ? options.radix : "."}${cents}` : "") + (options && options.currency ? ` ${options.currency}` : "");
+        return amount + (cents ? `${options && options.radix ? options.radix : "."}${cents}` : "");
     };
     if (typeof value === "number") {
         return format(value);
