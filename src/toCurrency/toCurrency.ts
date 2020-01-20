@@ -1,14 +1,14 @@
 export interface ToCurrencyOptions {
     separator?: string;
     radix?: string;
-    noCents?: boolean;
-    decimals?: number;
+    showDecimals?: boolean;
+    numOfDecimals?: number;
 }
 
 /**
  * Formats a number or a string number to a currency format
  * @param {number} value raw number value
- * @param {ToCurrencyOptions} options You can control the sperator, radix string and showing cents using these options
+ * @param {ToCurrencyOptions} options You can control the sperator, radix, decimals visibility and number of decimal places using these options
  * @returns {string} The formatted currency string
  */
 export function toCurrency(value: number | string, options: ToCurrencyOptions = {}): string {
@@ -20,7 +20,7 @@ export function toCurrency(value: number | string, options: ToCurrencyOptions = 
             num = val;
         } else {
             num = Math.floor(val);
-            cents = options && options.noCents ? null : Number((val - Math.floor(val)).toFixed(options && options.decimals ? options.decimals : 2).replace("0.", ""));
+            cents = options && options.showDecimals ? null : Number((val - Math.floor(val)).toFixed(options && options.numOfDecimals ? options.numOfDecimals : 2).replace("0.", ""));
         }
         const list: Array<string> = String(num).split("");
         const newList: Array<string> = [];
