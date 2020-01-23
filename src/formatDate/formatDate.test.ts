@@ -1,12 +1,10 @@
 import { formatDate } from ".";
-import moment from "moment";
+import { FormatDateOptions } from "./formatDate";
 
-interface FormatDateTestCase {
+interface FormatDateTestCase extends FormatDateOptions {
     title: string;
     date: string | Date;
-    inputFormat: string;
     outputFormat: string;
-    locale?: moment.LocaleSpecifier;
     result: string;
 }
 
@@ -40,11 +38,22 @@ describe("Util: formatDate", () => {
             outputFormat: "YYYY MMM DD",
             locale: "sv-SE",
             result: "1987 dec 07"
+        },
+        {
+            title: "Should correctly format ISO string date without passing input or output formats",
+            date: "2000-01-23T04:56:07.000+00:00",
+            outputFormat: "DD-MM-YYYY",
+            result: "23-01-2000"
         }
     ];
     testCases.map((testCase: FormatDateTestCase) => {
         it(testCase.title, () => {
-            expect(formatDate(testCase.date, testCase.inputFormat, testCase.outputFormat, testCase.locale)).toEqual(testCase.result);
+            expect(formatDate(testCase.date, testCase.outputFormat, { ...testCase })).toEqual(testCase.result);
         });
+    });
+
+    it("Should correctly format ISO string date without passing input formats", () => {
+        const formatted: string = formatDate("2000-01-23T04:56:07.000+00:00", "DD-MM-YYYY");
+        expect(formatted).toEqual("23-01-2000");
     });
 });
