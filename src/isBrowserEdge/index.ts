@@ -1,1 +1,1 @@
-export { isBrowserEdge } from "./isBrowserEdge";
+export * from "./isBrowserEdge";

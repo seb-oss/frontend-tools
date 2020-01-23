@@ -1,1 +1,1 @@
-export { CookieStorage } from "./CookieStorage";
+export * from "./CookieStorage";

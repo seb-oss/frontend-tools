@@ -1,1 +1,1 @@
-export { randomId } from "./randomId";
+export * from "./randomId";

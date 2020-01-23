@@ -1,1 +1,1 @@
-export { isBrowserIE } from "./isBrowserIE";
+export * from "./isBrowserIE";

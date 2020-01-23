@@ -1,1 +1,1 @@
-export { checkStringLength } from "./checkStringLength";
+export * from "./checkStringLength";
