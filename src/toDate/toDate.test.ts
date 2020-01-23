@@ -22,4 +22,11 @@ describe("Util: toDate", () => {
     it("Should return null when wrong date string is passed", () => {
         expect(toDate("not a date")).toBeNull();
     });
+
+    it("Should convert to date even if inputFormat is not passed", () => {
+        const date: Date = toDate("2020-02-01T00:00:00.000+00:00");
+        expect(date.getFullYear()).toEqual(2020);
+        expect(date.getMonth()).toEqual(1);
+        expect(date.getDate()).toEqual(1);
+    });
 });

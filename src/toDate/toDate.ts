@@ -8,7 +8,7 @@ import moment, { Moment } from "moment";
  */
 export function toDate(value: string | Date, inputFormat: string = null): Date {
     if (value) {
-        const momentDate: Moment = moment(value, String(inputFormat));
+        const momentDate: Moment = moment(value, inputFormat);
         if (momentDate.isValid()) {
             return momentDate.toDate();
         }
