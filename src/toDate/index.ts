@@ -1,1 +1,1 @@
-export { toDate } from "./toDate";
+export * from "./toDate";

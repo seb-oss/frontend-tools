@@ -1,1 +1,1 @@
-export { toLocalDateString } from "./toLocalDateString";
+export * from "./toLocalDateString";

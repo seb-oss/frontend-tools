@@ -1,1 +1,1 @@
-export { stringInsert } from "./stringInsert";
+export * from "./stringInsert";

@@ -1,1 +1,1 @@
-export { isSameDate } from "./isSameDate";
+export * from "./isSameDate";

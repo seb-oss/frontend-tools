@@ -1,1 +1,1 @@
-export { dateDiff } from "./dateDiff";
+export * from "./dateDiff";

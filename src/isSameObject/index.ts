@@ -1,1 +1,1 @@
-export { isSameObject } from "./isSameObject";
+export * from "./isSameObject";

@@ -1,1 +1,1 @@
-export { isPhoneNumber } from "./isPhoneNumber";
+export * from "./isPhoneNumber";
