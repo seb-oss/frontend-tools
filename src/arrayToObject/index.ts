@@ -1,1 +1,1 @@
-export { arrayToObject } from "./arrayToObject";
+export * from "./arrayToObject";

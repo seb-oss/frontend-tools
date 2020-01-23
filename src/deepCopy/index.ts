@@ -1,1 +1,1 @@
-export { deepCopy } from "./deepCopy";
+export * from "./deepCopy";

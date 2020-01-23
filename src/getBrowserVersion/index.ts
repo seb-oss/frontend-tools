@@ -1,1 +1,1 @@
-export { getBrowserVersion } from "./getBrowserVersion";
+export * from "./getBrowserVersion";

@@ -1,1 +1,1 @@
-export { StorageManagement, StorageManagementType } from "./StorageManagement";
+export * from "./StorageManagement";

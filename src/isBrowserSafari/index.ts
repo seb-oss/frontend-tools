@@ -1,1 +1,1 @@
-export { isBrowserSafari } from "./isBrowserSafari";
+export * from "./isBrowserSafari";

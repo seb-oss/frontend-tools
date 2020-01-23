@@ -1,1 +1,1 @@
-export { toCurrency, ToCurrencyOptions } from "./toCurrency";
+export * from "./toCurrency";

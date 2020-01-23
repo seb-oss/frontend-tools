@@ -1,1 +1,1 @@
-export { isStrongPassword } from "./isStrongPassword";
+export * from "./isStrongPassword";

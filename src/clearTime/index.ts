@@ -1,1 +1,1 @@
-export { clearTime } from "./clearTime";
+export * from "./clearTime";

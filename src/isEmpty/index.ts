@@ -1,1 +1,1 @@
-export { isEmpty } from "./isEmpty";
+export * from "./isEmpty";

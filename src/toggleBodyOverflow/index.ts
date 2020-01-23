@@ -1,1 +1,1 @@
-export { toggleBodyOverflow } from "./toggleBodyOverflow";
+export * from "./toggleBodyOverflow";
