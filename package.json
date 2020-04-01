@@ -13,7 +13,7 @@
         "test": "npm run clean:test && jest --forceExit --detectOpenHandles",
         "commit": "git-cz",
         "semantic-release": "semantic-release",
-        "package-lock-sanitizer": "package-lock-sanitizer"
+        "sanitize": "package-lock-sanitizer && git add package-lock.json"
     },
     "publishConfig": {
         "registry": "https://registry.npmjs.org/",
@@ -39,21 +39,22 @@
     "devDependencies": {
         "@commitlint/cli": "^8.3.5",
         "@commitlint/config-conventional": "^8.3.4",
+        "@semantic-release/changelog": "^5.0.1",
         "@types/jest": "^25.1.2",
-        "@types/node": "^13.1.8",
+        "@types/node": "^13.9.8",
         "case-sensitive-paths-webpack-plugin": "^2.3.0",
         "commitizen": "^4.0.3",
         "copy-webpack-plugin": "^5.1.1",
         "cz-conventional-changelog": "^3.0.2",
         "fibers": "^4.0.1",
         "husky": "^4.0.10",
-        "jest": "^25.1.0",
+        "jest": "^25.2.4",
         "jsdom": "^16.0.0",
         "jsdom-global": "^3.0.2",
         "package-lock-sanitizer": "^1.0.1",
         "raf": "^3.4.1",
         "semantic-release": "^17.0.2",
-        "ts-jest": "^25.2.0",
+        "ts-jest": "^25.3.0",
         "ts-loader": "^6.2.1",
         "tslib": "^1.10.0",
         "tslint": "^6.0.0",
@@ -73,12 +74,19 @@
     },
     "husky": {
         "hooks": {
-            "pre-commit": "npm run lint",
+            "pre-commit": "npm run sanitize && npm run lint",
             "commit-msg": "commitlint --edit"
         }
     },
     "release": {
-        "pkgRoot": "."
+        "pkgRoot": ".",
+        "plugins": [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            "@semantic-release/changelog",
+            "@semantic-release/npm",
+            "@semantic-release/github"
+        ]
     },
     "engines": {
         "node": ">=10.0.0",

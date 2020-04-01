@@ -6,7 +6,7 @@ const { argv } = process;
  */
 const specific = argv.slice(2, argv.length).filter((value) => value.indexOf("--") === -1);
 
-const collectCoverageFrom = ["!src/index.js"];
+const collectCoverageFrom = [];
 const testMatch = [];
 
 function extractSpecifics(injectTo) {
@@ -21,28 +21,20 @@ if (specific.length) {
     testMatch.push("**/*.test.(ts|js)");
 }
 
+collectCoverageFrom.push("!src/index.js");
+
 module.exports = {
     setupFilesAfterEnv: ["<rootDir>/setupTests.js"],
     testEnvironment: "jsdom",
     testMatch,
-    modulePaths: [
-        "<rootDir>/src",
-        "<rootDir>/node_modules"
-    ],
-    globals: {
-        "NODE_ENV": "test"
-    },
+    modulePaths: ["<rootDir>/node_modules"],
+    globals: { "NODE_ENV": "test" },
     verbose: true,
     moduleFileExtensions: ["ts", "js", "json"],
-    transform: {
-        "^.+\\.ts$": "ts-jest"
-    },
+    transform: { "^.+\\.ts$": "ts-jest" },
     transformIgnorePatterns: [],
     testEnvironment: "node",
-    moduleNameMapper: {
-        "aurelia-(.*)": "<rootDir>/node_modules/$1"
-    },
-    // some coverage and results processing options
+    moduleNameMapper: { "aurelia-(.*)": "<rootDir>/node_modules/$1" },
     collectCoverage: true,
     collectCoverageFrom,
     coverageDirectory: "./coverage",
