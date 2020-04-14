@@ -9,13 +9,14 @@ describe("Util: toCurrency", () => {
     });
 
     it("Should allow passing a custom separator and radix", () => {
-        expect(toCurrency(1000.22, { separator: " ", radix: "," })).toEqual("1 000,22");
-        expect(toCurrency("1000.22", { separator: " ", radix: "," })).toEqual("1 000,22");
+        expect(toCurrency(1000.22, { separator: " ", decimalSymbol: "," })).toEqual("1 000,22");
+        expect(toCurrency("1000.22", { separator: " ", decimalSymbol: "," })).toEqual("1 000,22");
     });
 
     it("Should allow hiding decimals", () => {
-        expect(toCurrency(1000.22, { showDecimals: true })).toEqual("1,000");
-        expect(toCurrency("1000.22", { showDecimals: true })).toEqual("1,000");
+        expect(toCurrency(1000.22, { showDecimals: false })).toEqual("1,000");
+        expect(toCurrency(1000.22, { showDecimals: true })).toEqual("1,000.22");
+        expect(toCurrency("1000.22", { showDecimals: true })).toEqual("1,000.22");
     });
 
     it("Should allow specifying the number of decimal places", () => {
@@ -25,5 +26,9 @@ describe("Util: toCurrency", () => {
 
     it("Should return empty string if value passed is not a string or number", () => {
         expect(toCurrency(new Date() as any)).toEqual("");
+    });
+
+    it("Should not crash when options are passed undefined", () => {
+        expect(toCurrency(1000.22, null)).toBeDefined();
     });
 });
