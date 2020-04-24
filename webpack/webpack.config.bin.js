@@ -29,6 +29,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin([
             { from: "./src/openapiGenerator/index.ts", to: "./openapiGenerator/index.js", },
+            { from: "./src/openapiGenerator/templates/*", to: "./openapiGenerator/templates/[name].[ext]", },
         ]),
         new CaseSensitivePathsPlugin()
     ],

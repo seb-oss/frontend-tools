@@ -1,51 +1,68 @@
 import { OptionType } from "./option.type";
 
+enum OptionName {
+    format = "--format",
+    formatShort = "-format",
+    featureSet = "--feature-set",
+    importMappings = "--import-mappings",
+    instantiationTypes = "--instantiation-types",
+    languageSpecificPrimitive = "--language-specific-primitive",
+    markdownHeader = "--markdown-header",
+    namedHeader = "--named-header",
+    reservedWords = "--reserved-words",
+    output = "--output",
+    outputShort = "-o",
+    fullDetails = "--full-details",
+    generatorName = "--generator-name",
+    generatorNameShort = "-g",
+}
+
 const options: Array<OptionType> = [
     {
-        option: "-f, --format",
+        option: [OptionName.formatShort, OptionName.format],
         description: "Write output files in the desired format. Options are 'text', 'markdown' or 'yamlsample'. Default is 'text'."
     },
     {
-        option: "--feature-set",
+        option: [OptionName.featureSet],
         description: "displays feature set as supported by the generator"
     },
     {
-        option: "--import-mappings",
+        option: [OptionName.importMappings],
         description: "displays the default import mappings (types and aliases, and what imports they will pull into the template)"
     },
     {
-        option: "--instantiation-types",
+        option: [OptionName.instantiationTypes],
         description: "displays types used to instantiate simple type/alias names"
     },
     {
-        option: "--language-specific-primitive",
+        option: [OptionName.languageSpecificPrimitive],
         description: "displays the language specific primitives (types which require no additional imports, or which may conflict with user defined model names)"
     },
     {
-        option: "--markdown-header",
+        option: [OptionName.markdownHeader],
         description: "When format=markdown, include this option to write out markdown headers (e.g. for docusaurus)."
     },
     {
-        option: "--named-header",
+        option: [OptionName.namedHeader],
         description: "Header includes the generator name, for clarity in output"
     },
     {
-        option: "--reserved-words",
+        option: [OptionName.reservedWords],
         description: "displays the reserved words which may result in renamed model or property names"
     },
     {
-        option: "-o, --output",
+        option: [OptionName.outputShort, OptionName.output],
         description: "Optionally write help to this location, otherwise default is standard output"
     },
     {
-        option: "--full-details",
+        option: [OptionName.fullDetails],
         description: `displays CLI options as well as other configs/mappings (implies --instantiation-types, --reserved-words, --language-specific-primitives, --import-mappings, --supporting-files)`
     },
     {
-        option: "-g, --generator-name",
+        option: [OptionName.generatorNameShort, OptionName.generatorName],
         description: "generator to get config help for",
         defaultValue: "typescript-axios"
     }
 ];
 
-export { options as ConfigHelpOptions };
+export { options as ConfigHelpOptions, OptionName as ConfigHelpOptionName };

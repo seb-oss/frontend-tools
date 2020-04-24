@@ -1,5 +1,5 @@
 export interface OptionType {
-    option: string;
+    option: Array<string>;
     description: string;
     defaultValue?: string;
 }
