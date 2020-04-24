@@ -1,23 +1,14 @@
-export enum SUBCOMMAND {
-    HELP = "help",
-    GENERATE = "generate",
-    BATCH = "batch",
-    LIST = "list",
-    CONFIGHELP = "config-help",
-    META = "meta",
-    VALIDATE = "validate",
-    VERSION = "version"
-}
+export type Subcommand = "help" | "generate" | "batch" | "list" | "config-help" | "meta" | "validate" | "version";
 
-const subcommands: Array<SUBCOMMAND> = [
-    SUBCOMMAND.HELP,
-    SUBCOMMAND.GENERATE,
-    SUBCOMMAND.BATCH,
-    SUBCOMMAND.LIST,
-    SUBCOMMAND.CONFIGHELP,
-    SUBCOMMAND.META,
-    SUBCOMMAND.VALIDATE,
-    SUBCOMMAND.VERSION,
+const subcommands: Array<Subcommand> = [
+    "help",
+    "generate",
+    "batch",
+    "list",
+    "config-help",
+    "meta",
+    "validate",
+    "version"
 ];
 
 /**
@@ -25,6 +16,6 @@ const subcommands: Array<SUBCOMMAND> = [
  * @param {string} commandSet command set by user
  * @returns {string} valid command
  */
-export function getSubcommand(commandSet?: string): string {
+export function getSubcommand(commandSet?: string): Subcommand {
     return subcommands.find((item: string) => item === commandSet) || subcommands[0];
 }

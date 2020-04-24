@@ -1,9 +1,16 @@
 import { OptionType } from "./option.type";
+import { OpenApiGenerator } from "../generatorList";
 
 export interface CustomOptionType extends OptionType {
     mappingName?: string;
     dependedOption?: Array<string>;
     errorMessage?: string;
+    noValue?: boolean;
+}
+
+export interface SEBTemplate {
+    generator: OpenApiGenerator;
+    templatePath: string;
 }
 
 enum OptionName {
@@ -33,7 +40,7 @@ const options: Array<CustomOptionType> = [
     {
         option: [OptionName.sebTemplate],
         description: "use seb template",
-        defaultValue: "./dist/openapiGenerator/templates"
+        noValue: true
     },
     {
         option: [OptionName.interceptorPathShort, OptionName.interceptorPath],
@@ -65,4 +72,11 @@ const options: Array<CustomOptionType> = [
     }
 ];
 
-export { options as CustomOptions, OptionName as CustomOptionName };
+const templates: Array<SEBTemplate> = [
+    {
+        generator: "typescript-axios",
+        templatePath: "./node_modules/@sebgroup/frontend-tools/dist/openapiGenerator/templates/typescript-axios"
+    }
+]
+
+export { options as CustomOptions, OptionName as CustomOptionName, templates as CustomTemplates };

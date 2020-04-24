@@ -1,4 +1,4 @@
-import { getSubcommand, SUBCOMMAND } from "./getSubcommand";
+import { getSubcommand, Subcommand } from "./getSubcommand";
 import { GenerateOptions, GenerateDefaultOptions, GenerateOptionName } from "./options/generateOptions";
 import { OptionType, DefaultOptionType } from "./options/option.type";
 import { BatchOptions } from "./options/batchOptions";
@@ -6,7 +6,8 @@ import { ListOptions } from "./options/listOptions";
 import { ConfigHelpOptions } from "./options/configHelpOptions";
 import { MetaOptions } from "./options/metaOptions";
 import { ValidateOptions } from "./options/validateOptions";
-import { CustomOptions, CustomOptionType, CustomOptionName } from "./options/customOptions";
+import { CustomOptions, CustomOptionType, CustomOptionName, CustomTemplates, SEBTemplate } from "./options/customOptions";
+import { OpenApiGenerator } from "./generatorList";
 
 export function generatorFn() {
     const { createCommand } = require("commander");
@@ -17,19 +18,25 @@ export function generatorFn() {
     program
         .action(() => {
             const { spawn } = require("child_process");
-            const args = process.argv.slice(2);
-            const subcommand: string = getSubcommand(args[0]);
+            const args: Array<string> = process.argv.slice(2);
+            const subcommand: Subcommand = getSubcommand(args[0]);
             args.shift();
             let command: string = `node ./node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator ${subcommand}`;
             const extraOptions: Array<string> = formatExtraOption(args);
-            if (subcommand === SUBCOMMAND.GENERATE.toString()) {
+            if (subcommand === "generate") {
+                const generatorNameIndex: number = args.findIndex((arg: string) => arg === GenerateOptionName.generatorNameShort || arg === GenerateOptionName.generatorName) + 1;
+                let generatorName: OpenApiGenerator = args[generatorNameIndex] as OpenApiGenerator;
                 GenerateDefaultOptions.filter((item: DefaultOptionType) => !args.every((arg: string) => arg === item.key1 || arg === item.key2))
                     .map((item: DefaultOptionType) => {
+                        if (item.key1 === GenerateOptionName.generatorNameShort) {
+                            generatorName = item.value as OpenApiGenerator;
+                        }
                         command += ` ${item.key1} ${item.value}`;
                     });
                 const templateIndex: number = args.findIndex((item: string) => item === GenerateOptionName.templateDirShort || item === GenerateOptionName.templateDir) + 1;
-                if (args.indexOf(CustomOptionName.sebTemplate) > -1 && templateIndex === 0) {
-                    command += ` ${GenerateOptionName.templateDirShort} ${"./dist/openapiGenerator/templates"}`;
+                const sebTemplatePath: string = CustomTemplates.find((item: SEBTemplate) => item.generator === generatorName)?.templatePath;
+                if (args.indexOf(CustomOptionName.sebTemplate) > -1 && templateIndex === 0 && !!sebTemplatePath) {
+                    command += ` ${GenerateOptionName.templateDirShort} ${sebTemplatePath}`;
                 }
                 const swaggerUrlIndex: number = args.findIndex((item: string) => item === GenerateOptionName.inputSpecShort || item === GenerateOptionName.inputSpec) + 1;
                 const extraParamIndex: number = args.findIndex((item: string) => item === GenerateOptionName.additionalPropertiesShort || item === GenerateOptionName.additionalProperties) + 1;
@@ -51,10 +58,10 @@ export function generatorFn() {
                     args.push(extraOptions.toString());
                 }
             }
-            CustomOptions.map((item: OptionType) => {
+            CustomOptions.map((item: CustomOptionType) => {
                 const index: number = args.findIndex((arg: string) => item.option.indexOf(arg) > -1);
                 if (index > -1) {
-                    args.splice(index, item.defaultValue ? 1 : 2);
+                    args.splice(index, item.noValue ? 1 : 2);
                 }
             })
             if (args) {
