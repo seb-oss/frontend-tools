@@ -32,7 +32,8 @@ const options: Array<CustomOptionType> = [
     },
     {
         option: [OptionName.sebTemplate],
-        description: "use seb template"
+        description: "use seb template",
+        defaultValue: "./dist/openapiGenerator/templates"
     },
     {
         option: [OptionName.interceptorPathShort, OptionName.interceptorPath],

@@ -1,4 +1,3 @@
-  
 // tslint:disable
 {{>licenseInfo}}
 
@@ -8,7 +7,7 @@ import { Configuration } from './configuration';
 import globalAxios, { AxiosPromise, AxiosInstance } from 'axios';
 // Some imports not used depending on template conditions
 // @ts-ignore
-import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from './base';
+import { APIModel, APIModelOptions, AttributeMapItem, APIParams, APIHandler, APIURLTypes, ApiKeyAuth } from "./base";
 
 {{#models}}
 {{#model}}{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{#oneOf}}{{#-first}}{{>modelOneOf}}{{/-first}}{{/oneOf}}{{^isEnum}}{{^oneOf}}{{>modelGeneric}}{{/oneOf}}{{/isEnum}}{{/model}}
@@ -16,7 +15,9 @@ import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } fr
 {{#apiInfo}}{{#apis}}
 {{>apiInner}}
 {{/apis}}{{/apiInfo}}
-{{/withSeparateModelsAndApi}}{{#withSeparateModelsAndApi}}
+{{/withSeparateModelsAndApi}}
+
+{{#withSeparateModelsAndApi}}
 {{#apiInfo}}{{#apis}}{{#operations}}export * from './{{tsApiPackage}}/{{classFilename}}';
 {{/operations}}{{/apis}}{{/apiInfo}}
 {{/withSeparateModelsAndApi}}

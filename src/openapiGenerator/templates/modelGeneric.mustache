@@ -1,5 +1,7 @@
+{{#withSeparateModelsAndApi}}
 // tslint:disable
 import { APIModel, APIModelOptions, AttributeMapItem } from "{{apiRelativeToRoot}}base";
+{{/withSeparateModelsAndApi}}
 
 export class {{classname}} extends APIModel {
 {{#vars}}

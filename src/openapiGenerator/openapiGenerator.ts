@@ -1,12 +1,12 @@
 import { getSubcommand, SUBCOMMAND } from "./getSubcommand";
-import { GenerateOptions, GenerateDefaultOptions } from "./options/generateOptions";
+import { GenerateOptions, GenerateDefaultOptions, GenerateOptionName } from "./options/generateOptions";
 import { OptionType, DefaultOptionType } from "./options/option.type";
 import { BatchOptions } from "./options/batchOptions";
 import { ListOptions } from "./options/listOptions";
 import { ConfigHelpOptions } from "./options/configHelpOptions";
 import { MetaOptions } from "./options/metaOptions";
 import { ValidateOptions } from "./options/validateOptions";
-import { CustomOptions, CustomOptionType } from "./options/customOptions";
+import { CustomOptions, CustomOptionType, CustomOptionName } from "./options/customOptions";
 
 export function generatorFn() {
     const { createCommand } = require("commander");
@@ -27,9 +27,13 @@ export function generatorFn() {
                     .map((item: DefaultOptionType) => {
                         command += ` ${item.key1} ${item.value}`;
                     });
-                const swaggerUrlIndex: number = args.findIndex((item: string) => item === "-i" || item === "--input-spec") + 1;
-                const extraParamIndex: number = args.findIndex((item: string) => item === "-p" || item === "--additional-properties") + 1;
-                const baseUrlIndex: number = args.findIndex((item: string) => item === "-u" || item === "--baseUrl") + 1;
+                const templateIndex: number = args.findIndex((item: string) => item === GenerateOptionName.templateDirShort || item === GenerateOptionName.templateDir) + 1;
+                if (args.indexOf(CustomOptionName.sebTemplate) > -1 && templateIndex === 0) {
+                    command += ` ${GenerateOptionName.templateDirShort} ${"./dist/openapiGenerator/templates"}`;
+                }
+                const swaggerUrlIndex: number = args.findIndex((item: string) => item === GenerateOptionName.inputSpecShort || item === GenerateOptionName.inputSpec) + 1;
+                const extraParamIndex: number = args.findIndex((item: string) => item === GenerateOptionName.additionalPropertiesShort || item === GenerateOptionName.additionalProperties) + 1;
+                const baseUrlIndex: number = args.findIndex((item: string) => item === CustomOptionName.baseUrlShort || item === CustomOptionName.baseUrl) + 1;
                 let defaultBasePath: string = baseUrlIndex ? args[baseUrlIndex] : "http://localhost";
                 if (swaggerUrlIndex && !baseUrlIndex) {
                     try {
@@ -50,7 +54,7 @@ export function generatorFn() {
             CustomOptions.map((item: OptionType) => {
                 const index: number = args.findIndex((arg: string) => item.option.indexOf(arg) > -1);
                 if (index > -1) {
-                    args.splice(index, 2);
+                    args.splice(index, item.defaultValue ? 1 : 2);
                 }
             })
             if (args) {
