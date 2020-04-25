@@ -1,3 +1,6 @@
+import { ChildProcess, spawn } from "child_process";
+import commander, { createCommand } from "commander";
+// enums, options
 import { getSubcommand, Subcommand } from "./getSubcommand";
 import { GenerateOptions, GenerateDefaultOptions, GenerateOptionName } from "./options/generateOptions";
 import { OptionType, DefaultOptionType } from "./options/option.type";
@@ -10,14 +13,12 @@ import { CustomOptions, CustomOptionType, CustomOptionName, CustomTemplates, SEB
 import { OpenApiGenerator } from "./generatorList";
 
 export function generatorFn() {
-    const { createCommand } = require("commander");
-    const program = createCommand();
+    const program: commander.Command = createCommand();
     [...GenerateOptions, ...BatchOptions, ...ListOptions, ...ConfigHelpOptions, ...MetaOptions, ...ValidateOptions, ...CustomOptions].map((item: OptionType) => {
         program.option(item.option.join(", "), item.description, item.defaultValue);
     });
     program
         .action(() => {
-            const { spawn } = require("child_process");
             const args: Array<string> = process.argv.slice(2);
             const subcommand: Subcommand = getSubcommand(args[0]);
             args.shift();
@@ -67,7 +68,7 @@ export function generatorFn() {
             if (args) {
                 command += ` ${args.join(" ")}`;
             }
-            const cmd = spawn(command, { stdio: "inherit", shell: true });
+            const cmd: ChildProcess = spawn(command, { stdio: "inherit", shell: true });
             cmd.on("exit", process.exit);
         });
     program.parse(process.argv);

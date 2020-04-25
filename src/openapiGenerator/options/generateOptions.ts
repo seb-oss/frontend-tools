@@ -240,12 +240,7 @@ const defaultOptions: Array<DefaultOptionType> = [
         key1: OptionName.outputShort,
         key2: OptionName.output,
         value: "./src/generated"
-    },
-    // {
-    //     key1: "-p",
-    //     key2: "--additional-properties",
-    //     value: "apiUrl=$(ApiUrl),apiVersion=${apiVersion},withSeparateModelsAndApi=true,apiPackage=api,modelPackage=model"
-    // }
+    }
 ]
 
 export { options as GenerateOptions, defaultOptions as GenerateDefaultOptions, OptionName as GenerateOptionName };
