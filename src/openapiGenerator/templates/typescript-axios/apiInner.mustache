@@ -1,0 +1,57 @@
+{{#withSeparateModelsAndApi}}
+// tslint:disable
+import { AxiosPromise } from "axios";
+import { APIHandler, APIURLTypes, APIParams } from "{{apiRelativeToRoot}}base";
+import { {{#imports}}{{classname}}{{^-last}}, {{/-last}}{{/imports}} } from "{{apiRelativeToRoot}}{{tsModelPackage}}";
+{{/withSeparateModelsAndApi}}
+
+{{#operations}}
+export class {{classname}} extends APIHandler {
+    static urls: APIURLTypes.{{classname}} = {
+        {{#operation}}{{nickname}}: "{{path}}"{{#hasMore}},
+        {{/hasMore}}{{/operation}}
+    };
+    
+    constructor() {
+        super("{{classname}}");{{#authMethods}}
+        this.authentications.push({{#isBasic}}new HttpBasicAuth(){{/isBasic}}{{#isApiKey}}new ApiKeyAuth({{#isKeyInHeader}}'header', {{/isKeyInHeader}}{{^isKeyInHeader}}'query', {{/isKeyInHeader}}'{{keyParamName}}'){{/isApiKey}}{{#isOAuth}}new OAuth(){{/isOAuth}});{{/authMethods}}
+    }
+{{#authMethods}}
+{{#isBasic}}
+    set username(username: string) {
+        this.authentications.{{name}}.username = username;
+    }
+
+    set password(password: string) {
+        this.authentications.{{name}}.password = password;
+    }
+{{/isBasic}}
+{{#isOAuth}}
+    set accessToken(token: string) {
+        this.authentications.{{name}}.accessToken = token;
+    }
+{{/isOAuth}}
+{{/authMethods}}
+
+{{#operation}}
+    /**{{#summary}}
+     * {{summary}}{{/summary}}{{#notes}}
+     * {{notes}}{{/notes}}{{#allParams}}
+     * @param {{paramName}} {{description}}{{/allParams}}
+     */
+    public {{nickname}}<T = any>(params: APIParams & {
+        {{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{^isPrimitiveType}}{{^isFile}}{{/isFile}}{{/isPrimitiveType}}{{{dataType}}};{{#hasMore}}
+        {{/hasMore}}{{/allParams}}
+    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}): AxiosPromise<T> {
+        this.initAuth(false);
+        const apiURL: string = this.initAPIURL({{classname}}.urls.{{nickname}}{{#hasPathParams}}, { {{/hasPathParams}}{{#pathParams}}{{baseName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}{{#hasPathParams}} } {{/hasPathParams}}{{^pathParams}}, null{{/pathParams}});
+        params.options = this.initOptions(params.options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} }, {{#hasAuthMethods}}true{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}}, params.canceler);{{#formParams}}{{#isFile}}
+        const formData: FormData = new FormData();
+        formData.append("file", params.{{paramName}} as any);{{/isFile}}{{/formParams}}
+        const body: any = {{#formParams}}{{#isFile}}formData{{/isFile}}{{^isFile}}params.{{paramName}}{{/isFile}}{{/formParams}}{{^formParams}}{{#bodyParam}}params.{{paramName}}{{/bodyParam}}{{/formParams}}{{^formParams}}{{^bodyParam}}null{{/bodyParam}}{{/formParams}};
+        return this.makeCall<T>("{{httpMethod}}".toLowerCase(), apiURL, params.options, body, "{{nickname}}");
+    }
+
+{{/operation}}
+}
+{{/operations}}

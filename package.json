@@ -33,7 +33,12 @@
         "utilities"
     ],
     "license": "Apache-2.0",
+    "bin": {
+        "generate-api": "./bin/generate-api"
+    },
     "dependencies": {
+        "@openapitools/openapi-generator-cli": "^1.0.12-4.3.0",
+        "commander": "^5.0.0",
         "moment": "^2.24.0"
     },
     "devDependencies": {
