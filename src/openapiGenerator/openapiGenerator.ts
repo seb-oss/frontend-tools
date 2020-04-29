@@ -68,6 +68,7 @@ export function generatorFn() {
             if (args) {
                 command += ` ${args.join(" ")}`;
             }
+            process.env["JAVA_OPTS"] = `-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true`;
             const cmd: ChildProcess = spawn(command, { stdio: "inherit", shell: true });
             cmd.on("exit", process.exit);
         });
