@@ -1,3 +1,4 @@
+// tslint:disable
 import axios, { AxiosRequestConfig, AxiosInstance, AxiosPromise, AxiosResponse, AxiosError, Canceler } from "axios";
 // Utils
 import { isEmpty } from "@sebgroup/frontend-tools/dist/isEmpty";
@@ -11,9 +12,24 @@ import { {{configName}} } from "{{configPath}}";
 {{/configName}}
 
 let mocks: any;
-
+{{#apiInfo}}
+{{debugger}}
+{{/apiInfo}}
 if (process.env.NODE_ENV !== "production") {
-    mocks = { {{#apiInfo}}{{#apis}}"{{classname}}": { {{#operations}}{{#operation}}{{#examples}}"{{nickname}}": {{#example}}{{{example}}}{{/example}}{{^example}}null{{/example}}{{#hasMore}},{{/hasMore}}{{/examples}}{{/operation}}{{/operations}} } {{#hasMore}},{{/hasMore}}{{/apis}}{{/apiInfo}} };
+    mocks = {
+        {{#apiInfo}}
+            {{#apis}}
+        "{{classname}}": {
+            {{#operations}}
+                {{#operation}}
+                    {{#examples}}
+            "{{nickname}}": {{#example}}{{{example}}}{{/example}}{{^example}}null{{/example}}{{#hasMore}},{{/hasMore}}{{/examples}}
+                {{/operation}}
+            {{/operations}}
+        }{{#hasMore}},{{/hasMore}}
+            {{/apis}}
+        {{/apiInfo}}
+    };
 }
 
 interface KeyValuePair {
@@ -258,10 +274,29 @@ export class APIModel {
         }
     }
 }
+{{#models}}
+    {{#model}}
+        {{#hasEnums}}
+            {{#-first}}
 
-export const enumsMap: {[index: string]: any} = { {{#models}}{{#model}}{{#hasEnums}}{{#vars}}{{#isEnum}}
-    {{#isContainer}}"{{classname}}.{{enumName}}": {{classname}}.{{enumName}}{{/isContainer}}{{#isNotContainer}}"{{datatypeWithEnum}}": {{datatypeWithEnum}}{{/isNotContainer}},{{/isEnum}}{{/vars}}{{/hasEnums}}{{/model}}{{/models}}
+export const enumsMap: {[index: string]: any} = { 
+            {{/-first}}
+            {{#vars}}
+                {{#isEnum}}
+                    {{#isContainer}}
+    "{{classname}}.{{enumName}}": {{classname}}.{{enumName}}{{^-last}},{{/-last}}
+                    {{/isContainer}}
+                    {{#isNotContainer}}
+    "{{datatypeWithEnum}}": {{datatypeWithEnum}}{{^-last}},{{/-last}}
+                    {{/isNotContainer}}
+                {{/isEnum}}
+            {{/vars}}
+            {{#-last}}
 };
+            {{/-last}}
+        {{/hasEnums}}
+    {{/model}}
+{{/models}}
 
 export namespace APIURLTypes {
     {{#apiInfo}}
