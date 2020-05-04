@@ -11,6 +11,7 @@ import { MetaOptions } from "./options/metaOptions";
 import { ValidateOptions } from "./options/validateOptions";
 import { CustomOptions, CustomOptionType, CustomOptionName, CustomTemplates, SEBTemplate } from "./options/customOptions";
 import { OpenApiGenerator } from "./generatorList";
+import { generateMock } from "./mockGenerator/mockGenerator";
 
 export function generatorFn() {
     const program: commander.Command = createCommand();
@@ -50,6 +51,10 @@ export function generatorFn() {
                         console.warn("swagger path is not an url, setting base url to localhost...");
                     }
                 }
+
+                // generate mock
+                generateMock(args[swaggerUrlIndex]);
+
                 const basePathOption: string = `baseUrl=${defaultBasePath}`;
                 extraOptions.push(basePathOption);
                 if (extraParamIndex) {
