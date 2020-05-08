@@ -29,7 +29,7 @@ function formatJSON(error: any, response: any, outputPath: string) {
         const body = JSON.parse(response.body || response);
         const extractedBody: any = extractResponses(body);
         if (!existsSync(outputPath)){
-            mkdirSync(outputPath);
+            mkdirSync(outputPath, { recursive: true });
         }
         writeFiles(extractedBody, outputPath);
         console.log("################# mock generated ########################");
