@@ -1,25 +1,38 @@
-import { extractResponses, getSchemas } from "./formatResponse";
-import * as fs from "fs";
+import { extractResponses } from "./formatResponse";
+import { readFile, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
+import request from "request";
 
-export function generateMock(swaggerUrl: string) {
+export function generateMock(swaggerUrl: string, outputPath: string) {
     if (!!swaggerUrl) {
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-        const request = require("request");
-        request.get(swaggerUrl, function (error, response) {
-            if (error) {
-                console.error(error);
-                return;
-            }
-            if (!error && response.statusCode === 200) {
-                console.log("################# generating mock ########################");
-                const body = JSON.parse(response.body);
-                const test = extractResponses(body);
-                const schema = getSchemas(body);
-                writeFiles(test, "");
-                console.log("################# mock generated ########################");
-            }
-        });
+        if (swaggerUrl.indexOf("http") > -1) {
+            request.get(swaggerUrl, (error: any, response: any) => {
+                formatJSON(error, response, outputPath);
+            });
+        } else {
+            readFile(swaggerUrl, "utf-8", (error: any, response: any) => {
+                formatJSON(error, response, outputPath);
+            });
+        }
+    }
+}
+
+function formatJSON(error: any, response: any, outputPath: string) {
+    if (error) {
+        throw new Error(error);
+    } else {
+        if (response?.statusCode !== 200) {
+            throw new Error(response.statusMessage);
+        }
+        console.log("################# generating mock ########################");
+        const body = JSON.parse(response.body || response);
+        const extractedBody: any = extractResponses(body);
+        if (!existsSync(outputPath)){
+            mkdirSync(outputPath);
+        }
+        writeFiles(extractedBody, outputPath);
+        console.log("################# mock generated ########################");
     }
 }
 
@@ -30,5 +43,5 @@ export const writeFiles = (
         const fileName = `mock.json`;
         const path = join(outputPath || "./", fileName);
         const formatted = JSON.stringify(data, null, 2);
-        fs.writeFileSync(path, formatted);
+        writeFileSync(path, formatted);
     };

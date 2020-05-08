@@ -52,9 +52,6 @@ export function generatorFn() {
                     }
                 }
 
-                // generate mock
-                generateMock(args[swaggerUrlIndex]);
-
                 const basePathOption: string = `baseUrl=${defaultBasePath}`;
                 extraOptions.push(basePathOption);
                 if (extraParamIndex) {
@@ -63,6 +60,12 @@ export function generatorFn() {
                     args.push("-p");
                     args.push(extraOptions.toString());
                 }
+                const outputPathIndex: number = args.findIndex((item: string) => item === GenerateOptionName.outputShort || item === GenerateOptionName.output) + 1;
+                // generate mock
+                generateMock(
+                    args[swaggerUrlIndex],
+                    outputPathIndex ? args[outputPathIndex] : GenerateDefaultOptions.find(({ key1 }: DefaultOptionType) => key1 === GenerateOptionName.outputShort).value
+                );
             }
             CustomOptions.map((item: CustomOptionType) => {
                 const index: number = args.findIndex((arg: string) => item.option.indexOf(arg) > -1);
@@ -73,6 +76,7 @@ export function generatorFn() {
             if (args) {
                 command += ` ${args.join(" ")}`;
             }
+
             process.env["JAVA_OPTS"] = `-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true`;
             const cmd: ChildProcess = spawn(command, { stdio: "inherit", shell: true });
             cmd.on("exit", process.exit);
@@ -82,7 +86,7 @@ export function generatorFn() {
 
 function formatExtraOption(args: Array<string>, extraOptions?: Array<string>) {
     const newExtraOptions: Array<string> = extraOptions ? [...extraOptions] : [];
-    CustomOptions.filter(({dependedOption}) => dependedOption && dependedOption.length > 0)
+    CustomOptions.filter(({ dependedOption }) => dependedOption && dependedOption.length > 0)
         .map((option: CustomOptionType) => {
             const argumentIndex: number = args.findIndex((item: string) => option.option.indexOf(item) > -1) + 1;
             const relatedArgumentIndex: number = args.findIndex((item: string) => option.dependedOption.indexOf(item) > -1) + 1;
