@@ -1,22 +1,22 @@
-// import { OpenAPIObject, PathItemObject } from "openapi3-ts";
-
+import { OpenAPI, OpenAPIV3, OpenAPIV2 } from "openapi-types";
 import { generateData, generateModelsWithData } from "./generateData";
 
-export const APPLICATION_JSON = "application/json";
+export const APPLICATION_JSON: string = "application/json";
+export type ApplicationJson = "application/json";
 
-export type ResponsesType = {
+export type ResponsesType<T extends string = ApplicationJson> = {
     [path: string]: {
-        [APPLICATION_JSON]: { schema: any };
+        [k in T]: { schema: any };
     };
 };
 
-export const extractResponses = (obj: any): ResponsesType => {
+export const extractResponses = (obj: OpenAPI.Document): ResponsesType => {
     const extracted: any = {};
-    const modelSchemas = generateModelsWithData(obj);
+    const modelSchemas: any = generateModelsWithData(obj);
     Object.keys(obj.paths).forEach(path => {
         const methods: any = obj.paths[path];
         Object.keys(methods).forEach((method: string) => {
-            const api: any = methods[method];
+            const api: OpenAPI.Operation  = methods[method];
             const { responses, operationId } = api;
             let methodName: string = operationId;
             if (methodName) {
@@ -25,12 +25,11 @@ export const extractResponses = (obj: any): ResponsesType => {
             const key: string = methodName ? methodName : `${path}_${method}`;
             extracted[key] = {};
             Object.keys(responses).forEach((statusCode: string) => {
-                const response = responses[statusCode];
-                const { content, schema, description } = response;
-                const defaultReturn: string = description;
-                let mock: any = schema || defaultReturn;
-                if (content && content[APPLICATION_JSON]?.schema) {
-                    mock = content[APPLICATION_JSON].schema;
+                const response: OpenAPIV3.ParameterObject | OpenAPIV2.ParameterObject = responses[statusCode];
+                const defaultReturn: string = response.description;
+                let mock: any = response.schema || defaultReturn;
+                if (response.content && response.content[APPLICATION_JSON]?.schema) {
+                    mock = response.content[APPLICATION_JSON].schema;
                 }
                 mock = typeof(mock) === "string" ? mock : generateData("", mock, modelSchemas);
                 extracted[key][statusCode] = mock;

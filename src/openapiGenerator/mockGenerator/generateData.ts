@@ -1,41 +1,10 @@
-type NumberFormat = "float" | "double" | "int32" | "int64";
-type StringFormat = "date" | "date-time" | "password" | "byte" | "binary" | "email" | "uuid" | "uri" | "hostname" | "ipv6" | "ipv4";
+import { OpenAPI, OpenAPIV3, OpenAPIV2 } from "openapi-types";
 
 type RelationType = "oneOf" | "anyOf" | "allOf" | "not";
 
-interface BasePropertyType {
-    type: "string" | "number" | "integer" | "boolean" | "array" | "object" | "null";
-    format?: NumberFormat | StringFormat;
-    pattern?: string;
-    example?: any;
-    properties?: PropertyType;
-    items?: SchemaContent;
-    enum?: Array<string>;
-}
-
-interface ReferenceType {
-    $ref: string;
-}
-
-type SchemaContent = BasePropertyType | PropertyType<RelationType> | Array<ReferenceType> | ReferenceType;
-
-export type PropertyType<T extends string = ""> = {
-    [K in T]?: SchemaContent;
-}
-
-type SwaggerV3Type = {
-    components: {
-        schemas: any;
-    };
-};
-
-type SwaggerV2Type = {
-    definitions: any;
-}
-
-export function generateModelsWithData(obj: SwaggerV2Type | SwaggerV3Type) {
+export function generateModelsWithData(obj: OpenAPI.Document) {
     const models: any = {};
-    const schemas: PropertyType = ((obj as SwaggerV3Type)?.components)?.schemas || (obj as SwaggerV2Type).definitions;
+    const schemas: OpenAPIV3.ComponentsObject | OpenAPIV2.DefinitionsObject = ((obj as OpenAPIV3.Document)?.components)?.schemas || (obj as OpenAPIV2.Document).definitions;
     const unsortedSchemaKeys: Array<string> = Object.keys(schemas);
     const unsortedSchemaKeysWithRef: Array<string> = unsortedSchemaKeys.filter((key: string) => JSON.stringify(schemas[key]).indexOf("$ref") > -1);
     let sortedSchemaKeys: Array<string> = unsortedSchemaKeys.filter((key: string) => JSON.stringify(schemas[key]).indexOf("$ref") === -1);
@@ -49,24 +18,24 @@ export function generateModelsWithData(obj: SwaggerV2Type | SwaggerV3Type) {
     });
     sortedSchemaKeys = [...sortedSchemaKeys, ...unsortedSchemaKeysWithRef];
     sortedSchemaKeys.forEach((modelName: string) => {
-        const schema: SchemaContent = schemas[modelName];
+        const schema: OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject = schemas[modelName];
         models[modelName] = generateData(modelName, schema, models);
     });
     return models;
 }
 
-export function generateData(modelName: string, schema: SchemaContent, models?: any): any {
+export function generateData(modelName: string, schema: OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject, models?: any): any {
     let newModel: any = {};
-    if ((schema as ReferenceType)?.$ref) {
-        const reference: any = getReference((schema as ReferenceType).$ref, models);
+    if ((schema as OpenAPIV3.ReferenceObject)?.$ref) {
+        const reference: any = getReference((schema as OpenAPIV3.ReferenceObject).$ref, models);
         newModel = typeof reference === "string" ? reference : { ...newModel, ...reference };
     }
-    if ((schema as PropertyType<RelationType>)?.allOf || (schema as PropertyType<RelationType>)?.anyOf || (schema as PropertyType<RelationType>)?.oneOf) {
-        Object.keys(schema as PropertyType<RelationType>).filter((key: RelationType) => key === "allOf" || key === "anyOf" || key === "oneOf" || key === "not")
+    if (schema?.allOf || schema?.anyOf || schema?.oneOf) {
+        Object.keys(schema).filter((key: RelationType) => key === "allOf" || key === "anyOf" || key === "oneOf" || key === "not")
             .map((key: RelationType) => {
                 switch (key) {
                     case "allOf":
-                        ((schema as PropertyType<RelationType>).allOf as Array<ReferenceType>).map((item: ReferenceType) => {
+                        (schema.allOf as Array<OpenAPIV3.ReferenceObject>).map((item: OpenAPIV3.ReferenceObject) => {
                             newModel = { ...newModel, ...item.$ref ? getReference(item.$ref, models) : generateData(modelName, item) };
                         });
                         break;
@@ -74,20 +43,19 @@ export function generateData(modelName: string, schema: SchemaContent, models?: 
                         newModel = { ...newModel, ...generateData(modelName, { type: "string" }) };
                         break;
                     default:
-                        const listOfReferences: Array<ReferenceType> = ((schema as PropertyType<RelationType>).oneOf || (schema as PropertyType<RelationType>).anyOf) as Array<ReferenceType>;
-                        const selectedItem: ReferenceType = listOfReferences?.length ? listOfReferences[Math.floor(Math.random() * listOfReferences.length)] : null;
+                        const listOfReferences: Array<OpenAPIV3.ReferenceObject> = (schema.oneOf || schema.anyOf) as Array<OpenAPIV3.ReferenceObject>;
+                        const selectedItem: OpenAPIV3.ReferenceObject = listOfReferences?.length ? listOfReferences[Math.floor(Math.random() * listOfReferences.length)] : null;
                         if (!!selectedItem) {
                             newModel = { ...newModel, ...selectedItem.$ref ? getReference(selectedItem.$ref, models) : generateData(modelName, selectedItem) };
                         }
                 }
             });
     }
-    if ((schema as BasePropertyType)?.type) {
-        const selectedSchema: BasePropertyType = (schema as BasePropertyType);
-        switch (selectedSchema.type) {
+    if (schema) {
+        switch (schema.type) {
             case "object":
                 const object: any = {};
-                const { properties } = selectedSchema;
+                const { properties } = schema;
                 if (properties) {
                     Object.keys(properties).forEach((attribute: string) => {
                         object[attribute] = generateData(attribute, properties[attribute], models);
@@ -96,14 +64,14 @@ export function generateData(modelName: string, schema: SchemaContent, models?: 
                 newModel = { ...newModel, ...object };
                 break;
             case "array":
-                newModel = [generateData(modelName, selectedSchema.items, models)];
+                newModel = [generateData(modelName, schema.items, models)];
                 break;
             case "integer":
-            case "number": newModel = selectedSchema.example || 0; break;
-            case "boolean": newModel = selectedSchema.example || true; break;
+            case "number": newModel = schema.example || 0; break;
+            case "boolean": newModel = schema.example || true; break;
             default:
-                let example: string = selectedSchema.example ? selectedSchema.example : selectedSchema.enum ? selectedSchema.enum[0] : modelName;
-                if (selectedSchema.format === "date-time") {
+                let example: string = schema.example ? schema.example : schema.enum ? schema.enum[0] : modelName;
+                if (schema.format === "date-time") {
                     example = new Date().toLocaleString();
                 }
                 newModel = example;
@@ -117,7 +85,7 @@ export function generateData(modelName: string, schema: SchemaContent, models?: 
  * @param path path of reference
  * @param references list of references
  */
-function getReference(path: string, references) {
+function getReference(path: string, references: Array<OpenAPIV3.ReferenceObject>) {
     const referencePath: Array<string> = path.split("/");
     return references[referencePath[referencePath.length - 1]];
 }
