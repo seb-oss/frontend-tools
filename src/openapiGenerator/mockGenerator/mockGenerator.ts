@@ -40,8 +40,8 @@ export const writeFiles = (
         data: any,
         outputPath: string
     ): void => {
-        const fileName = `mock.json`;
-        const path = join(outputPath || "./", fileName);
-        const formatted = JSON.stringify(data, null, 2);
+        const fileName: string = `mock.json`;
+        const path: string = join(outputPath || "./", fileName);
+        const formatted: string = JSON.stringify(data, null, 2);
         writeFileSync(path, formatted);
     };
