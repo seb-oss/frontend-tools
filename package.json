@@ -13,8 +13,7 @@
         "test": "npm run clean:test && jest --forceExit --detectOpenHandles",
         "commit": "git-cz",
         "semantic-release": "semantic-release",
-        "sanitize": "package-lock-sanitizer && git add package-lock.json",
-        "generate:example": "openapi-generator generate -i https://petstore.swagger.io/v2/swagger.json -g typescript-axios -o ./openapiGenerator/examples/typescript-axios/"
+        "sanitize": "package-lock-sanitizer && git add package-lock.json"
     },
     "publishConfig": {
         "registry": "https://registry.npmjs.org/",
