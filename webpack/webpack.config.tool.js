@@ -29,7 +29,9 @@ module.exports = {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
         }),
-        new CopyWebpackPlugin(utils.indexes),
+        new CopyWebpackPlugin({
+            patterns: utils.indexes
+        }),
         new CaseSensitivePathsPlugin()
     ],
     module: {

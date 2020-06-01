@@ -16,20 +16,7 @@ let mocks: any;
 {{debugger}}
 {{/apiInfo}}
 if (process.env.NODE_ENV !== "production") {
-    mocks = {
-        {{#apiInfo}}
-            {{#apis}}
-        "{{classname}}": {
-            {{#operations}}
-                {{#operation}}
-                    {{#examples}}
-            "{{nickname}}": {{#example}}{{{example}}}{{/example}}{{^example}}null{{/example}}{{#hasMore}},{{/hasMore}}{{/examples}}
-                {{/operation}}
-            {{/operations}}
-        }{{#hasMore}},{{/hasMore}}
-            {{/apis}}
-        {{/apiInfo}}
-    };
+    mocks = require("./mocks.json");
 }
 
 interface KeyValuePair {
@@ -199,7 +186,7 @@ export class APIHandler {
      */
     protected makeCall<T>(method: string, url: string, options: AxiosRequestConfig, body: any = null, methodName: string): AxiosPromise<T> {
         if ({{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.useMock) {
-            return new Promise((resolve) => { simulateData(resolve, mocks[this.className][methodName], 200, {{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.delay); });
+            return new Promise((resolve) => { simulateData(resolve, mocks[this.className][methodName][200] || mocks[this.className][methodName][default] || mocks[this.className][methodName], 200, {{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.delay); });
         } else {
             switch (method) {
                 case "get": return this.axiosInstance.get<T>(url, options);
