@@ -48,7 +48,7 @@ export class {{classname}} extends APIHandler {
         params.options = this.initOptions(params.options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} }, {{#hasAuthMethods}}true{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}}, params.canceler);{{#formParams}}{{#isFile}}
         const formData: FormData = new FormData();
         formData.append("file", params.{{paramName}} as any);{{/isFile}}{{/formParams}}
-        const body: any = {{#formParams}}{{#isFile}}formData{{/isFile}}{{^isFile}}params.{{paramName}}{{/isFile}}{{/formParams}}{{^formParams}}{{#bodyParam}}params.{{paramName}}{{/bodyParam}}{{/formParams}}{{^formParams}}{{^bodyParam}}null{{/bodyParam}}{{/formParams}};
+        const body: any = {{#formParams}}{{#-first}}{ {{/-first}}{{#isFile}}formData{{/isFile}}{{^isFile}}{{paramName}}: params.{{paramName}}{{/isFile}}{{#-last}} }{{/-last}}{{^-last}}, {{/-last}}{{/formParams}}{{^formParams}}{{#bodyParam}}params.{{paramName}}{{/bodyParam}}{{/formParams}}{{^formParams}}{{^bodyParam}}null{{/bodyParam}}{{/formParams}};
         return this.makeCall<T>("{{httpMethod}}".toLowerCase(), apiURL, params.options, body, "{{nickname}}");
     }
 

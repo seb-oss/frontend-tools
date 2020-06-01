@@ -27,16 +27,18 @@ module.exports = {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
         }),
-        new CopyWebpackPlugin([
-            { from: "./src/openapiGenerator/index.ts", to: "./openapiGenerator/index.js", },
-            { from: "./src/openapiGenerator/templates/**/*", to: "[path][name].[ext]", 
-            transformPath(targetPath) {
-                const pathSplitter = targetPath.indexOf("\\") > -1 ? "\\" : "/";
-                const pathArray = targetPath.split(pathSplitter);
-                pathArray.splice(0, 1);
-                return pathArray.join(pathSplitter);
-            },},
-        ]),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: "./src/openapiGenerator/index.ts", to: "./openapiGenerator/index.js", },
+                { from: "./src/openapiGenerator/templates/**/*", to: "[path][name].[ext]", 
+                transformPath(targetPath) {
+                    const pathSplitter = targetPath.indexOf("\\") > -1 ? "\\" : "/";
+                    const pathArray = targetPath.split(pathSplitter);
+                    pathArray.splice(0, 1);
+                    return pathArray.join(pathSplitter);
+                },},
+            ]
+        }),
         new CaseSensitivePathsPlugin()
     ],
     module: {

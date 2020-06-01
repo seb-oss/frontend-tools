@@ -1,3 +1,4 @@
+// tslint:disable
 import axios, { AxiosRequestConfig, AxiosInstance, AxiosPromise, AxiosResponse, AxiosError, Canceler } from "axios";
 // Utils
 import { isEmpty } from "@sebgroup/frontend-tools/dist/isEmpty";
@@ -11,9 +12,11 @@ import { {{configName}} } from "{{configPath}}";
 {{/configName}}
 
 let mocks: any;
-
+{{#apiInfo}}
+{{debugger}}
+{{/apiInfo}}
 if (process.env.NODE_ENV !== "production") {
-    mocks = { {{#apiInfo}}{{#apis}}"{{classname}}": { {{#operations}}{{#operation}}{{#examples}}"{{nickname}}": {{#example}}{{{example}}}{{/example}}{{^example}}null{{/example}}{{#hasMore}},{{/hasMore}}{{/examples}}{{/operation}}{{/operations}} } {{#hasMore}},{{/hasMore}}{{/apis}}{{/apiInfo}} };
+    mocks = require("./mocks.json");
 }
 
 interface KeyValuePair {
@@ -183,7 +186,7 @@ export class APIHandler {
      */
     protected makeCall<T>(method: string, url: string, options: AxiosRequestConfig, body: any = null, methodName: string): AxiosPromise<T> {
         if ({{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.useMock) {
-            return new Promise((resolve) => { simulateData(resolve, mocks[this.className][methodName], 200, {{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.delay); });
+            return new Promise((resolve) => { simulateData(resolve, mocks[this.className][methodName][200] || mocks[this.className][methodName][default] || mocks[this.className][methodName], 200, {{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.delay); });
         } else {
             switch (method) {
                 case "get": return this.axiosInstance.get<T>(url, options);
@@ -258,10 +261,29 @@ export class APIModel {
         }
     }
 }
+{{#models}}
+    {{#model}}
+        {{#hasEnums}}
+            {{#-first}}
 
-export const enumsMap: {[index: string]: any} = { {{#models}}{{#model}}{{#hasEnums}}{{#vars}}{{#isEnum}}
-    {{#isContainer}}"{{classname}}.{{enumName}}": {{classname}}.{{enumName}}{{/isContainer}}{{#isNotContainer}}"{{datatypeWithEnum}}": {{datatypeWithEnum}}{{/isNotContainer}},{{/isEnum}}{{/vars}}{{/hasEnums}}{{/model}}{{/models}}
+export const enumsMap: {[index: string]: any} = { 
+            {{/-first}}
+            {{#vars}}
+                {{#isEnum}}
+                    {{#isContainer}}
+    "{{classname}}.{{enumName}}": {{classname}}.{{enumName}}{{^-last}},{{/-last}}
+                    {{/isContainer}}
+                    {{#isNotContainer}}
+    "{{datatypeWithEnum}}": {{datatypeWithEnum}}{{^-last}},{{/-last}}
+                    {{/isNotContainer}}
+                {{/isEnum}}
+            {{/vars}}
+            {{#-last}}
 };
+            {{/-last}}
+        {{/hasEnums}}
+    {{/model}}
+{{/models}}
 
 export namespace APIURLTypes {
     {{#apiInfo}}
