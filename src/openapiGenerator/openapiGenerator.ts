@@ -11,6 +11,7 @@ import { MetaOptions } from "./options/metaOptions";
 import { ValidateOptions } from "./options/validateOptions";
 import { CustomOptions, CustomOptionType, CustomOptionName, CustomTemplates, SEBTemplate } from "./options/customOptions";
 import { OpenApiGenerator } from "./generatorList";
+import { generateMock } from "./mockGenerator/mockGenerator";
 
 export function generatorFn() {
     const program: commander.Command = createCommand();
@@ -25,7 +26,7 @@ export function generatorFn() {
             let command: string = `node ./node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator ${subcommand}`;
             const extraOptions: Array<string> = formatExtraOption(args);
             if (subcommand === "generate") {
-                const generatorNameIndex: number = args.findIndex((arg: string) => arg === GenerateOptionName.generatorNameShort || arg === GenerateOptionName.generatorName) + 1;
+                const generatorNameIndex: number = getArgumentIndex(args, [GenerateOptionName.generatorNameShort, GenerateOptionName.generatorName]);
                 let generatorName: OpenApiGenerator = args[generatorNameIndex] as OpenApiGenerator;
                 GenerateDefaultOptions.filter((item: DefaultOptionType) => !args.every((arg: string) => arg === item.key1 || arg === item.key2))
                     .map((item: DefaultOptionType) => {
@@ -34,14 +35,14 @@ export function generatorFn() {
                         }
                         command += ` ${item.key1} ${item.value}`;
                     });
-                const templateIndex: number = args.findIndex((item: string) => item === GenerateOptionName.templateDirShort || item === GenerateOptionName.templateDir) + 1;
+                const templateIndex: number = getArgumentIndex(args, [GenerateOptionName.templateDirShort, GenerateOptionName.templateDir]);
                 const sebTemplatePath: string = CustomTemplates.find((item: SEBTemplate) => item.generator === generatorName)?.templatePath;
                 if (args.indexOf(CustomOptionName.sebTemplate) > -1 && templateIndex === 0 && !!sebTemplatePath) {
                     command += ` ${GenerateOptionName.templateDirShort} ${sebTemplatePath}`;
                 }
-                const swaggerUrlIndex: number = args.findIndex((item: string) => item === GenerateOptionName.inputSpecShort || item === GenerateOptionName.inputSpec) + 1;
-                const extraParamIndex: number = args.findIndex((item: string) => item === GenerateOptionName.additionalPropertiesShort || item === GenerateOptionName.additionalProperties) + 1;
-                const baseUrlIndex: number = args.findIndex((item: string) => item === CustomOptionName.baseUrlShort || item === CustomOptionName.baseUrl) + 1;
+                const swaggerUrlIndex: number = getArgumentIndex(args, [GenerateOptionName.inputSpecShort, GenerateOptionName.inputSpec]);
+                const extraParamIndex: number = getArgumentIndex(args, [GenerateOptionName.additionalPropertiesShort, GenerateOptionName.additionalProperties]);
+                const baseUrlIndex: number = getArgumentIndex(args, [CustomOptionName.baseUrlShort, CustomOptionName.baseUrl]);
                 let defaultBasePath: string = baseUrlIndex ? args[baseUrlIndex] : "http://localhost";
                 if (swaggerUrlIndex && !baseUrlIndex) {
                     try {
@@ -50,6 +51,7 @@ export function generatorFn() {
                         console.warn("swagger path is not an url, setting base url to localhost...");
                     }
                 }
+
                 const basePathOption: string = `baseUrl=${defaultBasePath}`;
                 extraOptions.push(basePathOption);
                 if (extraParamIndex) {
@@ -58,6 +60,12 @@ export function generatorFn() {
                     args.push("-p");
                     args.push(extraOptions.toString());
                 }
+                const outputPathIndex: number = getArgumentIndex(args, [GenerateOptionName.outputShort, GenerateOptionName.output]);
+                // generate mock
+                generateMock(
+                    args[swaggerUrlIndex],
+                    outputPathIndex ? args[outputPathIndex] : GenerateDefaultOptions.find(({ key1 }: DefaultOptionType) => key1 === GenerateOptionName.outputShort).value
+                );
             }
             CustomOptions.map((item: CustomOptionType) => {
                 const index: number = args.findIndex((arg: string) => item.option.indexOf(arg) > -1);
@@ -68,6 +76,7 @@ export function generatorFn() {
             if (args) {
                 command += ` ${args.join(" ")}`;
             }
+
             process.env["JAVA_OPTS"] = `-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true`;
             const cmd: ChildProcess = spawn(command, { stdio: "inherit", shell: true });
             cmd.on("exit", process.exit);
@@ -77,10 +86,10 @@ export function generatorFn() {
 
 function formatExtraOption(args: Array<string>, extraOptions?: Array<string>) {
     const newExtraOptions: Array<string> = extraOptions ? [...extraOptions] : [];
-    CustomOptions.filter(({dependedOption}) => dependedOption && dependedOption.length > 0)
+    CustomOptions.filter(({ dependedOption }) => dependedOption && dependedOption.length > 0)
         .map((option: CustomOptionType) => {
-            const argumentIndex: number = args.findIndex((item: string) => option.option.indexOf(item) > -1) + 1;
-            const relatedArgumentIndex: number = args.findIndex((item: string) => option.dependedOption.indexOf(item) > -1) + 1;
+            const argumentIndex: number = getArgumentIndex(args, option.option);
+            const relatedArgumentIndex: number = getArgumentIndex(args, option.dependedOption);
             if (!!(argumentIndex) !== !!relatedArgumentIndex) {
                 throw new Error(option.errorMessage);
             } else if (argumentIndex > 0) {
@@ -88,4 +97,13 @@ function formatExtraOption(args: Array<string>, extraOptions?: Array<string>) {
             }
         });
     return newExtraOptions;
+}
+
+function getArgumentIndex(args: Array<string>, keys: Array<string>, withoutValue?: boolean) {
+    const indicatorIndex: number = args.findIndex((item: string) => keys.some((key: string) => key === item));
+    const possibleArgumentIndex: number = indicatorIndex + 1;
+    return indicatorIndex > -1 &&
+        (args[possibleArgumentIndex] !== undefined || args[possibleArgumentIndex].indexOf("-") > 0) ?
+        possibleArgumentIndex :
+        withoutValue ? indicatorIndex : 0;
 }
