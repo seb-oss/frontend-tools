@@ -199,10 +199,10 @@ export class FormValidator<T> {
         let fieldError: ModelFieldError = null;
         switch (type) {
             case "required": return isEmpty(value) || (typeof value === "string" && value.trim() === "") ? { errorCode: "empty" } : null;
-            case "isDate": return value instanceof Date ? null : { errorCode: "invalidDate" };
+            case "isDate": return isEmpty(value) || value instanceof Date ? null : { errorCode: "invalidDate" };
             case "dateRange":
                 const date: Moment = moment(value);
-                if (date.isValid()) {
+                if (!isEmpty(value) && date.isValid()) {
                     if (specs.minDate) {
                         fieldError = moment(clearTime(date.toDate())).isBefore(clearTime(specs.minDate)) ? { errorCode: "beforeMinDate", specs: { minDate: specs.minDate } } : null;
                     }
@@ -214,7 +214,7 @@ export class FormValidator<T> {
                     return null;
                 }
             case "textLength":
-                if (typeof value === "string") {
+                if (!isEmpty(value) || typeof value === "string") {
                     if (specs.minLength) {
                         fieldError = value.length < specs.minLength ? { errorCode: "lessThanMinLength", specs: { minLength: specs.minLength } } : null;
                     }
@@ -226,7 +226,7 @@ export class FormValidator<T> {
                     return null;
                 }
             case "valueRange":
-                if (typeof value === "number") {
+                if (!isEmpty(value) || typeof value === "number") {
                     if (specs.minValue) {
                         fieldError = value < specs.minValue ? { errorCode: "lessThanMinValue", specs: { minValue: specs.minValue } } : null;
                     }
@@ -237,9 +237,9 @@ export class FormValidator<T> {
                 } else {
                     return null;
                 }
-            case "validEmail": return isEmail(value) ? null : { errorCode: "invalidEmail" };
-            case "strongPassword": return isStrongPassword(value) ? null : { errorCode: "weakPassword" };
-            case "isPhoneNumber": return isPhoneNumber(value) ? null : { errorCode: "invalidPhoneNumber" };
+            case "validEmail": return isEmpty(value) || isEmail(value) ? null : { errorCode: "invalidEmail" };
+            case "strongPassword": return isEmpty(value) || isStrongPassword(value) ? null : { errorCode: "weakPassword" };
+            case "isPhoneNumber": return isEmpty(value) || isPhoneNumber(value) ? null : { errorCode: "invalidPhoneNumber" };
         }
     }
 
