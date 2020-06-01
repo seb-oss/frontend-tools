@@ -33,6 +33,7 @@ describe("Form Validator", () => {
             { type: "dateRange", value: modifyDate(now, 1, "SUBTRACT", "year"), specs: { minDate: now }, expected: { errorCode: "beforeMinDate", specs: { minDate: now } } },
             { type: "dateRange", value: modifyDate(now, 1, "ADD", "year"), specs: { maxDate: now }, expected: { errorCode: "afterMaxDate", specs: { maxDate: now } } },
             { type: "dateRange", value: now, specs: { minDate: modifyDate(now, 1, "SUBTRACT", "day"), maxDate: modifyDate(now, 1, "ADD", "day") }, expected: noError },
+            { type: "dateRange", value: "abc", specs: { minDate: modifyDate(now, 1, "SUBTRACT", "day"), maxDate: modifyDate(now, 1, "ADD", "day") }, expected: noError },
             { type: "textLength", value: true, specs: { minLength: 5 }, expected: null },
             { type: "textLength", value: "ABCDEFG", specs: { minLength: 5 }, expected: noError },
             { type: "textLength", value: "ABC", specs: { minLength: 5 }, expected: { errorCode: "lessThanMinLength", specs: { minLength: 5 } } },
