@@ -51,7 +51,7 @@ export function generateData(modelName: string, schema: OpenAPIV2.SchemaObject |
                 }
             });
     }
-    if (schema) {
+    if (schema && !(schema as OpenAPIV3.ReferenceObject)?.$ref) {
         switch (schema.type) {
             case "object":
                 const object: any = {};

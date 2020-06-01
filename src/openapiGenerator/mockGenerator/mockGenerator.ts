@@ -32,7 +32,7 @@ function formatJSON(error: any, response: any, outputPath: string) {
             mkdirSync(outputPath, { recursive: true });
         }
         writeFiles(extractedBody, outputPath);
-        console.log("################# mock generated ########################");
+        console.log("\x1b[32m%s\x1b[0m", "################# Mock generated ########################");
     }
 }
 
