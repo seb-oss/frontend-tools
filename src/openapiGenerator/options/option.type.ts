@@ -5,7 +5,6 @@ export interface OptionType {
 }
 
 export interface DefaultOptionType {
-    key1: string;
-    key2?: string;
+    key: Array<string>;
     value: string;
 }
