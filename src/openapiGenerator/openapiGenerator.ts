@@ -1,5 +1,6 @@
 import { ChildProcess, spawn } from "child_process";
 import commander, { createCommand } from "commander";
+import { existsSync, rmdir, readdirSync, lstatSync, unlinkSync, rmdirSync } from "fs";
 // enums, options
 import { Subcommand, getDefaultSubcommand } from "./getSubcommand";
 import {
@@ -30,6 +31,7 @@ import {
 } from "./options/customOptions";
 import { OpenApiGenerator } from "./generatorList";
 import { generateMock } from "./mockGenerator/mockGenerator";
+import { join } from "path";
 
 type GeneratorSubcommand = Subcommand | Array<string>;
 
@@ -61,8 +63,8 @@ export function generatorFn() {
             let generatorName: OpenApiGenerator = generateArgs.g || generateArgs["generator-name"];
             GenerateDefaultOptions.map((item: DefaultOptionType) => {
                 const defaultOptionArgs: GenerateArgumentType = minimist(item.key);
-                if (!Object.keys(defaultOptionArgs).some((key: string) => Object.keys(generateArgs).some((argKey: string) => argKey === key))) {
-                    if (item?.key?.indexOf(GenerateOptionName.generatorName)) {
+                if (!Object.keys(defaultOptionArgs).some((key: string) => Object.keys(generateArgs).some((argKey: string) => argKey !== "_" && argKey === key))) {
+                    if (item?.key?.indexOf(GenerateOptionName.generatorName) > -1) {
                         generatorName = item.value as OpenApiGenerator;
                     }
                     command += ` ${item.key[0]} ${item.value}`;
@@ -98,20 +100,21 @@ export function generatorFn() {
             } else {
                 (args as GenerateArgumentType).p = extraOptions.toString();
             }
+            const outputDir: string = (generateArgs.o || generateArgs.output)
+                ? generateArgs.o || generateArgs.output
+                : GenerateDefaultOptions.find(
+                    ({ key }: DefaultOptionType) =>
+                        key?.indexOf(GenerateOptionName.output) > -1
+                )?.value;
+            if (existsSync(outputDir)){
+                deleteFolderRecursive(outputDir);
+            }
             // generate mock
-            generateMock(
-                (generateArgs.i || generateArgs["input-spec"]),
-                (generateArgs.o || generateArgs.output)
-                    ? generateArgs.o || generateArgs.output
-                    : GenerateDefaultOptions.find(
-                            ({ key }: DefaultOptionType) =>
-                                key?.indexOf(GenerateOptionName.output) > -1
-                      )?.value
-            );
+            generateMock((generateArgs.i || generateArgs["input-spec"]), outputDir);
         }
         CustomOptions.map((item: CustomOptionType) => {
             const customOption: CustomOptionsArgumentType = minimist(item.option);
-            const selectedKey: string = Object.keys(customOption).find((key: string) => Object.keys(args).some((argKey: string) => argKey === key));
+            const selectedKey: string = Object.keys(customOption).find((key: string) => Object.keys(args).some((argKey: string) => argKey !== "_" && argKey === key));
             if (selectedKey) {
                 delete args[selectedKey];
             }
@@ -132,6 +135,11 @@ export function generatorFn() {
     program.parse(process.argv);
 }
 
+/**
+ * format extra options into array to append to -p
+ * @param args arguments
+ * @param extraOptions extra options list
+ */
 function formatExtraOption(args: GeneratorArgs, extraOptions?: Array<string>) {
     const newExtraOptions: Array<string> = extraOptions
         ? [...extraOptions]
@@ -144,7 +152,7 @@ function formatExtraOption(args: GeneratorArgs, extraOptions?: Array<string>) {
         const extraArgument: string = Object.keys(args).find((key: string) =>
             Object.keys(extraArgs).some((argKey: string) => argKey !== "_" && argKey === key)
         );
-        const extraDependentArgument: string = Object.keys(args).find((key: string) => Object.keys(extraDependentArgs).some((argKey: string) => argKey === key));
+        const extraDependentArgument: string = Object.keys(args).find((key: string) => Object.keys(extraDependentArgs).some((argKey: string) => argKey !== "_" && argKey === key));
         if (option.dependedOption && !!args[extraArgument] !== !!args[extraDependentArgument]) {
             throw new Error(option.errorMessage);
         } else if (!!args[extraArgument]) {
@@ -155,3 +163,21 @@ function formatExtraOption(args: GeneratorArgs, extraOptions?: Array<string>) {
     });
     return newExtraOptions;
 }
+
+/**
+ * remove folder recursively
+ * @param dirPath directory path
+ */
+function deleteFolderRecursive(dirPath: string) {
+    if (existsSync(dirPath)) {
+      readdirSync(dirPath).forEach((file: string) => {
+        const curPath = join(dirPath, file);
+        if (lstatSync(curPath).isDirectory()) { // recurse
+          deleteFolderRecursive(curPath);
+        } else { // delete file
+          unlinkSync(curPath);
+        }
+      });
+      rmdirSync(dirPath);
+    }
+  };
