@@ -1,8 +1,8 @@
 export type Subcommand = "help" | "generate" | "batch" | "list" | "config-help" | "meta" | "validate" | "version";
 
 const subcommands: Array<Subcommand> = [
-    "help",
     "generate",
+    "help",
     "batch",
     "list",
     "config-help",

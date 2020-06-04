@@ -293,7 +293,7 @@ const defaultOptions: Array<DefaultOptionType> = [
     },
     {
         key: [OptionName.outputShort, OptionName.output],
-        value: "./src/generated"
+        value: "./src/apis"
     }
 ]
 
