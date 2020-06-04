@@ -47,7 +47,7 @@ export function generatorFn() {
     const program: commander.Command = createCommand();
     [...GenerateOptions, ...BatchOptions, ...ListOptions, ...ConfigHelpOptions, ...MetaOptions, ...ValidateOptions, ...CustomOptions]
         .map((item: OptionType) => {
-            program.option(
+            item.option && program.option(
                 item.option.join(", "),
                 item.description,
                 item.defaultValue
@@ -106,13 +106,13 @@ export function generatorFn() {
                     ({ key }: DefaultOptionType) =>
                         key?.indexOf(GenerateOptionName.output) > -1
                 )?.value;
-            if (existsSync(outputDir)){
+            if (!args.disableDirClean && existsSync(outputDir)){
                 deleteFolderRecursive(outputDir);
             }
             // generate mock
             generateMock((generateArgs.i || generateArgs["input-spec"]), outputDir);
         }
-        CustomOptions.map((item: CustomOptionType) => {
+        CustomOptions.filter(({ option }: CustomOptionType) => !!option).map((item: CustomOptionType) => {
             const customOption: CustomOptionsArgumentType = minimist(item.option);
             const selectedKey: string = Object.keys(customOption).find((key: string) => Object.keys(args).some((argKey: string) => argKey !== "_" && argKey === key));
             if (selectedKey) {
@@ -147,17 +147,28 @@ function formatExtraOption(args: GeneratorArgs, extraOptions?: Array<string>) {
     CustomOptions.filter(
         ({ mappingName }) => !!mappingName
     ).map((option: CustomOptionType) => {
-        const extraArgs: CustomOptionsArgumentType = minimist(option.option);
-        const extraDependentArgs: CustomOptionsArgumentType = minimist(option.dependedOption || []);
-        const extraArgument: string = Object.keys(args).find((key: string) =>
-            Object.keys(extraArgs).some((argKey: string) => argKey !== "_" && argKey === key)
-        );
-        const extraDependentArgument: string = Object.keys(args).find((key: string) => Object.keys(extraDependentArgs).some((argKey: string) => argKey !== "_" && argKey === key));
-        if (option.dependedOption && !!args[extraArgument] !== !!args[extraDependentArgument]) {
-            throw new Error(option.errorMessage);
-        } else if (!!args[extraArgument]) {
+        let argumentValue: string;
+        if (option.additionalProp) {
+            const additionalProps: string = (args as GenerateArgumentType).p || (args as GenerateArgumentType)["additional-properties"];
+            if (!additionalProps || additionalProps.indexOf(option.mappingName) === -1) {
+                argumentValue = option.defaultValue;
+            }
+        } else {
+            const extraArgs: CustomOptionsArgumentType = minimist(option.option);
+            const extraDependentArgs: CustomOptionsArgumentType = minimist(option.dependedOption || []);
+            const extraArgument: string = Object.keys(args).find((key: string) =>
+                Object.keys(extraArgs).some((argKey: string) => argKey !== "_" && argKey === key)
+            );
+            const extraDependentArgument: string = Object.keys(args).find((key: string) => Object.keys(extraDependentArgs).some((argKey: string) => argKey !== "_" && argKey === key));
+            if (option.dependedOption && !!args[extraArgument] !== !!args[extraDependentArgument]) {
+                throw new Error(option.errorMessage);
+            } else if (!!args[extraArgument]) {
+                argumentValue = args[extraArgument];
+            }
+        }
+        if (!!argumentValue) {
             newExtraOptions.push(
-                `${option.mappingName}=${args[extraArgument]}`
+                `${option.mappingName}=${argumentValue}`
             );
         }
     });

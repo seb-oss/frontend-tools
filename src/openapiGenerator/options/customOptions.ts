@@ -1,11 +1,14 @@
 import { OptionType } from "./option.type";
 import { OpenApiGenerator } from "../generatorList";
+import { GenerateOptionName } from "./generateOptions";
 
 export interface CustomOptionType extends OptionType {
     mappingName?: string;
     dependedOption?: Array<string>;
     errorMessage?: string;
     noValue?: boolean;
+    defaultValue?: string;
+    additionalProp?: boolean;
 }
 
 export interface SEBTemplate {
@@ -17,6 +20,7 @@ export interface CustomOptionsArgumentType {
     baseUrl?: string;
     u?: string;
     openapiTemplate?: boolean;
+    disableDirClean?: boolean;
     interceptorPath?: string;
     configPath?: string;
 }
@@ -25,6 +29,7 @@ enum OptionName {
     baseUrl = "--baseUrl",
     baseUrlShort = "-u",
     openapiTemplate = "--openapiTemplate",
+    disableDirClean = "--disableDirClean",
     interceptorPath = "--interceptorPath",
     configPath = "--configPath",
 }
@@ -45,6 +50,11 @@ const options: Array<CustomOptionType> = [
         noValue: true
     },
     {
+        option: [OptionName.disableDirClean],
+        description: "disable direactory clean",
+        noValue: true
+    },
+    {
         option: [OptionName.interceptorPath],
         description: "path of axios interceptor",
         mappingName: "interceptorPath"
@@ -53,6 +63,27 @@ const options: Array<CustomOptionType> = [
         option: [OptionName.configPath],
         description: "path of axios config",
         mappingName: "configPath"
+    },
+    {
+        option: null,
+        description: "separate models and apis",
+        mappingName: "withSeparateModelsAndApi",
+        defaultValue: "true",
+        additionalProp: true
+    },
+    {
+        option: null,
+        description: "api package folder",
+        mappingName: "apiPackage",
+        defaultValue: "api",
+        additionalProp: true
+    },
+    {
+        option: null,
+        description: "model package folder",
+        mappingName: "modelPackage",
+        defaultValue: "model",
+        additionalProp: true
     }
 ];
 
