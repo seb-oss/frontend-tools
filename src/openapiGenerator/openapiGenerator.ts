@@ -1,109 +1,197 @@
 import { ChildProcess, spawn } from "child_process";
 import commander, { createCommand } from "commander";
+import { existsSync, rmdir, readdirSync, lstatSync, unlinkSync, rmdirSync } from "fs";
 // enums, options
-import { getSubcommand, Subcommand } from "./getSubcommand";
-import { GenerateOptions, GenerateDefaultOptions, GenerateOptionName } from "./options/generateOptions";
+import { Subcommand, getDefaultSubcommand } from "./getSubcommand";
+import {
+    GenerateOptions,
+    GenerateDefaultOptions,
+    GenerateOptionName,
+    GenerateArgumentType,
+} from "./options/generateOptions";
 import { OptionType, DefaultOptionType } from "./options/option.type";
-import { BatchOptions } from "./options/batchOptions";
-import { ListOptions } from "./options/listOptions";
-import { ConfigHelpOptions } from "./options/configHelpOptions";
-import { MetaOptions } from "./options/metaOptions";
-import { ValidateOptions } from "./options/validateOptions";
-import { CustomOptions, CustomOptionType, CustomOptionName, CustomTemplates, SEBTemplate } from "./options/customOptions";
+import { BatchOptions, BatchArgumentType } from "./options/batchOptions";
+import { ListOptions, ListArgumentType } from "./options/listOptions";
+import {
+    ConfigHelpOptions,
+    ConfigHelpArgumentType,
+} from "./options/configHelpOptions";
+import { MetaOptions, MetaArgumentType } from "./options/metaOptions";
+import {
+    ValidateOptions,
+    ValidateArgumentType,
+} from "./options/validateOptions";
+import {
+    CustomOptions,
+    CustomOptionType,
+    CustomOptionName,
+    CustomTemplates,
+    SEBTemplate,
+    CustomOptionsArgumentType,
+} from "./options/customOptions";
 import { OpenApiGenerator } from "./generatorList";
 import { generateMock } from "./mockGenerator/mockGenerator";
+import { join } from "path";
+
+type GeneratorSubcommand = Subcommand | Array<string>;
+
+type GeneratorArgs = (BatchArgumentType | ConfigHelpArgumentType | GenerateArgumentType |
+                     ListArgumentType | MetaArgumentType | ValidateArgumentType) &
+                     CustomOptionsArgumentType & {
+    _: GeneratorSubcommand;
+};
+
+const minimist = require("minimist");
 
 export function generatorFn() {
     const program: commander.Command = createCommand();
-    [...GenerateOptions, ...BatchOptions, ...ListOptions, ...ConfigHelpOptions, ...MetaOptions, ...ValidateOptions, ...CustomOptions].map((item: OptionType) => {
-        program.option(item.option.join(", "), item.description, item.defaultValue);
-    });
-    program
-        .action(() => {
-            const args: Array<string> = process.argv.slice(2);
-            const subcommand: Subcommand = getSubcommand(args[0]);
-            args.shift();
-            let command: string = `node ./node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator ${subcommand}`;
-            const extraOptions: Array<string> = formatExtraOption(args);
-            if (subcommand === "generate") {
-                const generatorNameIndex: number = getArgumentIndex(args, [GenerateOptionName.generatorNameShort, GenerateOptionName.generatorName]);
-                let generatorName: OpenApiGenerator = args[generatorNameIndex] as OpenApiGenerator;
-                GenerateDefaultOptions.filter((item: DefaultOptionType) => !args.every((arg: string) => arg === item.key1 || arg === item.key2))
-                    .map((item: DefaultOptionType) => {
-                        if (item.key1 === GenerateOptionName.generatorNameShort) {
-                            generatorName = item.value as OpenApiGenerator;
-                        }
-                        command += ` ${item.key1} ${item.value}`;
-                    });
-                const templateIndex: number = getArgumentIndex(args, [GenerateOptionName.templateDirShort, GenerateOptionName.templateDir]);
-                const sebTemplatePath: string = CustomTemplates.find((item: SEBTemplate) => item.generator === generatorName)?.templatePath;
-                if (args.indexOf(CustomOptionName.sebTemplate) > -1 && templateIndex === 0 && !!sebTemplatePath) {
-                    command += ` ${GenerateOptionName.templateDirShort} ${sebTemplatePath}`;
-                }
-                const swaggerUrlIndex: number = getArgumentIndex(args, [GenerateOptionName.inputSpecShort, GenerateOptionName.inputSpec]);
-                const extraParamIndex: number = getArgumentIndex(args, [GenerateOptionName.additionalPropertiesShort, GenerateOptionName.additionalProperties]);
-                const baseUrlIndex: number = getArgumentIndex(args, [CustomOptionName.baseUrlShort, CustomOptionName.baseUrl]);
-                let defaultBasePath: string = baseUrlIndex ? args[baseUrlIndex] : "http://localhost";
-                if (swaggerUrlIndex && !baseUrlIndex) {
-                    try {
-                        defaultBasePath = new URL(args[swaggerUrlIndex]).origin;
-                    } catch {
-                        console.warn("swagger path is not an url, setting base url to localhost...");
-                    }
-                }
-
-                const basePathOption: string = `baseUrl=${defaultBasePath}`;
-                extraOptions.push(basePathOption);
-                if (extraParamIndex) {
-                    args[extraParamIndex] = args[extraParamIndex] + `,${extraOptions.toString()}`;
-                } else {
-                    args.push("-p");
-                    args.push(extraOptions.toString());
-                }
-                const outputPathIndex: number = getArgumentIndex(args, [GenerateOptionName.outputShort, GenerateOptionName.output]);
-                // generate mock
-                generateMock(
-                    args[swaggerUrlIndex],
-                    outputPathIndex ? args[outputPathIndex] : GenerateDefaultOptions.find(({ key1 }: DefaultOptionType) => key1 === GenerateOptionName.outputShort).value
-                );
-            }
-            CustomOptions.map((item: CustomOptionType) => {
-                const index: number = args.findIndex((arg: string) => item.option.indexOf(arg) > -1);
-                if (index > -1) {
-                    args.splice(index, item.noValue ? 1 : 2);
-                }
-            })
-            if (args) {
-                command += ` ${args.join(" ")}`;
-            }
-
-            process.env["JAVA_OPTS"] = `-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true`;
-            const cmd: ChildProcess = spawn(command, { stdio: "inherit", shell: true });
-            cmd.on("exit", process.exit);
+    [...GenerateOptions, ...BatchOptions, ...ListOptions, ...ConfigHelpOptions, ...MetaOptions, ...ValidateOptions, ...CustomOptions]
+        .map((item: OptionType) => {
+            item.option && program.option(
+                item.option.join(", "),
+                item.description,
+                item.defaultValue
+            );
         });
+    program.action(() => {
+        const args: GeneratorArgs = minimist(process.argv.slice(2));
+        const subcommand: GeneratorSubcommand = args._.length ? args._ : getDefaultSubcommand();
+        let command: string = `node ./node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator ${subcommand}`;
+        const extraOptions: Array<string> = formatExtraOption(args);
+        if (subcommand === "generate" || subcommand[0] === "generate") {
+            const generateArgs: GenerateArgumentType = args as GenerateArgumentType;
+            let generatorName: OpenApiGenerator = generateArgs.g || generateArgs["generator-name"];
+            GenerateDefaultOptions.map((item: DefaultOptionType) => {
+                const defaultOptionArgs: GenerateArgumentType = minimist(item.key);
+                if (!Object.keys(defaultOptionArgs).some((key: string) => Object.keys(generateArgs).some((argKey: string) => argKey !== "_" && argKey === key))) {
+                    if (item?.key?.indexOf(GenerateOptionName.generatorName) > -1) {
+                        generatorName = item.value as OpenApiGenerator;
+                    }
+                    command += ` ${item.key[0]} ${item.value}`;
+                }
+            });
+            const templateConfig: SEBTemplate = CustomTemplates.find(
+                (item: SEBTemplate) => item.generator === generatorName
+            );
+            const sebTemplatePath: string = templateConfig?.templatePath;
+            if (
+                !args.openapiTemplate &&
+                (!generateArgs.t && !generateArgs["template-dir"]) &&
+                !!sebTemplatePath
+            ) {
+                command += ` ${GenerateOptionName.templateDirShort} ${sebTemplatePath}`;
+            }
+            let defaultBasePath: string = (args.baseUrl || args.u) || "http://localhost";
+            if ((generateArgs.i || generateArgs["input-spec"]) && !(args.baseUrl || args.u)) {
+                try {
+                    defaultBasePath = new URL(generateArgs.i || generateArgs["input-spec"]).origin;
+                } catch {
+                    console.warn(
+                        "swagger path is not an url, setting base url to localhost..."
+                    );
+                }
+            }
+
+            const basePathOption: string = `baseUrl=${defaultBasePath}`;
+            extraOptions.push(basePathOption);
+            if (generateArgs.p || generateArgs["additional-properties"]) {
+                const additionalProps: keyof GenerateArgumentType = !!generateArgs.p ? "p" : "additional-properties";
+                args[additionalProps] =
+                    args[additionalProps] + `,${extraOptions.toString()}`;
+            } else {
+                (args as GenerateArgumentType).p = extraOptions.toString();
+            }
+            const outputDir: string = (generateArgs.o || generateArgs.output)
+                ? generateArgs.o || generateArgs.output
+                : GenerateDefaultOptions.find(
+                    ({ key }: DefaultOptionType) =>
+                        key?.indexOf(GenerateOptionName.output) > -1
+                )?.value;
+            if (!args.disableDirClean && existsSync(outputDir)){
+                deleteFolderRecursive(outputDir);
+            }
+            if (!args.disableMock && !templateConfig?.disableMock) {
+                // generate mock
+                generateMock((generateArgs.i || generateArgs["input-spec"]), outputDir);
+            }
+        }
+        CustomOptions.filter(({ option }: CustomOptionType) => !!option).map((item: CustomOptionType) => {
+            const customOption: CustomOptionsArgumentType = minimist(item.option);
+            const selectedKey: string = Object.keys(customOption).find((key: string) => Object.keys(args).some((argKey: string) => argKey !== "_" && argKey === key));
+            if (selectedKey) {
+                delete args[selectedKey];
+            }
+        });
+        const revertArgs: Array<string> = require("dargs")(args, { excludes: ["_"] });
+        if (revertArgs) {
+            command += ` ${revertArgs.join(" ")}`;
+        }
+        process.env[
+            "JAVA_OPTS"
+        ] = `-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true`;
+        const cmd: ChildProcess = spawn(command, {
+            stdio: "inherit",
+            shell: true,
+        });
+        cmd.on("exit", process.exit);
+    });
     program.parse(process.argv);
 }
 
-function formatExtraOption(args: Array<string>, extraOptions?: Array<string>) {
-    const newExtraOptions: Array<string> = extraOptions ? [...extraOptions] : [];
-    CustomOptions.filter(({ dependedOption }) => dependedOption && dependedOption.length > 0)
-        .map((option: CustomOptionType) => {
-            const argumentIndex: number = getArgumentIndex(args, option.option);
-            const relatedArgumentIndex: number = getArgumentIndex(args, option.dependedOption);
-            if (!!(argumentIndex) !== !!relatedArgumentIndex) {
-                throw new Error(option.errorMessage);
-            } else if (argumentIndex > 0) {
-                newExtraOptions.push(`${option.mappingName}=${args[argumentIndex]}`)
+/**
+ * format extra options into array to append to -p
+ * @param args arguments
+ * @param extraOptions extra options list
+ */
+function formatExtraOption(args: GeneratorArgs, extraOptions?: Array<string>) {
+    const newExtraOptions: Array<string> = extraOptions
+        ? [...extraOptions]
+        : [];
+    CustomOptions.filter(
+        ({ mappingName }) => !!mappingName
+    ).map((option: CustomOptionType) => {
+        let argumentValue: string;
+        if (option.additionalProp) {
+            const additionalProps: string = (args as GenerateArgumentType).p || (args as GenerateArgumentType)["additional-properties"];
+            if (!additionalProps || additionalProps.indexOf(option.mappingName) === -1) {
+                argumentValue = option.defaultValue;
             }
-        });
+        } else {
+            const extraArgs: CustomOptionsArgumentType = minimist(option.option);
+            const extraDependentArgs: CustomOptionsArgumentType = minimist(option.dependedOption || []);
+            const extraArgument: string = Object.keys(args).find((key: string) =>
+                Object.keys(extraArgs).some((argKey: string) => argKey !== "_" && argKey === key)
+            );
+            const extraDependentArgument: string = Object.keys(args).find((key: string) => Object.keys(extraDependentArgs).some((argKey: string) => argKey !== "_" && argKey === key));
+            if (option.dependedOption && !!args[extraArgument] !== !!args[extraDependentArgument]) {
+                throw new Error(option.errorMessage);
+            } else if (!!args[extraArgument]) {
+                argumentValue = args[extraArgument];
+            }
+        }
+        if (!!argumentValue) {
+            newExtraOptions.push(
+                `${option.mappingName}=${argumentValue}`
+            );
+        }
+    });
     return newExtraOptions;
 }
 
-function getArgumentIndex(args: Array<string>, keys: Array<string>, withoutValue?: boolean) {
-    const indicatorIndex: number = args.findIndex((item: string) => keys.some((key: string) => key === item));
-    const possibleArgumentIndex: number = indicatorIndex + 1;
-    return indicatorIndex > -1 &&
-        (args[possibleArgumentIndex] !== undefined || args[possibleArgumentIndex].indexOf("-") > 0) ?
-        possibleArgumentIndex :
-        withoutValue ? indicatorIndex : 0;
-}
+/**
+ * remove folder recursively
+ * @param dirPath directory path
+ */
+function deleteFolderRecursive(dirPath: string) {
+    if (existsSync(dirPath)) {
+      readdirSync(dirPath).forEach((file: string) => {
+        const curPath = join(dirPath, file);
+        if (lstatSync(curPath).isDirectory()) { // recurse
+          deleteFolderRecursive(curPath);
+        } else { // delete file
+          unlinkSync(curPath);
+        }
+      });
+      rmdirSync(dirPath);
+    }
+  };

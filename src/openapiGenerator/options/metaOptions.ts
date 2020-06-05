@@ -1,5 +1,18 @@
 import { OptionType } from "./option.type";
 
+interface MetaArgumentType {
+    language?: string;
+    l?: string;
+    name?: string;
+    n?: string;
+    output?: string;
+    o?: string;
+    package?: string;
+    p?: string;
+    type?: string;
+    t?: string;
+}
+
 enum OptionName {
     language = "--language",
     languageShort = "-l",
@@ -36,4 +49,4 @@ const options: Array<OptionType> = [
     }
 ];
 
-export { options as MetaOptions, OptionName as MetaOptionName };
+export { options as MetaOptions, OptionName as MetaOptionName, MetaArgumentType };

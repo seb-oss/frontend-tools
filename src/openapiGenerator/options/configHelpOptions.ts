@@ -1,8 +1,25 @@
 import { OptionType } from "./option.type";
 
+interface ConfigHelpArgumentType {
+    f?: string;
+    format?: string;
+    o?: string;
+    output?: string;
+    g?: string;
+    "generator-name"?: string;
+    "feature-set"?: boolean;
+    "import-mappings"?: boolean;
+    "instantiation-types"?: boolean;
+    "language-specific-primitive"?: boolean;
+    "markdown-header"?: boolean;
+    "named-header"?: boolean;
+    "reserved-words"?: boolean;
+    "full-details"?: boolean;
+}
+
 enum OptionName {
     format = "--format",
-    formatShort = "-format",
+    formatShort = "-f",
     featureSet = "--feature-set",
     importMappings = "--import-mappings",
     instantiationTypes = "--instantiation-types",
@@ -65,4 +82,4 @@ const options: Array<OptionType> = [
     }
 ];
 
-export { options as ConfigHelpOptions, OptionName as ConfigHelpOptionName };
+export { options as ConfigHelpOptions, OptionName as ConfigHelpOptionName, ConfigHelpArgumentType };

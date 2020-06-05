@@ -3,13 +3,13 @@ import axios, { AxiosRequestConfig, AxiosInstance, AxiosPromise, AxiosResponse, 
 // Utils
 import { isEmpty } from "@sebgroup/frontend-tools/dist/isEmpty";
 import { StorageManagement } from "@sebgroup/frontend-tools/dist/StorageManagement";
-{{#interceptorName}}
-import { {{interceptorName}} } from "{{interceptorPath}}";
-{{/interceptorName}}
-{{#configName}}
+{{#interceptorPath}}
+import * as interceptor from "{{interceptorPath}}";
+{{/interceptorPath}}
+{{#configPath}}
 // Other
-import { {{configName}} } from "{{configPath}}";
-{{/configName}}
+import * as configs from "{{configPath}}";
+{{/configPath}}
 
 let mocks: any;
 {{#apiInfo}}
@@ -99,7 +99,7 @@ const configs: DefaultConfig = {
 
 export class APIHandler {
     protected basePath = defaultBasePath;
-    protected defaultHeaders: any = {{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.defaultHeaders();
+    protected defaultHeaders: any = configs.defaultHeaders();
     protected authentications: any = [];
     protected axiosInstance: AxiosInstance = axios.create();
     protected storage: StorageManagement = new StorageManagement();
@@ -107,9 +107,9 @@ export class APIHandler {
 
     constructor(className: string) {
         this.className = className;
-        {{#interceptorName}}
-        this.axiosInstance.interceptors.response.use({{interceptorName}}.onFullfilled, {{interceptorName}}.onRejected);
-        {{/interceptorName}}
+        {{#interceptorPath}}
+        this.axiosInstance.interceptors.response.use(interceptor.onFullfilled, interceptor.onRejected);
+        {{/interceptorPath}}
     }
 
     /**
@@ -185,8 +185,8 @@ export class APIHandler {
      * @param methodName The name of the api method making this call
      */
     protected makeCall<T>(method: string, url: string, options: AxiosRequestConfig, body: any = null, methodName: string): AxiosPromise<T> {
-        if ({{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.useMock) {
-            return new Promise((resolve) => { simulateData(resolve, mocks[this.className][methodName][200] || mocks[this.className][methodName][default] || mocks[this.className][methodName], 200, {{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.delay); });
+        if (configs.useMock) {
+            return new Promise((resolve) => { simulateData(resolve, mocks[this.className][methodName][200] || mocks[this.className][methodName]["default"] || mocks[this.className][methodName], 200, {{#configPath}}{{configName}}{{/configPath}}{{^configPath}}configs{{/configPath}}.delay); });
         } else {
             switch (method) {
                 case "get": return this.axiosInstance.get<T>(url, options);
