@@ -1,11 +1,14 @@
 import { OptionType } from "./option.type";
 import { OpenApiGenerator } from "../generatorList";
+import { GenerateOptionName } from "./generateOptions";
 
 export interface CustomOptionType extends OptionType {
     mappingName?: string;
     dependedOption?: Array<string>;
     errorMessage?: string;
     noValue?: boolean;
+    defaultValue?: string;
+    additionalProp?: boolean;
 }
 
 export interface SEBTemplate {
@@ -13,18 +16,22 @@ export interface SEBTemplate {
     templatePath: string;
 }
 
+export interface CustomOptionsArgumentType {
+    baseUrl?: string;
+    u?: string;
+    openapiTemplate?: boolean;
+    disableDirClean?: boolean;
+    interceptorPath?: string;
+    configPath?: string;
+}
+
 enum OptionName {
     baseUrl = "--baseUrl",
     baseUrlShort = "-u",
-    sebTemplate = "--sebTemplate",
+    openapiTemplate = "--openapiTemplate",
+    disableDirClean = "--disableDirClean",
     interceptorPath = "--interceptorPath",
-    interceptorPathShort = "-ip",
-    interceptorName = "--interceptorName",
-    interceptorNameShort = "-in",
     configPath = "--configPath",
-    configPathShort = "-cp",
-    configName = "--configName",
-    configNameShort = "-cn"
 }
 
 /**
@@ -38,37 +45,45 @@ const options: Array<CustomOptionType> = [
         mappingName: "baseUrl"
     },
     {
-        option: [OptionName.sebTemplate],
-        description: "use seb template",
+        option: [OptionName.openapiTemplate],
+        description: "use openapi template",
         noValue: true
     },
     {
-        option: [OptionName.interceptorPathShort, OptionName.interceptorPath],
+        option: [OptionName.disableDirClean],
+        description: "disable direactory clean",
+        noValue: true
+    },
+    {
+        option: [OptionName.interceptorPath],
         description: "path of axios interceptor",
-        mappingName: "interceptorPath",
-        dependedOption: [OptionName.interceptorName, OptionName.interceptorNameShort],
-        errorMessage: `${OptionName.interceptorPathShort} must be defined along with ${OptionName.interceptorNameShort}`
+        mappingName: "interceptorPath"
     },
     {
-        option: [OptionName.interceptorNameShort, OptionName.interceptorName],
-        description: "name of axios interceptor",
-        mappingName: "interceptorName",
-        dependedOption: [OptionName.interceptorPath, OptionName.interceptorPathShort],
-        errorMessage: `${OptionName.interceptorPathShort} must be defined along with ${OptionName.interceptorNameShort}`
-    },
-    {
-        option: [OptionName.configPathShort, OptionName.configPath],
+        option: [OptionName.configPath],
         description: "path of axios config",
-        mappingName: "configPath",
-        dependedOption: [OptionName.configName, OptionName.configNameShort],
-        errorMessage: `${OptionName.configPathShort} must be defined along with ${OptionName.configNameShort}`
+        mappingName: "configPath"
     },
     {
-        option: [OptionName.configNameShort, OptionName.configName],
-        description: "name of axios config",
-        mappingName: "configName",
-        dependedOption: [OptionName.configPath, OptionName.configPathShort],
-        errorMessage: `${OptionName.configPathShort} must be defined along with ${OptionName.configNameShort}`
+        option: null,
+        description: "separate models and apis",
+        mappingName: "withSeparateModelsAndApi",
+        defaultValue: "true",
+        additionalProp: true
+    },
+    {
+        option: null,
+        description: "api package folder",
+        mappingName: "apiPackage",
+        defaultValue: "api",
+        additionalProp: true
+    },
+    {
+        option: null,
+        description: "model package folder",
+        mappingName: "modelPackage",
+        defaultValue: "model",
+        additionalProp: true
     }
 ];
 

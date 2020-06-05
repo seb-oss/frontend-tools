@@ -1,5 +1,12 @@
 import { OptionType } from "./option.type";
 
+interface ListArgumentType {
+    include?: string;
+    i?: string;
+    short?: boolean;
+    s?: boolean;
+}
+
 enum OptionName {
     include = "--include",
     includeShort = "-i",
@@ -18,4 +25,4 @@ const options: Array<OptionType> = [
     }
 ];
 
-export { options as ListOptions, OptionName as ListOptionName };
+export { options as ListOptions, OptionName as ListOptionName, ListArgumentType };

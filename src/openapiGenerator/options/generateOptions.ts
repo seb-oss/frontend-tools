@@ -1,4 +1,60 @@
 import { OptionType, DefaultOptionType } from "./option.type";
+import { OpenApiGenerator } from "../generatorList";
+
+interface GenerateArgumentType {
+    auth?: string;
+    a?: string;
+    config?: string;
+    c?: string;
+    D?: string;
+    engine?: string;
+    e?: string;
+    g?: OpenApiGenerator;
+    library?: string;
+    i?: string;
+    output?: string;
+    o?: string;
+    p?: string;
+    t?: string;
+    s?: boolean;
+    v?: boolean;
+    verbose?: boolean;
+    "api-name-suffix"?: string;
+    "api-package"?: string;
+    "artifact-id"?: string;
+    "artifact-version"?: string;
+    "dry-run"?: boolean;
+    "enable-post-process-file"?: boolean;
+    "generator-name"?: OpenApiGenerator;
+    "generate-alias-as-model"?: boolean;
+    "git-host"?: string;
+    "git-repo-id"?: string;
+    "git-user-id"?: string;
+    "group-id"?: string;
+    "http-user-agent"?: string;
+    "ignore-file-override"?: string;
+    "import-mappings"?: string;
+    "instantiation-types"?: string;
+    "invoker-package"?: string;
+    "language-specific-primitives"?: string;
+    "log-to-stderr"?: boolean;
+    "minimal-update"?: boolean;
+    "model-name-prefix"?: string;
+    "model-name-suffix"?: string;
+    "model-package"?: string;
+    "package-name"?: string;
+    "release-note"?: string;
+    "remove-operation-id-prefix"?: boolean;
+    "reserved-words-mappings"?: string;
+    "server-variables"?: string;
+    "skip-validate-spec"?: boolean;
+    "strict-spec"?: boolean;
+    "type-mappings"?: string;
+    "input-spec"?: string;
+    "additional-properties"?: string;
+    "skip-overwrite"?: boolean;
+    "template-dir"?: string;
+}
 
 enum OptionName {
     auth = "--auth",
@@ -232,15 +288,13 @@ const options: Array<OptionType> = [
 
 const defaultOptions: Array<DefaultOptionType> = [
     {
-        key1: OptionName.generatorNameShort,
-        key2: OptionName.generatorName,
+        key: [OptionName.generatorNameShort, OptionName.generatorName],
         value: "typescript-axios"
     },
     {
-        key1: OptionName.outputShort,
-        key2: OptionName.output,
-        value: "./src/generated"
+        key: [OptionName.outputShort, OptionName.output],
+        value: "./src/apis"
     }
 ]
 
-export { options as GenerateOptions, defaultOptions as GenerateDefaultOptions, OptionName as GenerateOptionName };
+export { options as GenerateOptions, defaultOptions as GenerateDefaultOptions, OptionName as GenerateOptionName,  GenerateArgumentType };

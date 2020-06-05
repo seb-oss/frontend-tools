@@ -10,7 +10,7 @@ export class {{classname}} extends APIModel {
     * {{{description}}}
     */
 {{/description}}
-    {{name}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{datatype}}}{{/isEnum}};
+    {{name}}: {{#isEnum}}{{#hasEnums}}{{classname}}.{{/hasEnums}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{datatype}}}{{/isEnum}};
 {{/vars}}
 
     constructor(options?: APIModelOptions) {
