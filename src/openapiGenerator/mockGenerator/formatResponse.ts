@@ -28,10 +28,12 @@ export const extractResponses = (obj: OpenAPI.Document): ResponsesType => {
                 const response: OpenAPIV3.ParameterObject | OpenAPIV2.ParameterObject = responses[statusCode];
                 const defaultReturn: string = response.description;
                 let mock: any = response.schema || defaultReturn;
-                if (response.content && response.content[APPLICATION_JSON]?.schema) {
+                if (response.content && response.content[APPLICATION_JSON]?.example) {
+                    mock = response.content[APPLICATION_JSON].example;
+                } else if (response.content && response.content[APPLICATION_JSON]?.schema) {
                     mock = response.content[APPLICATION_JSON].schema;
+                    mock = typeof(mock) === "string" ? mock : generateData("", mock, modelSchemas);
                 }
-                mock = typeof(mock) === "string" ? mock : generateData("", mock, modelSchemas);
                 extracted[key][statusCode] = mock;
             });
         });
