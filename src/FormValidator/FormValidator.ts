@@ -197,8 +197,12 @@ export class FormValidator<T> {
      */
     private validateField(value: any, type: ValidationType, specs: ValidationSpecs): ModelFieldError {
         let fieldError: ModelFieldError = null;
+        // Don't validate an empty field if it's not required
+        if (isEmpty(value) && type !== "required") {
+            return null;
+        }
         switch (type) {
-            case "required": return isEmpty(value) || (typeof value === "string" && value.trim() === "") ? { errorCode: "empty" } : null;
+            case "required": return isEmpty(value) ? { errorCode: "empty" } : null;
             case "isDate": return value instanceof Date ? null : { errorCode: "invalidDate" };
             case "dateRange":
                 const date: Moment = moment(value);
