@@ -91,6 +91,10 @@ const templates: Array<SEBTemplate> = [
     {
         generator: "typescript-axios",
         templatePath: "./node_modules/@sebgroup/frontend-tools/dist/openapiGenerator/templates/typescript-axios"
+    },
+    {
+        generator: "typescript-angular",
+        templatePath: "./node_modules/@sebgroup/frontend-tools/dist/openapiGenerator/templates/typescript-angular"
     }
 ]
 
