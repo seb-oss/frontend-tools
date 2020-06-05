@@ -1,5 +1,11 @@
 import { OptionType } from "./option.type";
 
+interface ValidateArgumentType {
+    "input-spec"?: string;
+    i?: string;
+    recommend?: boolean;
+}
+
 enum OptionName {
     inputSpec = "--input-spec",
     inputSpecShort = "-i",
@@ -17,4 +23,4 @@ const options: Array<OptionType> = [
     }
 ];
 
-export { options as ValidateOptions };
+export { options as ValidateOptions, ValidateArgumentType };
