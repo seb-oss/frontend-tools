@@ -41,19 +41,7 @@ let mocks: any;
 {{debugger}}
 {{/apiInfo}}
 if (process.env.NODE_ENV !== "production") {
-    mocks = {
-        {{#operations}}
-        {{#operation}}
-        {{#hasProduces}}
-        {{#responses}}
-        {{#isDefault}}
-        "{{nickname}}": {{{jsonSchema}}},
-        {{/isDefault}}
-        {{/responses}}
-        {{/hasProduces}}
-        {{/operation}}
-        {{/operations}}
-    };
+    mocks = require("../mock.json");
 }
 
 {{#operations}}
@@ -269,12 +257,10 @@ export class {{classname}} {
     public {{nickname}}WithHttpInfo({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}extraHttpRequestParams?: RequestOptionsArgs, options?: {httpHeaderAccept?: {{#produces}}'{{mediaType}}'{{#hasMore}} | {{/hasMore}}{{/produces}}{{^produces}}undefined{{/produces}}}): Observable<Response> {
     {{/useHttpClient}}
         if (this.useMocks) {
-            // hasProduces: {{{hasProduces}}}
             type ResponseType = {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}any{{/returnType}};
             {{#hasProduces}}
             {{#responses}}{{#isDefault}}
-            const jsonSchema = mocks["{{nickname}}"];
-            const example = this.tryGetExample<ResponseType>(jsonSchema);
+            const example: ResponseType = mocks["{{nickname}}"]["200"] as ResponseType;
             {{/isDefault}}{{/responses}}
             return this.mockResponse<ResponseType>(example, this.delay);
             {{/hasProduces}}
