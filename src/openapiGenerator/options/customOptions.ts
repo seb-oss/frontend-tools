@@ -14,6 +14,7 @@ export interface CustomOptionType extends OptionType {
 export interface SEBTemplate {
     generator: OpenApiGenerator;
     templatePath: string;
+    disableMock?: boolean;
 }
 
 export interface CustomOptionsArgumentType {
@@ -21,6 +22,7 @@ export interface CustomOptionsArgumentType {
     u?: string;
     openapiTemplate?: boolean;
     disableDirClean?: boolean;
+    disableMock?: boolean;
     interceptorPath?: string;
     configPath?: string;
 }
@@ -30,6 +32,7 @@ enum OptionName {
     baseUrlShort = "-u",
     openapiTemplate = "--openapiTemplate",
     disableDirClean = "--disableDirClean",
+    disableMock = "--disableMock",
     interceptorPath = "--interceptorPath",
     configPath = "--configPath",
 }
@@ -52,6 +55,11 @@ const options: Array<CustomOptionType> = [
     {
         option: [OptionName.disableDirClean],
         description: "disable direactory clean",
+        noValue: true
+    },
+    {
+        option: [OptionName.disableMock],
+        description: "disable generation of mock.json",
         noValue: true
     },
     {
