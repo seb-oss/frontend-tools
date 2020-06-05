@@ -16,14 +16,14 @@ let mocks: any;
 {{debugger}}
 {{/apiInfo}}
 if (process.env.NODE_ENV !== "production") {
-    mocks = require("./mocks.json");
+    mocks = require("./mock.json");
 }
 
 interface KeyValuePair {
     [key: string]: any;
 }
 
-export const defaultBasePath: string = "{{baseUrl}}".replace(/\/$/, "");
+export const defaultBasePath: string = "{{#baseUrl}}{{baseUrl}}{{/baseUrl}}{{^baseUrl}}{{#basePath}}{{{basePath}}}{{/basePath}}{{/baseUrl}}".replace(/\/$/, "");
 
 export enum StorageKeysEnum {
     TOKEN = "TOKEN"
