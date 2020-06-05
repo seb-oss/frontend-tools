@@ -70,9 +70,10 @@ export function generatorFn() {
                     command += ` ${item.key[0]} ${item.value}`;
                 }
             });
-            const sebTemplatePath: string = CustomTemplates.find(
+            const templateConfig: SEBTemplate = CustomTemplates.find(
                 (item: SEBTemplate) => item.generator === generatorName
-            )?.templatePath;
+            );
+            const sebTemplatePath: string = templateConfig?.templatePath;
             if (
                 !args.openapiTemplate &&
                 (!generateArgs.t && !generateArgs["template-dir"]) &&
@@ -109,8 +110,10 @@ export function generatorFn() {
             if (!args.disableDirClean && existsSync(outputDir)){
                 deleteFolderRecursive(outputDir);
             }
-            // generate mock
-            generateMock((generateArgs.i || generateArgs["input-spec"]), outputDir);
+            if (!args.disableMock && !templateConfig?.disableMock) {
+                // generate mock
+                generateMock((generateArgs.i || generateArgs["input-spec"]), outputDir);
+            }
         }
         CustomOptions.filter(({ option }: CustomOptionType) => !!option).map((item: CustomOptionType) => {
             const customOption: CustomOptionsArgumentType = minimist(item.option);
