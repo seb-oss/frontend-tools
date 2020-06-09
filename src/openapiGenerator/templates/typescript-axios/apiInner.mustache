@@ -1,7 +1,7 @@
 {{#withSeparateModelsAndApi}}
 // tslint:disable
 import { AxiosPromise } from "axios";
-import { APIHandler, APIURLTypes, APIParams{{#operations}}{{#operation}}{{#-first}}{{#authMethods}}({{#isBasic}}, HttpBasicAuth{{/isBasic}}{{#isApiKey}}, ApiKeyAuth{{/isApiKey}}{{#isBasicBearer}}, OAuth{{/isBasicBearer}}{{#isOAuth}}, OAuth{{/isOAuth}}{{/authMethods}}{{/-first}}{{/operation}}{{/operations}} } from "{{apiRelativeToRoot}}base";
+import { APIHandler, APIURLTypes, APIParams{{#operations}}{{#operation}}{{#-first}}{{#authMethods}}{{#isBasic}}, HttpBasicAuth{{/isBasic}}{{#isApiKey}}, ApiKeyAuth{{/isApiKey}}{{#isBasicBearer}}, OAuth{{/isBasicBearer}}{{#isOAuth}}, OAuth{{/isOAuth}}{{/authMethods}}{{/-first}}{{/operation}}{{/operations}} } from "{{apiRelativeToRoot}}base";
 import { {{#imports}}{{classname}}{{^-last}}, {{/-last}}{{/imports}} } from "{{apiRelativeToRoot}}{{tsModelPackage}}";
 {{/withSeparateModelsAndApi}}
 
