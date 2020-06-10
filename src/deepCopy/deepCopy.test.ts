@@ -25,7 +25,8 @@ describe("Util: deepCopy", () => {
         { statement: "An object constructor", object: { level1: Object.create(null) } },
         { statement: "A Map object", object: map },
         { statement: "Primitive type", object: "1234" },
-        { statement: "Cyclic reference", object: a }
+        { statement: "Cyclic reference", object: a },
+        { statement: "Symbol", object: { level1: Symbol(123), level2: Object.create(null) } }
     ];
     testCases.map((testCase: TestCase) => {
         test(`- ${testCase.statement}`, () => {
