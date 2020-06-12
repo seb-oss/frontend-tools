@@ -81,19 +81,12 @@ export function generatorFn() {
             ) {
                 command += ` ${GenerateOptionName.templateDirShort} ${sebTemplatePath}`;
             }
-            let defaultBasePath: string = (args.baseUrl || args.u) || "http://localhost";
-            if ((generateArgs.i || generateArgs["input-spec"]) && !(args.baseUrl || args.u)) {
-                try {
-                    defaultBasePath = new URL(generateArgs.i || generateArgs["input-spec"]).origin;
-                } catch {
-                    console.warn(
-                        "swagger path is not an url, setting base url to localhost..."
-                    );
-                }
+            const defaultBasePath: string = args.baseUrl || args.u;
+            if (!!defaultBasePath) {
+                const basePathOption: string = `baseUrl=${defaultBasePath}`;
+                extraOptions.push(basePathOption);
             }
 
-            const basePathOption: string = `baseUrl=${defaultBasePath}`;
-            extraOptions.push(basePathOption);
             if (generateArgs.p || generateArgs["additional-properties"]) {
                 const additionalProps: keyof GenerateArgumentType = !!generateArgs.p ? "p" : "additional-properties";
                 args[additionalProps] =
