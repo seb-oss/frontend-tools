@@ -23,8 +23,8 @@ export interface CustomOptionsArgumentType {
     openapiTemplate?: boolean;
     disableDirClean?: boolean;
     disableMock?: boolean;
-    interceptorPath?: string;
-    configPath?: string;
+    withCustomInterceptors?: boolean;
+    withCustomConfigs?: boolean;
 }
 
 enum OptionName {
@@ -33,8 +33,8 @@ enum OptionName {
     openapiTemplate = "--openapiTemplate",
     disableDirClean = "--disableDirClean",
     disableMock = "--disableMock",
-    interceptorPath = "--interceptorPath",
-    configPath = "--configPath",
+    withCustomInterceptors = "--withCustomInterceptors",
+    withCustomConfigs = "--withCustomConfigs",
 }
 
 /**
@@ -63,14 +63,14 @@ const options: Array<CustomOptionType> = [
         noValue: true
     },
     {
-        option: [OptionName.interceptorPath],
-        description: "path of axios interceptor",
-        mappingName: "interceptorPath"
+        option: [OptionName.withCustomInterceptors],
+        description: "indicator of using custom interceptor",
+        mappingName: "withCustomInterceptors"
     },
     {
-        option: [OptionName.configPath],
-        description: "path of axios config",
-        mappingName: "configPath"
+        option: [OptionName.withCustomConfigs],
+        description: "indicator of using custom config",
+        mappingName: "withCustomConfigs"
     },
     {
         option: null,
