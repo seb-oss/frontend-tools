@@ -72,7 +72,7 @@ export function generateData(modelName: string, schema: OpenAPIV2.SchemaObject |
             default:
                 let example: string = schema.example ? schema.example : schema.enum ? schema.enum[0] : modelName;
                 if (schema.format === "date-time") {
-                    example = new Date().toLocaleString();
+                    example = new Date("2020 01 01").toLocaleString();
                 }
                 newModel = example;
         }

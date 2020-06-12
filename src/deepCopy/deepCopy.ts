@@ -18,7 +18,7 @@ export function deepCopy<T = any>(obj: T, hash = new WeakMap()): T {
         } else if (obj instanceof RegExp) { // Regular expression
             result = new RegExp(obj.source, obj.flags);
         } else if (obj.constructor) {
-            result = new (obj as any).constructor();
+            result = isSymbol(obj) ? obj : new (obj as any).constructor(); // symbol should be referenced only
         }
 
         hash.set(obj as any, result);
@@ -28,4 +28,13 @@ export function deepCopy<T = any>(obj: T, hash = new WeakMap()): T {
         }
         return Object.assign(result, ...Object.keys(obj).map((key: string) => ({ [key]: deepCopy(obj[key], hash) })));
     }
+}
+
+/**
+ * check if the variable is a symbol
+ * @param x obj or any datatype
+ */
+function isSymbol (x: any) {
+    return typeof x === "symbol" ||
+    typeof x === "object" && Object.prototype.toString.call(x) === "[object Symbol]";
 }

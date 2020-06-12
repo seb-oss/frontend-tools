@@ -3,27 +3,24 @@ import axios, { AxiosRequestConfig, AxiosInstance, AxiosPromise, AxiosResponse, 
 // Utils
 import { isEmpty } from "@sebgroup/frontend-tools/dist/isEmpty";
 import { StorageManagement } from "@sebgroup/frontend-tools/dist/StorageManagement";
-{{#interceptorPath}}
-import * as interceptor from "{{interceptorPath}}";
-{{/interceptorPath}}
-{{#configPath}}
-// Other
-import * as configs from "{{configPath}}";
-{{/configPath}}
+
+{{#withCustomInterceptors}}
+const interceptors: ApiInterceptorsProps = require("@ApiInterceptors").default;
+{{/withCustomInterceptors}}
 
 let mocks: any;
 {{#apiInfo}}
 {{debugger}}
 {{/apiInfo}}
 if (process.env.NODE_ENV !== "production") {
-    mocks = require("./mocks.json");
+    mocks = require("./mock.json");
 }
 
 interface KeyValuePair {
     [key: string]: any;
 }
 
-export const defaultBasePath: string = "{{baseUrl}}".replace(/\/$/, "");
+export const defaultBasePath: string = "{{#baseUrl}}{{baseUrl}}{{/baseUrl}}{{^baseUrl}}{{#basePath}}{{{basePath}}}{{/basePath}}{{/baseUrl}}".replace(/\/$/, "");
 
 export enum StorageKeysEnum {
     TOKEN = "TOKEN"
@@ -37,6 +34,16 @@ export interface Authentication {
 export interface AxiosResponseInterceptor<T = any> {
     onFullfilled: (response: AxiosResponse<T>) => AxiosResponse<T>;
     onRejected: (err: AxiosError<any>) => Promise<never>;
+}
+
+export interface AxiosRequestInterceptor {
+    onFullfilled: (axiosConfig: AxiosRequestConfig) => AxiosRequestConfig | Promise<AxiosRequestConfig>;
+    onRejected: (err: any) => number;
+}
+
+export interface ApiInterceptorsProps {
+    request: AxiosRequestInterceptor;
+    response: AxiosResponseInterceptor;
 }
 
 export interface DefaultConfig {
@@ -87,15 +94,15 @@ export class VoidAuth implements Authentication {
     applyToRequest(requestOptions: any): void { /** Do nothing */ }
 }
 
-{{^configPath}}
-const configs: DefaultConfig = {
+const configs: DefaultConfig = {{#withCustomConfigs}}require("@configs").default;{{/withCustomConfigs}}{{^withCustomConfigs}}{
     delay: 1500,
     defaultHeaders: () => {
         return {};
     },
     useMock: false
-}
-{{/configPath}}
+};
+{{/withCustomConfigs}}
+
 
 export class APIHandler {
     protected basePath = defaultBasePath;
@@ -107,9 +114,10 @@ export class APIHandler {
 
     constructor(className: string) {
         this.className = className;
-        {{#interceptorPath}}
-        this.axiosInstance.interceptors.response.use(interceptor.onFullfilled, interceptor.onRejected);
-        {{/interceptorPath}}
+        {{#withCustomInterceptors}}
+        interceptors.response && this.axiosInstance.interceptors.response.use(interceptors.response?.onFullfilled, interceptors.response?.onRejected);
+        interceptors.request && this.axiosInstance.interceptors.request.use(interceptors.request?.onFullfilled, interceptors.request?.onRejected);
+        {{/withCustomInterceptors}}
     }
 
     /**
