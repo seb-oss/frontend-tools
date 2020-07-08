@@ -23,18 +23,18 @@ export class {{classname}} extends APIHandler {
     // authentication {{name}} required
     {{#isApiKey}}
     {{#isKeyInHeader}}
-    set apiKey(key: string | function) {
+    set apiKey(key: string | Function) {
         const localApiKey: string = typeof key === 'function'
-            ? await key("{{keyParamName}}")
-            : await key;
+            ? key("{{keyParamName}}")
+            : key;
         this.authentications.{{name}}.apiKey = localApiKey;
     }
     {{/isKeyInHeader}}
     {{#isKeyInQuery}}
-    set apiKey(key: string | function) {
+    set apiKey(key: string | Function) {
         const localApiKey: string = typeof key === 'function'
-            ? await key("{{keyParamName}}")
-            : await key;
+            ? key("{{keyParamName}}")
+            : key;
         this.authentications.{{name}}.apiKey = localApiKey;
     }
     {{/isKeyInQuery}}
@@ -50,7 +50,7 @@ export class {{classname}} extends APIHandler {
     {{/isBasicBasic}}
     {{#isBasicBearer}}
     // http bearer authentication required
-    set accessToken(accessToken: string | function) {
+    set accessToken(accessToken: string | Function) {
         const bearerToken: string = typeof accessToken === 'function'
             ? accessToken()
             : accessToken;
@@ -69,17 +69,17 @@ export class {{classname}} extends APIHandler {
      * {{notes}}{{/notes}}{{#allParams}}
      * @param {{paramName}} {{description}}{{/allParams}}
      */
-    public {{nickname}}<T = any>(params: APIParams & {
+    public {{nickname}}(params: APIParams & {
         {{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{^isPrimitiveType}}{{^isFile}}{{/isFile}}{{/isPrimitiveType}}{{{dataType}}};{{#hasMore}}
         {{/hasMore}}{{/allParams}}
-    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}): AxiosPromise<T> {
+    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}): AxiosPromise<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}> {
         this.initAuth({{#hasAuthMethods}}{{#cookieAuth}}false{{/cookieAuth}}{{^cookieAuth}}true{{/cookieAuth}}{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}});
         const apiURL: string = this.initAPIURL({{classname}}.urls.{{nickname}}{{#hasPathParams}}, { {{/hasPathParams}}{{#pathParams}}{{baseName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}{{#hasPathParams}} } {{/hasPathParams}}{{^pathParams}}, null{{/pathParams}});
         params.options = this.initOptions(params.options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} }, {{#hasAuthMethods}}true{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}}, params.canceler);{{#formParams}}{{#isFile}}
         const formData: FormData = new FormData();
         formData.append("file", params.{{paramName}} as any);{{/isFile}}{{/formParams}}
         const body: any = {{#formParams}}{{#-first}}{ {{/-first}}{{#isFile}}formData{{/isFile}}{{^isFile}}{{paramName}}: params.{{paramName}}{{/isFile}}{{#-last}} }{{/-last}}{{^-last}}, {{/-last}}{{/formParams}}{{^formParams}}{{#bodyParam}}params.{{paramName}}{{/bodyParam}}{{/formParams}}{{^formParams}}{{^bodyParam}}null{{/bodyParam}}{{/formParams}};
-        return this.makeCall<T>("{{httpMethod}}".toLowerCase(), apiURL, params.options, body, "{{nickname}}");
+        return this.makeCall<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}>("{{httpMethod}}".toLowerCase(), apiURL, params.options, body, "{{nickname}}");
     }
 
 {{/operation}}
