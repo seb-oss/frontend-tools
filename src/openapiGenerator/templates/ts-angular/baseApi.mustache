@@ -52,6 +52,87 @@ const configs: DefaultConfig = {{#withCustomConfigs}}require("@configs").default
 };
 {{/withCustomConfigs}}
 
+export type AttributeMapItem = {
+    name: string;
+    type: string;
+};
+
+export type APIModelOptions = {
+    [key: string]: any;
+    /** The value of properties of type `string` */
+    string?: string;
+    /** The value of properties of type `number` */
+    number?: number;
+    /** The value of  properties of type`boolean` */
+    boolean?: boolean;
+    /** The value  properties of typeof `date` */
+    date?: Date;
+    /** The value o properties of typef `array` */
+    array?: Array<any>;
+};
+
+export class APIModel {
+
+    /**
+     * Initializes and attribute map item as a primitive type
+     * @param item An attribute map item to use as reference
+     * @param options The options passed in the constructor to override the default values
+     * @returns The value to be initialized with
+     */
+    static initAsPimitiveType(item: AttributeMapItem, options?: APIModelOptions): any {
+        switch (true) {
+            case /string/i.test(item.type): return options && options.string !== undefined ? options.string : "";
+            case /number/i.test(item.type): return options && options.number !== undefined ? options.number : null;
+            case /boolean/i.test(item.type): return options && options.boolean !== undefined ? options.boolean : null;
+            case /date/i.test(item.type): return options && options.date !== undefined ? options.date : null;
+            case /array/i.test(item.type): return options && options.array !== undefined ? options.array : [];
+            default: return null;
+        }
+    }
+
+    constructor(attributeMap: Array<AttributeMapItem>, options?: APIModelOptions) {
+        if (attributeMap && attributeMap.map) {
+            attributeMap.map((item: AttributeMapItem) => {
+                if (options && options instanceof Object) {
+                    const optionName: string = Object.keys(options).find((name: string) => {
+                        return item.name.toLowerCase() === name.toLowerCase();
+                    });
+                    if (optionName) {
+                        this[item.name] = options[optionName];
+                    } else {
+                        this[item.name] = APIModel.initAsPimitiveType(item, options);
+                    }
+                } else {
+                    this[item.name] = APIModel.initAsPimitiveType(item, options);
+                }
+            });
+        }
+    }
+}
+{{#models}}
+    {{#model}}
+        {{#hasEnums}}
+            {{#-first}}
+
+export const enumsMap: {[index: string]: any} = { 
+            {{/-first}}
+            {{#vars}}
+                {{#isEnum}}
+                    {{#isContainer}}
+    "{{classname}}.{{enumName}}": {{classname}}.{{enumName}}{{^-last}},{{/-last}}
+                    {{/isContainer}}
+                    {{#isNotContainer}}
+    "{{datatypeWithEnum}}": {{datatypeWithEnum}}{{^-last}},{{/-last}}
+                    {{/isNotContainer}}
+                {{/isEnum}}
+            {{/vars}}
+            {{#-last}}
+};
+            {{/-last}}
+        {{/hasEnums}}
+    {{/model}}
+{{/models}}
+
 export class HttpBasicAuth implements Authentication {
     public username: string;
     public password: string;
