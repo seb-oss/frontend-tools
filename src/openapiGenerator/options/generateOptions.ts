@@ -295,6 +295,6 @@ const defaultOptions: Array<DefaultOptionType> = [
         key: [OptionName.outputShort, OptionName.output],
         value: "./src/apis"
     }
-]
+];
 
 export { options as GenerateOptions, defaultOptions as GenerateDefaultOptions, OptionName as GenerateOptionName,  GenerateArgumentType };

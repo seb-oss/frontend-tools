@@ -1,6 +1,5 @@
 import { OptionType } from "./option.type";
-import { OpenApiGenerator } from "../generatorList";
-import { GenerateOptionName } from "./generateOptions";
+import { OpenApiGenerator, SEBGenerator } from "../generatorList";
 
 export interface CustomOptionType extends OptionType {
     mappingName?: string;
@@ -9,6 +8,11 @@ export interface CustomOptionType extends OptionType {
     noValue?: boolean;
     defaultValue?: string;
     additionalProp?: boolean;
+    removeOnFalse?: boolean;
+}
+
+export interface AdditionalProps {
+    withSeparateModelsAndApi?: boolean;
 }
 
 export interface SEBTemplate {
@@ -77,7 +81,8 @@ const options: Array<CustomOptionType> = [
         description: "separate models and apis",
         mappingName: "withSeparateModelsAndApi",
         defaultValue: "true",
-        additionalProp: true
+        additionalProp: true,
+        removeOnFalse: true
     },
     {
         option: null,
@@ -95,6 +100,19 @@ const options: Array<CustomOptionType> = [
     }
 ];
 
+
+export interface CustomGeneratorMapper {
+    generator: SEBGenerator;
+    relativeGenerator: OpenApiGenerator;
+}
+
+const customGeneratorMapper: Array<CustomGeneratorMapper> = [
+    {
+        generator: "ts-angular",
+        relativeGenerator: "typescript-axios"
+    }
+];
+
 const templates: Array<SEBTemplate> = [
     {
         generator: "typescript-axios",
@@ -103,7 +121,11 @@ const templates: Array<SEBTemplate> = [
     {
         generator: "typescript-angular",
         templatePath: "./node_modules/@sebgroup/frontend-tools/dist/openapiGenerator/templates/typescript-angular"
+    },
+    {
+        generator: "ts-angular",
+        templatePath: "./node_modules/@sebgroup/frontend-tools/dist/openapiGenerator/templates/ts-angular"
     }
 ]
 
-export { options as CustomOptions, OptionName as CustomOptionName, templates as CustomTemplates };
+export { options as CustomOptions, OptionName as CustomOptionName, templates as CustomTemplates, customGeneratorMapper };

@@ -24,12 +24,13 @@ import {
 import {
     CustomOptions,
     CustomOptionType,
-    CustomOptionName,
     CustomTemplates,
     SEBTemplate,
     CustomOptionsArgumentType,
+    customGeneratorMapper,
+    CustomGeneratorMapper
 } from "./options/customOptions";
-import { OpenApiGenerator } from "./generatorList";
+import { OpenApiGenerator, isSEBGenerator } from "./generatorList";
 import { generateMock } from "./mockGenerator/mockGenerator";
 import { join } from "path";
 
@@ -42,6 +43,7 @@ type GeneratorArgs = (BatchArgumentType | ConfigHelpArgumentType | GenerateArgum
 };
 
 const minimist = require("minimist");
+const dargs = require("dargs");
 
 export function generatorFn() {
     const program: commander.Command = createCommand();
@@ -89,8 +91,8 @@ export function generatorFn() {
 
             if (generateArgs.p || generateArgs["additional-properties"]) {
                 const additionalProps: keyof GenerateArgumentType = !!generateArgs.p ? "p" : "additional-properties";
-                args[additionalProps] =
-                    args[additionalProps] + `,${extraOptions.toString()}`;
+                const formattedAdditionalProps: string = removeExtraOption(args[additionalProps]);
+                args[additionalProps] = `${formattedAdditionalProps}${formattedAdditionalProps.length ? ", " : ""}${extraOptions.toString()}`;
             } else {
                 (args as GenerateArgumentType).p = extraOptions.toString();
             }
@@ -107,6 +109,12 @@ export function generatorFn() {
                 // generate mock
                 generateMock((generateArgs.i || generateArgs["input-spec"]), outputDir);
             }
+            if (isSEBGenerator(generatorName)) {
+                const relativeGenerator: OpenApiGenerator = customGeneratorMapper.find(({ generator }: CustomGeneratorMapper) => generatorName === generator)?.relativeGenerator;
+                if (relativeGenerator) {
+                    (args as GenerateArgumentType)[(args as GenerateArgumentType).g ? "g" : "generator-name"] = relativeGenerator;
+                }
+            }
         }
         CustomOptions.filter(({ option }: CustomOptionType) => !!option).map((item: CustomOptionType) => {
             const customOption: CustomOptionsArgumentType = minimist(item.option);
@@ -115,10 +123,11 @@ export function generatorFn() {
                 delete args[selectedKey];
             }
         });
-        const revertArgs: Array<string> = require("dargs")(args, { excludes: ["_"] });
+        const revertArgs: Array<string> = dargs(args, { excludes: ["_"] });
         if (revertArgs) {
             command += ` ${revertArgs.join(" ")}`;
         }
+        console.log(command);
         process.env[
             "JAVA_OPTS"
         ] = `-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true`;
@@ -129,6 +138,24 @@ export function generatorFn() {
         cmd.on("exit", process.exit);
     });
     program.parse(process.argv);
+}
+
+/**
+ * remove extra option
+ * @param addtionalProperties additional properties
+ */
+function removeExtraOption(addtionalProperties: string): string {
+    const additionalArgs: Array<string> = addtionalProperties.split(",");
+    let newAdditionalArgs: string = "";
+    additionalArgs.map((argument: string) => {
+        const keys: Array<string> = argument.split("=");
+        const keyName: string = keys[0];
+        const relatedOption: CustomOptionType = CustomOptions.find((option: CustomOptionType) => !!option.mappingName && option.mappingName === keyName);
+        if (keys[1] !== "false" || !relatedOption?.removeOnFalse) {
+            newAdditionalArgs = argument;
+        }
+    })
+    return newAdditionalArgs;
 }
 
 /**
