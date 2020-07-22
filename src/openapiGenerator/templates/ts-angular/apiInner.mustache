@@ -1,7 +1,7 @@
 {{#withSeparateModelsAndApi}}
 // tslint:disable
-import { AxiosPromise } from "axios";
-import { APIHandler, APIURLTypes, APIParams{{#operations}}{{#operation}}{{#-first}}{{#authMethods}}{{#isBasic}}, HttpBasicAuth{{/isBasic}}{{#isApiKey}}, ApiKeyAuth{{/isApiKey}}{{#isBasicBearer}}, OAuth{{/isBasicBearer}}{{#isOAuth}}, OAuth{{/isOAuth}}{{/authMethods}}{{/-first}}{{/operation}}{{/operations}} } from "{{apiRelativeToRoot}}base";
+import { Observable } from "rxjs";
+import { APIHandler, APIURLTypes, HttpOptions{{#operations}}{{#operation}}{{#-first}}{{#authMethods}}{{#isBasic}}, HttpBasicAuth{{/isBasic}}{{#isApiKey}}, ApiKeyAuth{{/isApiKey}}{{#isBasicBearer}}, OAuth{{/isBasicBearer}}{{#isOAuth}}, OAuth{{/isOAuth}}{{/authMethods}}{{/-first}}{{/operation}}{{/operations}} } from "{{apiRelativeToRoot}}base";
 import { {{#imports}}{{classname}}{{^-last}}, {{/-last}}{{/imports}} } from "{{apiRelativeToRoot}}{{tsModelPackage}}";
 {{/withSeparateModelsAndApi}}
 
@@ -22,12 +22,16 @@ export class {{classname}} extends APIHandler {
     {{#authMethods}}
     // authentication {{name}} required
     {{#isApiKey}}
+    private _apiKey: string;
+    get apiKey() {
+        return this._apiKey;
+    }
     {{#isKeyInHeader}}
     set apiKey(key: string | Function) {
         const localApiKey: string = typeof key === 'function'
             ? key("{{keyParamName}}")
             : key;
-        this.authentications.{{name}}.apiKey = localApiKey;
+        this._apiKey = localApiKey;
     }
     {{/isKeyInHeader}}
     {{#isKeyInQuery}}
@@ -35,31 +39,46 @@ export class {{classname}} extends APIHandler {
         const localApiKey: string = typeof key === 'function'
             ? key("{{keyParamName}}")
             : key;
-        this.authentications.{{name}}.apiKey = localApiKey;
+        this._apiKey = localApiKey;
     }
     {{/isKeyInQuery}}
     {{/isApiKey}}
     {{#isBasicBasic}}
-    set username(username: string) {
-        this.authentications.{{name}}.username = username;
+    private _username: string;
+    get username() {
+        return this._username;
     }
-
+    set username(username: string) {
+        this._username = username;
+    }
+    private _password: string;
+    get password() {
+        return this._password;
+    }
     set password(password: string) {
-        this.authentications.{{name}}.password = password;
+        this._password = password;
     }
     {{/isBasicBasic}}
     {{#isBasicBearer}}
+    private _accessToken: string;
+    get accessToken() {
+        return this._accessToken;
+    }
     // http bearer authentication required
     set accessToken(accessToken: string | Function) {
         const bearerToken: string = typeof accessToken === 'function'
             ? accessToken()
             : accessToken;
-        this.authentications.{{name}}.accessToken = "Bearer " + bearerToken;
+        this._accessToken = bearerToken;
     }
     {{/isBasicBearer}}
     {{#isOAuth}}
+    private _accessToken: string;
+    get accessToken() {
+        return this._accessToken;
+    }
     set accessToken(token: string) {
-        this.authentications.{{name}}.accessToken = token;
+        this._accessToken = token;
     }
     {{/isOAuth}}
     {{/authMethods}}
@@ -69,17 +88,18 @@ export class {{classname}} extends APIHandler {
      * {{notes}}{{/notes}}{{#allParams}}
      * @param {{paramName}} {{description}}{{/allParams}}
      */
-    public {{nickname}}(params: APIParams & {
+    public {{nickname}}(params: {
         {{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{^isPrimitiveType}}{{^isFile}}{{/isFile}}{{/isPrimitiveType}}{{{dataType}}};{{#hasMore}}
         {{/hasMore}}{{/allParams}}
-    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}): AxiosPromise<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}> {
-        this.initAuth({{#hasAuthMethods}}{{#cookieAuth}}false{{/cookieAuth}}{{^cookieAuth}}true{{/cookieAuth}}{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}});
+    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, options?: HttpOptions): Observable<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}> {
+        const acceptTypes: Array<string> = [{{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}}];
+        this.initAuth({{#hasAuthMethods}}{{#cookieAuth}}false{{/cookieAuth}}{{#authMethods}}true, {{#isApiKey}}{{#isKeyInHeader}}{ token: this.apiKey as string, contentTypes: acceptTypes, key: "Authentication" }{{/isKeyInHeader}}{{/isApiKey}}{{#isBasicBasic}}{ username: this.username, password: this.password, key: "Basic" }{{/isBasicBasic}}{{#isBasicBearer}}{ token: this.accessToken, contentTypes: acceptTypes, key: "Authentication" } {{/isBasicBearer}}{{#isOAuth}}{ token: this.accessToken, contentTypes: acceptTypes, key: "Authentication" }{{/isOAuth}}{{/authMethods}}{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}});
         const apiURL: string = this.initAPIURL({{classname}}.urls.{{nickname}}{{#hasPathParams}}, { {{/hasPathParams}}{{#pathParams}}{{baseName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}{{#hasPathParams}} } {{/hasPathParams}}{{^pathParams}}, null{{/pathParams}});
-        params.options = this.initOptions(params.options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} }, {{#hasAuthMethods}}true{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}}, params.canceler);{{#formParams}}{{#isFile}}
+        options = this.initOptions(options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} });{{#formParams}}{{#isFile}}
         const formData: FormData = new FormData();
         formData.append("file", params.{{paramName}} as any);{{/isFile}}{{/formParams}}
         const body: any = {{#formParams}}{{#-first}}{ {{/-first}}{{#isFile}}formData{{/isFile}}{{^isFile}}{{paramName}}: params.{{paramName}}{{/isFile}}{{#-last}} }{{/-last}}{{^-last}}, {{/-last}}{{/formParams}}{{^formParams}}{{#bodyParam}}params.{{paramName}}{{/bodyParam}}{{/formParams}}{{^formParams}}{{^bodyParam}}null{{/bodyParam}}{{/formParams}};
-        return this.makeCall<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}>("{{httpMethod}}".toLowerCase(), apiURL, params.options, body, "{{nickname}}");
+        return this.makeCall<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}>("{{httpMethod}}".toLowerCase(), apiURL, options, body);
     }
 
 {{/operation}}

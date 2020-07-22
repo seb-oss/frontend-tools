@@ -1,4 +1,4 @@
-export type OpenApiGenerator = ClientSideGenerator | ServerSideGenerator | DocumentationGenerator | SchemaGenerator | ConfigGenerator;
+export type OpenApiGenerator = ClientSideGenerator | ServerSideGenerator | DocumentationGenerator | SchemaGenerator | ConfigGenerator | SEBGenerator;
 
 export type ClientSideGenerator = "ada" | "android" | "apex" | "bash" | "c" |
                                   "clojure" | "cpp-qt5-client" | "cpp-restsdk" | "cpp-tizen" | "csharp" |
@@ -29,3 +29,18 @@ export type DocumentationGenerator = "asciidoc" | "cwiki" | "dynamic-html" | "ht
 export type SchemaGenerator = "avro-schema" | "mysql-schema";
 
 export type ConfigGenerator = "apache2" | "graphql-schema" | "protobuf-schema";
+
+export type SEBGenerator = "ts-angular";
+
+/**
+ * check if generator is custom seb generator
+ * @param generator generator set
+ */
+export function isSEBGenerator(generator: OpenApiGenerator){
+    switch (generator) {
+        case "ts-angular":
+            return true;
+        default:
+            return false;
+    }
+}
