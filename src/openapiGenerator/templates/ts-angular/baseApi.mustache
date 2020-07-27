@@ -175,7 +175,10 @@ export class VoidAuth implements Authentication {
 * simulate data from mock
 */
 export function simulateData<T>(subscriber: Subscriber<HttpResponse<T>>, body: T, status: number, timeout: number): NodeJS.Timeout {
-    return setTimeout(() => { subscriber.next(new HttpResponse<T>({ status, body })); }, timeout);
+    return setTimeout(() => {
+        subscriber.next(new HttpResponse<T>({ status, body }));
+        subscriber.complete();
+    }, timeout);
 }
 
 export class APIHandler {
@@ -342,11 +345,16 @@ export class APIHandler {
      * @param options The http options to be sent
      * @param body The body of the request, if any
      */
-    protected makeCall<T>(method: string, url: string, options: HttpOptions, body?: any): Observable<any> {
+    protected makeCall<T>(method: string, url: string, operationId: string, options: HttpOptions, body?: any): Observable<any> {
         if (configs.useMock) {
             return new Observable((subscriber: Subscriber<HttpResponse<T>>) => {
-                simulateData(subscriber, mocks[this.className][method][200] || mocks[this.className][method]["default"] || mocks[this.className][method], 200, configs.delay)
-                subscriber.complete();
+                let mockedData: any = {};
+                try {
+                    mockedData = mocks[operationId][200] || mocks[operationId]["default"] || mocks[operationId];
+                } catch (error) {
+                    console.error(error);
+                }
+                simulateData(subscriber, mockedData, 200, configs.delay)
             });
         } else {
             switch (method) {

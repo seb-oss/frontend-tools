@@ -34,7 +34,7 @@ export class {{classname}} extends APIHandler {
         const formData: FormData = new FormData();
         formData.append("file", params.{{paramName}} as any);{{/isFile}}{{/formParams}}
         const body: any = {{#formParams}}{{#-first}}{ {{/-first}}{{#isFile}}formData{{/isFile}}{{^isFile}}{{paramName}}: params.{{paramName}}{{/isFile}}{{#-last}} }{{/-last}}{{^-last}}, {{/-last}}{{/formParams}}{{^formParams}}{{#bodyParam}}params.{{paramName}}{{/bodyParam}}{{/formParams}}{{^formParams}}{{^bodyParam}}null{{/bodyParam}}{{/formParams}};
-        return this.makeCall<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}{{^imports}}any{{/imports}}>("{{httpMethod}}".toLowerCase(), apiURL, options, body);
+        return this.makeCall<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}{{^imports}}any{{/imports}}>("{{httpMethod}}".toLowerCase(), apiURL, "{{nickname}}", options, body);
     }
 
 {{/operation}}
