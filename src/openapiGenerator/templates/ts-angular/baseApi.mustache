@@ -185,6 +185,70 @@ export class APIHandler {
     protected authentications = [ <Authentication>new VoidAuth() ];
     protected className: string;
 
+    {{#authMethods}}
+    // authentication {{name}} required
+    {{#isApiKey}}
+    private _apiKey: string;
+    get apiKey() {
+        return this._apiKey;
+    }
+    {{#isKeyInHeader}}
+    set apiKey(key: string | Function) {
+        const localApiKey: string = typeof key === 'function'
+            ? key("{{keyParamName}}")
+            : key;
+        this._apiKey = localApiKey;
+    }
+    {{/isKeyInHeader}}
+    {{#isKeyInQuery}}
+    set apiKey(key: string | Function) {
+        const localApiKey: string = typeof key === 'function'
+            ? key("{{keyParamName}}")
+            : key;
+        this._apiKey = localApiKey;
+    }
+    {{/isKeyInQuery}}
+    {{/isApiKey}}
+    {{#isBasicBasic}}
+    private _username: string;
+    get username() {
+        return this._username;
+    }
+    set username(username: string) {
+        this._username = username;
+    }
+    private _password: string;
+    get password() {
+        return this._password;
+    }
+    set password(password: string) {
+        this._password = password;
+    }
+    {{/isBasicBasic}}
+    {{#isBasicBearer}}
+    private _accessToken: string;
+    get accessToken() {
+        return this._accessToken;
+    }
+    // http bearer authentication required
+    set accessToken(accessToken: string | Function) {
+        const bearerToken: string = typeof accessToken === 'function'
+            ? accessToken()
+            : accessToken;
+        this._accessToken = bearerToken;
+    }
+    {{/isBasicBearer}}
+    {{#isOAuth}}
+    private _accessToken: string;
+    get accessToken() {
+        return this._accessToken;
+    }
+    set accessToken(token: string) {
+        this._accessToken = token;
+    }
+    {{/isOAuth}}
+    {{/authMethods}}
+
     constructor(
         className: string,
         basePath?: string,
