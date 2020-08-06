@@ -1,7 +1,7 @@
 {{#withSeparateModelsAndApi}}
 // tslint:disable
 import { AxiosPromise } from "axios";
-import { APIHandler, APIURLTypes, APIParams{{#operations}}{{#operation}}{{#-first}}{{#authMethods}}{{#isBasic}}, HttpBasicAuth{{/isBasic}}{{#isApiKey}}, ApiKeyAuth{{/isApiKey}}{{#isBasicBearer}}, OAuth{{/isBasicBearer}}{{#isOAuth}}, OAuth{{/isOAuth}}{{/authMethods}}{{/-first}}{{/operation}}{{/operations}} } from "{{apiRelativeToRoot}}base";
+import { APIHandler, APIURLTypes, APIParams } from "{{apiRelativeToRoot}}base";
 import { {{#imports}}{{classname}}{{^-last}}, {{/-last}}{{/imports}} } from "{{apiRelativeToRoot}}{{tsModelPackage}}";
 {{/withSeparateModelsAndApi}}
 
@@ -13,57 +13,10 @@ export class {{classname}} extends APIHandler {
     };
     
     constructor() {
-        super("{{classname}}");{{#operation}}{{#-first}}{{#authMethods}}
-        this.authentications.push({{#isBasic}}new HttpBasicAuth(){{/isBasic}}{{#isApiKey}}new ApiKeyAuth({{#isKeyInHeader}}'header', {{/isKeyInHeader}}{{^isKeyInHeader}}'query', {{/isKeyInHeader}}'{{keyParamName}}'){{/isApiKey}}{{#isBasicBearer}}new OAuth(){{/isBasicBearer}}{{#isOAuth}}new OAuth(){{/isOAuth}});{{/authMethods}}{{/-first}}{{/operation}}
+        super("{{classname}}");
     }
     
 {{#operation}}
-    {{#-first}}
-    {{#authMethods}}
-    // authentication {{name}} required
-    {{#isApiKey}}
-    {{#isKeyInHeader}}
-    set apiKey(key: string | Function) {
-        const localApiKey: string = typeof key === 'function'
-            ? key("{{keyParamName}}")
-            : key;
-        this.authentications.{{name}}.apiKey = localApiKey;
-    }
-    {{/isKeyInHeader}}
-    {{#isKeyInQuery}}
-    set apiKey(key: string | Function) {
-        const localApiKey: string = typeof key === 'function'
-            ? key("{{keyParamName}}")
-            : key;
-        this.authentications.{{name}}.apiKey = localApiKey;
-    }
-    {{/isKeyInQuery}}
-    {{/isApiKey}}
-    {{#isBasicBasic}}
-    set username(username: string) {
-        this.authentications.{{name}}.username = username;
-    }
-
-    set password(password: string) {
-        this.authentications.{{name}}.password = password;
-    }
-    {{/isBasicBasic}}
-    {{#isBasicBearer}}
-    // http bearer authentication required
-    set accessToken(accessToken: string | Function) {
-        const bearerToken: string = typeof accessToken === 'function'
-            ? accessToken()
-            : accessToken;
-        this.authentications.{{name}}.accessToken = "Bearer " + bearerToken;
-    }
-    {{/isBasicBearer}}
-    {{#isOAuth}}
-    set accessToken(token: string) {
-        this.authentications.{{name}}.accessToken = token;
-    }
-    {{/isOAuth}}
-    {{/authMethods}}
-    {{/-first}}
     /**{{#summary}}
      * {{summary}}{{/summary}}{{#notes}}
      * {{notes}}{{/notes}}{{#allParams}}
@@ -72,14 +25,13 @@ export class {{classname}} extends APIHandler {
     public {{nickname}}(params: APIParams & {
         {{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{^isPrimitiveType}}{{^isFile}}{{/isFile}}{{/isPrimitiveType}}{{{dataType}}};{{#hasMore}}
         {{/hasMore}}{{/allParams}}
-    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}): AxiosPromise<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}> {
-        this.initAuth({{#hasAuthMethods}}{{#cookieAuth}}false{{/cookieAuth}}{{^cookieAuth}}true{{/cookieAuth}}{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}});
+    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}): AxiosPromise<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}{{^imports}}any{{/imports}}> {
         const apiURL: string = this.initAPIURL({{classname}}.urls.{{nickname}}{{#hasPathParams}}, { {{/hasPathParams}}{{#pathParams}}{{baseName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}{{#hasPathParams}} } {{/hasPathParams}}{{^pathParams}}, null{{/pathParams}});
-        params.options = this.initOptions(params.options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} }, {{#hasAuthMethods}}true{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}}, params.canceler);{{#formParams}}{{#isFile}}
+        params.options = this.initOptions(params.options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} }, params.canceler);{{#formParams}}{{#isFile}}
         const formData: FormData = new FormData();
         formData.append("file", params.{{paramName}} as any);{{/isFile}}{{/formParams}}
         const body: any = {{#formParams}}{{#-first}}{ {{/-first}}{{#isFile}}formData{{/isFile}}{{^isFile}}{{paramName}}: params.{{paramName}}{{/isFile}}{{#-last}} }{{/-last}}{{^-last}}, {{/-last}}{{/formParams}}{{^formParams}}{{#bodyParam}}params.{{paramName}}{{/bodyParam}}{{/formParams}}{{^formParams}}{{^bodyParam}}null{{/bodyParam}}{{/formParams}};
-        return this.makeCall<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}>("{{httpMethod}}".toLowerCase(), apiURL, "{{nickname}}", params.options, body, "{{nickname}}");
+        return this.makeCall<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}{{^imports}}any{{/imports}}>("{{httpMethod}}".toLowerCase(), apiURL, "{{nickname}}", params.options, body, "{{nickname}}");
     }
 
 {{/operation}}

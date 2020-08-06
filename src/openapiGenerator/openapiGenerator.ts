@@ -92,7 +92,7 @@ export function generatorFn() {
             if (generateArgs.p || generateArgs["additional-properties"]) {
                 const additionalProps: keyof GenerateArgumentType = !!generateArgs.p ? "p" : "additional-properties";
                 const formattedAdditionalProps: string = removeExtraOption(args[additionalProps]);
-                args[additionalProps] = `${formattedAdditionalProps}${formattedAdditionalProps.length ? ", " : ""}${extraOptions.toString()}`;
+                args[additionalProps] = `${formattedAdditionalProps}${formattedAdditionalProps.length ? "," : ""}${extraOptions.toString()}`;
             } else {
                 (args as GenerateArgumentType).p = extraOptions.toString();
             }
@@ -127,7 +127,6 @@ export function generatorFn() {
         if (revertArgs) {
             command += ` ${revertArgs.join(" ")}`;
         }
-        console.log(command);
         process.env[
             "JAVA_OPTS"
         ] = `-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true`;

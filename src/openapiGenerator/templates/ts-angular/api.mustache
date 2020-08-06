@@ -7,7 +7,7 @@ import { Configuration } from './configuration';
 import { Observable } from "rxjs";
 // Some imports not used depending on template conditions
 // @ts-ignore
-import { APIModel, APIModelOptions, AttributeMapItem, HttpOptions, APIHandler, APIURLTypes, ApiKeyAuth, OAuth } from "./base";
+import { APIModel, APIModelOptions, AttributeMapItem, HttpOptions, APIHandler, APIURLTypes } from "./base";
 
 {{#models}}
 {{#model}}{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{#oneOf}}{{#-first}}{{>modelOneOf}}{{/-first}}{{/oneOf}}{{^isEnum}}{{^oneOf}}{{>modelGeneric}}{{/oneOf}}{{/isEnum}}{{/model}}
