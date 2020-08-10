@@ -127,9 +127,9 @@ export const enumsMap: {[index: string]: any} = {
 /**
 * simulate data from mock
 */
-export function simulateData<T>(subscriber: Subscriber<HttpResponse<T>>, body: T, status: number, timeout: number): NodeJS.Timeout {
+export function simulateData<T>(subscriber: Subscriber<T>, body: T, timeout: number): NodeJS.Timeout {
     return setTimeout(() => {
-        subscriber.next(new HttpResponse<T>({ status, body }));
+        subscriber.next(body);
         subscriber.complete();
     }, timeout);
 }
