@@ -15,14 +15,12 @@ if (process.env.NODE_ENV !== "production") {
 
 export interface DefaultConfig {
     delay: number;
-    defaultHeaders?: () => {};
+    defaultHeaders?: () => HttpHeaders;
     useMock?: boolean;
 }
 
 export interface HttpOptions {
-    headers?: HttpHeaders | {
-        [header: string]: string | string[];
-    };
+    headers?: HttpHeaders;
     observe?: "body" | "events" | "response";
     params?: HttpParams | {
         [param: string]: string | string[];
@@ -36,18 +34,11 @@ interface KeyValuePair {
     [key: string]: any;
 }
 
-export interface Authentication {
-    /** Apply authentication settings to header and query params. */
-    applyToRequest(requestOptions: any): void;
-}
-
 export const defaultBasePath: string = "{{#baseUrl}}{{baseUrl}}{{/baseUrl}}{{^baseUrl}}{{#basePath}}{{{basePath}}}{{/basePath}}{{/baseUrl}}".replace(/\/$/, "");
 
 const configs: DefaultConfig = {{#withCustomConfigs}}require("@configs").default;{{/withCustomConfigs}}{{^withCustomConfigs}}{
     delay: 1500,
-    defaultHeaders: () => {
-        return {};
-    },
+    defaultHeaders: () => new HttpHeaders(),
     useMock: false
 };
 {{/withCustomConfigs}}
@@ -133,44 +124,6 @@ export const enumsMap: {[index: string]: any} = {
     {{/model}}
 {{/models}}
 
-export class HttpBasicAuth implements Authentication {
-    public username: string;
-    public password: string;
-    applyToRequest(requestOptions: any): void {
-        requestOptions.auth = { username: this.username, password: this.password }
-    }
-}
-
-export class ApiKeyAuth implements Authentication {
-    public apiKey: string;
-
-    constructor(private location: string, private paramName: string) { }
-
-    applyToRequest(requestOptions: any): void {
-        if (this.location === "query") {
-            (<any>requestOptions.params)[this.paramName] = this.apiKey;
-        } else if (this.location === "header" && requestOptions && requestOptions.headers) {
-            requestOptions.headers[this.paramName] = this.apiKey;
-        }
-    }
-}
-
-export class OAuth implements Authentication {
-    public accessToken: string;
-
-    applyToRequest(requestOptions: any): void {
-        if (requestOptions && requestOptions.headers) {
-            requestOptions.headers["Authorization"] = "Bearer " + this.accessToken;
-        }
-    }
-}
-
-export class VoidAuth implements Authentication {
-    public username: string;
-    public password: string;
-    applyToRequest(requestOptions: any): void { /** Do nothing */ }
-}
-
 /**
 * simulate data from mock
 */
@@ -183,100 +136,17 @@ export function simulateData<T>(subscriber: Subscriber<HttpResponse<T>>, body: T
 
 export class APIHandler {
     protected basePath = defaultBasePath;
-    protected defaultHeaders: HttpHeaders = new HttpHeaders();
     protected storage = new StorageManagement();
-    protected authentications = [ <Authentication>new VoidAuth() ];
     protected className: string;
-
-    {{#authMethods}}
-    // authentication {{name}} required
-    {{#isApiKey}}
-    private _apiKey: string;
-    get apiKey() {
-        return this._apiKey;
-    }
-    {{#isKeyInHeader}}
-    set apiKey(key: string | Function) {
-        const localApiKey: string = typeof key === 'function'
-            ? key("{{keyParamName}}")
-            : key;
-        this._apiKey = localApiKey;
-    }
-    {{/isKeyInHeader}}
-    {{#isKeyInQuery}}
-    set apiKey(key: string | Function) {
-        const localApiKey: string = typeof key === 'function'
-            ? key("{{keyParamName}}")
-            : key;
-        this._apiKey = localApiKey;
-    }
-    {{/isKeyInQuery}}
-    {{/isApiKey}}
-    {{#isBasicBasic}}
-    private _username: string;
-    get username() {
-        return this._username;
-    }
-    set username(username: string) {
-        this._username = username;
-    }
-    private _password: string;
-    get password() {
-        return this._password;
-    }
-    set password(password: string) {
-        this._password = password;
-    }
-    {{/isBasicBasic}}
-    {{#isBasicBearer}}
-    private _accessToken: string;
-    get accessToken() {
-        return this._accessToken;
-    }
-    // http bearer authentication required
-    set accessToken(accessToken: string | Function) {
-        const bearerToken: string = typeof accessToken === 'function'
-            ? accessToken()
-            : accessToken;
-        this._accessToken = bearerToken;
-    }
-    {{/isBasicBearer}}
-    {{#isOAuth}}
-    private _accessToken: string;
-    get accessToken() {
-        return this._accessToken;
-    }
-    set accessToken(token: string) {
-        this._accessToken = token;
-    }
-    {{/isOAuth}}
-    {{/authMethods}}
 
     constructor(
         className: string,
         basePath?: string,
-        defaultHeaders?: any,
         protected httpClient: HttpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }))
     ) {
         this.className = className;
         if (basePath) {
             this.basePath = basePath;    
-        }
-        if (defaultHeaders) {
-            this.defaultHeaders = defaultHeaders;
-        }
-    }
-
-    /**
-     * Initializes the authentication with the stored TOKEN key if authentication is required
-     * @param isAuth Is authentication enabled for this API call
-     */
-    protected initAuth(isAuth: boolean, params?: { contentTypes?: Array<string>, token?: string, key?: string }): void {
-        if (isAuth) {
-            params.contentTypes.map((contentType: string) => {
-                this.defaultHeaders.set("Content-Type", contentType);
-            });
-            this.defaultHeaders.set(params.key, params.token);
         }
     }
 
@@ -318,7 +188,16 @@ export class APIHandler {
      * @returns the initialized options object
      */
     protected initOptions(options: HttpOptions, queryParams: KeyValuePair, headerParams: KeyValuePair): HttpOptions {
-        options.headers = <HttpHeaders>Object.assign(this.defaultHeaders, options.headers ? options.headers : {});
+        const defaultHeaders: HttpHeaders = configs.defaultHeaders();
+        const optionsHeaders: HttpHeaders = options.headers;
+        const newHeader: KeyValuePair = { ...headerParams };
+        defaultHeaders && defaultHeaders.keys().map((key: string) => {
+            newHeader[key] = defaultHeaders.getAll(key);
+        });
+        optionsHeaders && optionsHeaders.keys().map((key: string) => {
+            newHeader[key] = optionsHeaders.getAll(key);
+        });
+        options.headers = new HttpHeaders(defaultHeaders ? { ...newHeader } : {});
         options.params = options.params ? options.params : new HttpParams();
         options.responseType = options.responseType ? options.responseType : "json";
         if (queryParams) {

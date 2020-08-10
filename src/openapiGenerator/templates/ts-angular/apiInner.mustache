@@ -1,7 +1,7 @@
 {{#withSeparateModelsAndApi}}
 // tslint:disable
 import { Observable } from "rxjs";
-import { APIHandler, APIURLTypes, HttpOptions{{#operations}}{{#operation}}{{#-first}}{{#authMethods}}{{#isBasic}}, HttpBasicAuth{{/isBasic}}{{#isApiKey}}, ApiKeyAuth{{/isApiKey}}{{#isBasicBearer}}, OAuth{{/isBasicBearer}}{{#isOAuth}}, OAuth{{/isOAuth}}{{/authMethods}}{{/-first}}{{/operation}}{{/operations}} } from "{{apiRelativeToRoot}}base";
+import { APIHandler, APIURLTypes, HttpOptions } from "{{apiRelativeToRoot}}base";
 import { {{#imports}}{{classname}}{{^-last}}, {{/-last}}{{/imports}} } from "{{apiRelativeToRoot}}{{tsModelPackage}}";
 {{/withSeparateModelsAndApi}}
 
@@ -13,8 +13,7 @@ export class {{classname}} extends APIHandler {
     };
     
     constructor() {
-        super("{{classname}}");{{#operation}}{{#-first}}{{#authMethods}}
-        this.authentications.push({{#isBasic}}new HttpBasicAuth(){{/isBasic}}{{#isApiKey}}new ApiKeyAuth({{#isKeyInHeader}}'header', {{/isKeyInHeader}}{{^isKeyInHeader}}'query', {{/isKeyInHeader}}'{{keyParamName}}'){{/isApiKey}}{{#isBasicBearer}}new OAuth(){{/isBasicBearer}}{{#isOAuth}}new OAuth(){{/isOAuth}});{{/authMethods}}{{/-first}}{{/operation}}
+        super("{{classname}}");
     }
     
 {{#operation}}
@@ -27,8 +26,6 @@ export class {{classname}} extends APIHandler {
         {{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{^isPrimitiveType}}{{^isFile}}{{/isFile}}{{/isPrimitiveType}}{{{dataType}}};{{#hasMore}}
         {{/hasMore}}{{/allParams}}
     }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, options: HttpOptions = {}): Observable<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}{{^imports}}any{{/imports}}> {
-        const acceptTypes: Array<string> = [{{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}}];
-        this.initAuth({{#hasAuthMethods}}{{#cookieAuth}}false{{/cookieAuth}}{{#authMethods}}true, {{#isApiKey}}{{#isKeyInHeader}}{ token: this.apiKey as string, contentTypes: acceptTypes, key: "Authentication" }{{/isKeyInHeader}}{{/isApiKey}}{{#isBasicBasic}}{ username: this.username, password: this.password, key: "Basic" }{{/isBasicBasic}}{{#isBasicBearer}}{ token: this.accessToken, contentTypes: acceptTypes, key: "Authentication" } {{/isBasicBearer}}{{#isOAuth}}{ token: this.accessToken, contentTypes: acceptTypes, key: "Authentication" }{{/isOAuth}}{{/authMethods}}{{/hasAuthMethods}}{{^hasAuthMethods}}false{{/hasAuthMethods}});
         const apiURL: string = this.initAPIURL({{classname}}.urls.{{nickname}}{{#hasPathParams}}, { {{/hasPathParams}}{{#pathParams}}{{baseName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}{{#hasPathParams}} } {{/hasPathParams}}{{^pathParams}}, null{{/pathParams}});
         options = this.initOptions(options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} });{{#formParams}}{{#isFile}}
         const formData: FormData = new FormData();
