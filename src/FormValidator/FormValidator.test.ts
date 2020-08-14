@@ -56,7 +56,8 @@ describe("Form Validator", () => {
             { type: "validEmail", value: "abc@email.com", expected: noError },
             { type: "strongPassword", value: "123", expected: { errorCode: "weakPassword" } },
             { type: "strongPassword", value: "RYGc1tc7C6nyjzz", expected: noError },
-            { type: "isPhoneNumber", value: "5465", expected: { errorCode: "invalidPhoneNumber" } },
+            { type: "isPhoneNumber", value: "546", expected: { errorCode: "invalidPhoneNumber" } },
+            { type: "isPhoneNumber", value: "0123456789123456", expected: { errorCode: "invalidPhoneNumber" } },
             { type: "isPhoneNumber", value: "0123549874", expected: noError },
             // Empty values should not be validated unless required
             { type: "isDate", value: null, expected: noError },
