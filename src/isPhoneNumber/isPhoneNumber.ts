@@ -4,5 +4,5 @@
  * @returns {boolean} true if it is valid
  */
 export function isPhoneNumber(value: string | number): boolean {
-    return new RegExp(/^(0)?([0-9]{7,13})$/g).test(String(value));
+    return new RegExp(/^[0-9]{4,15}$/g).test(String(value));
 }
