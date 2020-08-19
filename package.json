@@ -42,8 +42,8 @@
         "moment": "^2.24.0"
     },
     "devDependencies": {
-        "@commitlint/cli": "^9.0.1",
-        "@commitlint/config-conventional": "^8.3.4",
+        "@commitlint/cli": "^9.1.1",
+        "@commitlint/config-conventional": "^9.1.2",
         "@semantic-release/changelog": "^5.0.1",
         "@types/jest": "^26.0.0",
         "@types/node": "^14.0.1",
@@ -53,7 +53,7 @@
         "cz-conventional-changelog": "^3.0.2",
         "dargs": "^7.0.0",
         "fibers": "^5.0.0",
-        "husky": "^4.0.10",
+        "husky": "^4.2.5",
         "jest": "^25.2.4",
         "jsdom": "^16.0.0",
         "jsdom-global": "^3.0.2",
@@ -81,8 +81,8 @@
     },
     "husky": {
         "hooks": {
-            "pre-commit": "npm run sanitize && npm run lint",
-            "commit-msg": "commitlint --edit"
+            "commit-msg": "commitlint --edit",
+            "pre-commit": "npm run sanitize"
         }
     },
     "release": {
