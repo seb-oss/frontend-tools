@@ -28,6 +28,14 @@ describe("Util: modifyDate", () => {
             range: "month"
         },
         {
+            statement: "Should automatically account for leap years when making changes to dates",
+            date: new Date("2020-02-29"),
+            result: clearTime(new Date("2021-03-01")),
+            value: 1,
+            type: "ADD",
+            range: "year"
+        },
+        {
             statement: "Should return correct value for substraction",
             date: new Date("2019-01-11"),
             result: clearTime(new Date("2018-12-11")),
