@@ -81,8 +81,8 @@
     },
     "husky": {
         "hooks": {
-            "commit-msg": "commitlint --edit",
-            "pre-commit": "npm run sanitize"
+            "pre-commit": "npm run sanitize && npm run lint",
+            "commit-msg": "commitlint --edit"
         }
     },
     "release": {
