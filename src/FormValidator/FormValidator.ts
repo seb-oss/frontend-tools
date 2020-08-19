@@ -1,10 +1,11 @@
-import moment, { Moment } from "moment";
 import { isEmpty } from "../isEmpty/isEmpty";
 import { isPhoneNumber } from "../isPhoneNumber/isPhoneNumber";
 import { isEmail } from "../isEmail/isEmail";
 import { deepCopy } from "../deepCopy/deepCopy";
-import { clearTime } from "../clearTime/clearTime";
 import { isStrongPassword } from "../isStrongPassword/isStrongPassword";
+import { isValidDate } from "../isValidDate";
+import { isDateBefore } from "../isDateBefore";
+import { isDateAfter } from "../isDateAfter";
 
 export type ValidationSpecs = {
     minLength?: number;
@@ -198,20 +199,22 @@ export class FormValidator<T> {
     private validateField(value: any, type: ValidationType, specs: ValidationSpecs): ModelFieldError {
         let fieldError: ModelFieldError = null;
         // Don't validate an empty field if it's not required
-        if (isEmpty(value) && type !== "required") {
+        const date: Date = new Date(value)
+        const empty: boolean = isEmpty(value);
+        if (empty && type !== "required") {
             return null;
         }
+        const valid: boolean = isValidDate(date);
         switch (type) {
-            case "required": return isEmpty(value) ? { errorCode: "empty" } : null;
-            case "isDate": return value instanceof Date ? null : { errorCode: "invalidDate" };
+            case "required": return empty ? { errorCode: "empty" } : null;
+            case "isDate": return valid ? null : { errorCode: "invalidDate" };
             case "dateRange":
-                const date: Moment = moment(value);
-                if (date.isValid()) {
+                if (valid) {
                     if (specs.minDate) {
-                        fieldError = moment(clearTime(date.toDate())).isBefore(clearTime(specs.minDate)) ? { errorCode: "beforeMinDate", specs: { minDate: specs.minDate } } : null;
+                        fieldError = isDateBefore(date, specs.minDate) ? { errorCode: "beforeMinDate", specs: { minDate: specs.minDate } } : null;
                     }
                     if (!fieldError && specs.maxDate) {
-                        fieldError = moment(clearTime(date.toDate())).isAfter(clearTime(specs.maxDate)) ? { errorCode: "afterMaxDate", specs: { maxDate: specs.maxDate } } : null;
+                        fieldError = isDateAfter(date, specs.maxDate) ? { errorCode: "afterMaxDate", specs: { maxDate: specs.maxDate } } : null;
                     }
                     return fieldError;
                 } else {

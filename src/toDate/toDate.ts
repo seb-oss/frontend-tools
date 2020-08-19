@@ -1,17 +1,30 @@
-import moment, { Moment } from "moment";
+import { isValidDate } from "../isValidDate";
+
+export type DateComponents = [number, number, number?, number?, number?, number?, number?];
 
 /**
- * Retrives a date object based on a string date or date object
+ * Retrives a date object based on various inputs
  * @param value The date value to use to retrive the date
- * @param inputFormat The format of the input, if it's a string and the format is known
  * @returns The date object
  */
-export function toDate(value: string | Date, inputFormat: string = null): Date {
-    if (value) {
-        const momentDate: Moment = moment(value, inputFormat);
-        if (momentDate.isValid()) {
-            return momentDate.toDate();
-        }
+export function toDate(
+    value: Date | string | number | DateComponents | null | undefined,
+    /** DEPRACATED! The input format has been depracated. The default javascript Date object string constructor will be used instead  */
+    inputFormat?: any
+)   {
+    if (inputFormat) {
+        console.warn("The inputFormat has been depracated. The default javascript Date object string constructor will be used instead");
+    }
+    if (!value) {
+        return null;
+    } else if (value instanceof Date) {
+        return value;
+    } else if (typeof value === "string" || typeof value === "number") {
+        const newDate: Date = new Date(value);
+        return isValidDate(newDate) ? newDate : null;
+    } else if (typeof value === "object" && Array.isArray(value) && value.length > 1) {
+        const newDate: Date = new Date(...value as DateComponents);
+        return isValidDate(newDate) ? newDate : null;
     }
     return null;
 }
