@@ -15,7 +15,7 @@ export function toDate(
     if (inputFormat) {
         console.warn("The inputFormat has been depracated. The default javascript Date object string constructor will be used instead");
     }
-    switch(true) {
+    switch (true) {
         case !value: return null;
         case value instanceof Date: {
             return isValidDate(value as Date) ? value as Date : null;
