@@ -10,6 +10,6 @@ export function isSameDate(a: Date, b: Date): boolean {
     if (!isValidDate(a) || !isValidDate(b)) {
         return false;
     } else {
-        return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+        return a.toLocaleDateString() === b.toLocaleDateString();
     }
 }
