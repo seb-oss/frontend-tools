@@ -7,8 +7,8 @@ import { isValidDate } from "../isValidDate";
  * @returns {boolean} True if date `a` comes after than date `b`
  */
 export function isDateAfter(a: Date, b: Date): boolean {
-    if (!a || !b || !isValidDate(a) || !isValidDate(b)) {
-        return false;
+    if (!isValidDate(a) || !isValidDate(b)) {
+        return a > b;
     } else {
         return a.getFullYear() > b.getFullYear() || a.getMonth() > b.getMonth() || a.getDate() > b.getDate();
     }
