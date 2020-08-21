@@ -15,16 +15,15 @@ export function toDate(
     if (inputFormat) {
         console.warn("The inputFormat has been depracated. The default javascript Date object string constructor will be used instead");
     }
-    if (!value) {
-        return null;
-    } else if (value instanceof Date) {
-        return value;
-    } else if (typeof value === "string" || typeof value === "number") {
-        const newDate: Date = new Date(value);
-        return isValidDate(newDate) ? newDate : null;
-    } else if (typeof value === "object" && Array.isArray(value) && value.length > 1) {
-        const newDate: Date = new Date(...value as DateComponents);
-        return isValidDate(newDate) ? newDate : null;
+    switch(true) {
+        case !value: return null;
+        case value instanceof Date: return value;
+        case typeof value === "string" || typeof value === "number":
+            const newDate: Date = new Date(value);
+            return isValidDate(newDate) ? newDate : null;
+        case typeof value === "object" && Array.isArray(value) && value.length > 1:
+            const newDate: Date = new Date(...value as DateComponents);
+            return isValidDate(newDate) ? newDate : null;
     }
     return null;
 }
