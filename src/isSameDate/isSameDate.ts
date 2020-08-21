@@ -7,7 +7,7 @@ import { isValidDate } from "../isValidDate";
  * @returns {boolean} True if date are the same
  */
 export function isSameDate(a: Date, b: Date): boolean {
-    if (!a || !b || !isValidDate(a) || !isValidDate(b)) {
+    if (!isValidDate(a) || !isValidDate(b)) {
         return false;
     } else {
         return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
