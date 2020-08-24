@@ -1,30 +1,22 @@
-import moment, { Moment, MomentFormatSpecification, LocaleSpecifier } from "moment";
-
-export interface FormatDateOptions {
-    inputFormat?: MomentFormatSpecification;
-    locale?: LocaleSpecifier;
-}
-
 /**
- * Reformats any date string to any desired format
- * @param date The date string
- * @param outputFormat The desired output format
- * @param options input format and locale
- * @implements momentjs - refer to momentjs documentation to see the different formats supported
- * @note
- * Having an input format is critial to insure accuracy if you are not dealing with ISO date string.
- * Passing `01-10-2019` might be interpreted as `Jan 10` or `Oct 01` based on locale
- * @returns The formatted date string
+ * Date formatter
+ * @param date The date object or date string
+ * @param format The output format
+ * @param locale The locale. Default is `sv-SE`
+ * @returns The formattted date or the input if it fails to parse it
  */
-export function formatDate(date: string | Date, outputFormat: string, options?: FormatDateOptions): string {
-    if (date) {
-        let momentDate: Moment = moment(date, options?.inputFormat || null);
-        if (momentDate.isValid()) {
-            if (options?.locale) {
-                momentDate = momentDate.locale(options.locale);
-            }
-            return momentDate.format(outputFormat).toString();
-        }
+export function formatDate(
+    date: string | Date,
+    format: Intl.DateTimeFormatOptions = {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    },
+    locale: string = "sv-SE"
+): string {
+    const parsedDate = Date.parse(date as any);
+    if (isNaN(parsedDate)) {
+        return String(date);
     }
-    return null;
+    return Intl.DateTimeFormat(locale, format).format(new Date(parsedDate));
 }
