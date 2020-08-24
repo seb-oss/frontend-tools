@@ -38,8 +38,7 @@
     },
     "dependencies": {
         "@openapitools/openapi-generator-cli": "^1.0.12-4.3.0",
-        "commander": "^5.0.0",
-        "moment": "^2.24.0"
+        "commander": "^5.0.0"
     },
     "devDependencies": {
         "@commitlint/cli": "9.1.1",
