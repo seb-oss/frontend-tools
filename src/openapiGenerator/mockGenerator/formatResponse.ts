@@ -53,7 +53,7 @@ function formatPathToKey(path: string, method: string): string {
     let newString: string = "";
     const pathArr: Array<string> = path.split("/").slice(1);
     pathArr.forEach((item: string, index: number) => {
-        let newItem = item.replace(/[^\w\s]/gi, "");
+        let newItem: string = item.replace(/[^\w\s]/gi, "");
         if (index > 0) {
             newItem = sentenceCase(newItem)
         }
