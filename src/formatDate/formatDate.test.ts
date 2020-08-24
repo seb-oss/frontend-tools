@@ -1,6 +1,6 @@
 import { formatDate } from ".";
 
-interface FormatDateTestCase extends Intl.DateTimeFormatOptions {
+interface FormatDateTestCase {
     title: string;
     date: string | Date;
     format?: Intl.DateTimeFormatOptions;
