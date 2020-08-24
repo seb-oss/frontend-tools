@@ -14,7 +14,7 @@ export function formatDate(
     },
     locale: string = "sv-SE"
 ): string {
-    const parsedDate = Date.parse(date as any);
+    const parsedDate: number = Date.parse(date as any);
     if (isNaN(parsedDate)) {
         return String(date);
     }
