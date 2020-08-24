@@ -35,7 +35,7 @@ export const extractResponses = (obj: OpenAPI.Document): ResponsesType => {
                 } else if (response.content && response.content[APPLICATION_JSON]?.schema) {
                     mock = response.content[APPLICATION_JSON].schema;
                 }
-                mock = typeof (mock) === "string" || isExample ? mock : generateData("", mock, modelSchemas);
+                mock = typeof mock === "string" || isExample ? mock : generateData("", mock, modelSchemas);
                 extracted[key][statusCode] = mock;
             });
         });
@@ -50,8 +50,8 @@ export const extractResponses = (obj: OpenAPI.Document): ResponsesType => {
  * @returns formatted path
  */
 function formatPathToKey(path: string, method: string): string {
-    let newString = "";
-    const pathArr = path.split("/").slice(1);
+    let newString: string = "";
+    const pathArr: Array<string> = path.split("/").slice(1);
     pathArr.forEach((item: string, index: number) => {
         let newItem = item.replace(/[^\w\s]/gi, "");
         if (index > 0) {
