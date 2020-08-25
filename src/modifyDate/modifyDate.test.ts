@@ -1,6 +1,5 @@
 import { clearTime } from "../clearTime";
 import { modifyDate } from ".";
-import moment from "moment";
 
 interface DateRangeTestCase {
     statement: string;
@@ -15,34 +14,42 @@ describe("Util: modifyDate", () => {
         {
             statement: "Should return today's date if date is invalid",
             date: "abcd",
-            result: clearTime(moment().toDate()),
+            result: clearTime(new Date()),
             value: 1,
             type: "DIVIDE",
-            range: "Month"
+            range: "month"
         },
         {
             statement: "Should return correct value for addition",
             date: new Date("2019-11-11"),
-            result: clearTime(moment("2019-12-11", "YYYY-MM-DD").toDate()),
+            result: clearTime(new Date("2019-12-11")),
             value: 1,
             type: "ADD",
-            range: "Month"
+            range: "month"
+        },
+        {
+            statement: "Should automatically account for leap years when making changes to dates",
+            date: new Date("2020-02-29"),
+            result: clearTime(new Date("2021-03-01")),
+            value: 1,
+            type: "ADD",
+            range: "year"
         },
         {
             statement: "Should return correct value for substraction",
-            date: new Date("2019-1-11"),
-            result: clearTime(moment("2018-12-11", "YYYY-MM-DD").toDate()),
+            date: new Date("2019-01-11"),
+            result: clearTime(new Date("2018-12-11")),
             value: 1,
             type: "SUBTRACT",
-            range: "Month"
+            range: "month"
         },
         {
-            statement: "Should return today's date if invalid type passed",
-            date: clearTime(new Date("2019-1-11")),
-            result: clearTime(moment().toDate()),
+            statement: "Should return today's date if invalid type MULTIPLY passed",
+            date: clearTime(new Date("2019-01-11")),
+            result: clearTime(new Date()),
             value: 1,
             type: "MULTIPLY",
-            range: "Month"
+            range: "month"
         }
     ];
     testCases.map((testCase: DateRangeTestCase) => {

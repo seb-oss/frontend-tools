@@ -19,12 +19,6 @@ module.exports = {
     resolve: {
         extensions: [".ts", ".js", ".json"]
     },
-    externals: {
-        "moment": {
-            commonjs: "moment",
-            commonjs2: "moment"
-        }
-    },
     plugins: [
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')

@@ -6,7 +6,7 @@
 
 # **Frontend tools**
 
-A set of frontend utilities that can be used with any javascript application. It's lightweight and intuitive. The only dependency it has is for [momentjs](https://momentjs.com) when using any utility that deals with dates.
+A set of frontend utilities that can be used with any javascript application. It's lightweight and intuitive.
 
 ## **Installation**
 
