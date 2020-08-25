@@ -16,13 +16,13 @@ export const extractResponses = (obj: OpenAPI.Document): ResponsesType => {
     Object.keys(obj.paths).forEach(path => {
         const methods: any = obj.paths[path];
         Object.keys(methods).forEach((method: string) => {
-            const api: OpenAPI.Operation  = methods[method];
+            const api: OpenAPI.Operation = methods[method];
             const { responses, operationId } = api;
             let methodName: string = operationId;
             if (methodName) {
                 methodName = methodName.replace(/^\w/, (c: string) => c.toLowerCase());
             }
-            const key: string = methodName ? methodName : `${path}_${method}`;
+            const key: string = methodName ? methodName : formatPathToKey(path, method);
             extracted[key] = {};
             Object.keys(responses).forEach((statusCode: string) => {
                 const response: OpenAPIV3.ParameterObject | OpenAPIV2.ParameterObject = responses[statusCode];
@@ -35,10 +35,38 @@ export const extractResponses = (obj: OpenAPI.Document): ResponsesType => {
                 } else if (response.content && response.content[APPLICATION_JSON]?.schema) {
                     mock = response.content[APPLICATION_JSON].schema;
                 }
-                mock = typeof(mock) === "string" || isExample ? mock : generateData("", mock, modelSchemas);
+                mock = typeof mock === "string" || isExample ? mock : generateData("", mock, modelSchemas);
                 extracted[key][statusCode] = mock;
             });
         });
     });
     return extracted;
 };
+
+/**
+ * format path to key
+ * @param path api path
+ * @param method method name
+ * @returns formatted path
+ */
+function formatPathToKey(path: string, method: string): string {
+    let newString: string = "";
+    const pathArr: Array<string> = path.split("/").slice(1);
+    pathArr.forEach((item: string, index: number) => {
+        let newItem: string = item.replace(/[^\w\s]/gi, "");
+        if (index > 0) {
+            newItem = sentenceCase(newItem)
+        }
+        newString += newItem;
+    })
+    return newString + sentenceCase(method);
+}
+
+/**
+ * format string to sentence case
+ * @param newString string to format
+ * @returns formatted string
+ */
+function sentenceCase(newString: string): string {
+    return newString.charAt(0).toUpperCase() + newString.slice(1);
+}
