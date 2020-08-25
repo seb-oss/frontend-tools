@@ -1,59 +1,59 @@
 import { formatDate } from ".";
-import { FormatDateOptions } from "./formatDate";
 
-interface FormatDateTestCase extends FormatDateOptions {
+interface FormatDateTestCase {
     title: string;
     date: string | Date;
-    outputFormat: string;
+    format?: Intl.DateTimeFormatOptions;
+    locale?: string;
     result: string;
 }
+
+const today: Date = new Date();
 
 describe("Util: formatDate", () => {
     const testCases: Array<FormatDateTestCase> = [
         {
-            title: "Should return formatted Date",
+            title: "Should format to Swedish by default",
             date: "7-12-1987",
-            inputFormat: "D-MM-YYYY",
-            outputFormat: "MM-DD-YYYY",
-            result: "12-07-1987"
+            result: "12 juli 1987",
         },
         {
-            title: "Should return null when date is invalid",
+            title: "Should use other locale when passed (en-US)",
+            date: "7-12-1987",
+            locale: "en-US",
+            result: "July 12, 1987",
+        },
+        {
+            title:
+                "Should return a string of the input if it's an invalid date",
             date: "it's a string",
-            inputFormat: "D-MM-YYYY",
-            outputFormat: "MM-DD-YYYY",
-            result: null
+            result: "it's a string",
         },
         {
-            title: "Should return null if date is invalid and invalid output is undefined",
-            date: null,
-            inputFormat: "D-MM-YYYY",
-            outputFormat: "MM-DD-YYYY",
-            result: null
-        },
-        {
-            title: "Should return formatted Date based on locale",
-            date: new Date("12-7-1987"),
-            inputFormat: "D-MM-YYYY",
-            outputFormat: "YYYY MMM DD",
-            locale: "sv-SE",
-            result: "1987 dec 07"
-        },
-        {
-            title: "Should correctly format ISO string date without passing input or output formats",
+            title:
+                "Should correctly format ISO string date without passing input or output formats",
             date: "2000-01-23T04:56:07.000+00:00",
-            outputFormat: "DD-MM-YYYY",
-            result: "23-01-2000"
-        }
+            result: "23 januari 2000",
+        },
+        {
+            title: "Should accept date object",
+            date: new Date(),
+            format: { day: "numeric", month: "numeric", year: "numeric" },
+            result: today.toLocaleDateString("sv-SE"),
+        },
+        {
+            title: "Should accept custom format",
+            date: new Date(),
+            format: { day: "numeric", month: "numeric" },
+            result: `${today.getDate()}/${today.getMonth() + 1}`,
+        },
     ];
-    testCases.map((testCase: FormatDateTestCase) => {
-        it(testCase.title, () => {
-            expect(formatDate(testCase.date, testCase.outputFormat, { ...testCase })).toEqual(testCase.result);
-        });
-    });
-
-    it("Should correctly format ISO string date without passing input formats", () => {
-        const formatted: string = formatDate("2000-01-23T04:56:07.000+00:00", "DD-MM-YYYY");
-        expect(formatted).toEqual("23-01-2000");
-    });
+    testCases.map(
+        ({ title, date, format, locale, result }: FormatDateTestCase) => {
+            // prettier-ignore
+            it(`${title} (Sample: ${String(date)} - Returns: ${result})`, () => {
+                expect(formatDate(date, format, locale)).toEqual(result);
+            });
+        }
+    );
 });
