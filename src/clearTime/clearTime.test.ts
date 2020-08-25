@@ -1,5 +1,4 @@
 import { clearTime } from ".";
-import moment from "moment";
 
 interface TestCase {
     statement: string;
@@ -8,7 +7,7 @@ interface TestCase {
 }
 
 const getNewDateAtMidnight = (date?: string): Date => {
-    const newDate = date ? new Date(date) : new Date();
+    const newDate: Date = date ? new Date(date) : new Date();
     newDate.setHours(0, 0, 0, 0);
     return newDate;
 };

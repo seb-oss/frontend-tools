@@ -1,22 +1,34 @@
 import { toDate } from ".";
 
 describe("Util: toDate", () => {
-    it("Should covert a string date to a date object", () => {
+    it("Should covert a valid date string or a date to a date object", () => {
         expect(toDate("2015-01-01") instanceof Date).toBeTruthy();
         expect(toDate(new Date()) instanceof Date).toBeTruthy();
     });
 
-    it("Should return null if value passed is null or undefined", () => {
-        expect(toDate(null)).toBeNull();
+    it("Should accept a number input and convert to a date object", () => {
+        expect(toDate(Date.now()) instanceof Date).toBeTruthy();
     });
 
-    it("Should format the date correctly with inputFormat", () => {
-        const date: Date = toDate("2015-02-01", "YYYY-MM-DD");
-        const date2: Date = toDate("2015-02-01", "YYYY-DD-MM");
-        expect(date.getMonth()).toBe(1);
-        expect(date.getDate()).toBe(1);
-        expect(date2.getMonth()).toBe(0);
-        expect(date2.getDate()).toBe(2);
+    it("Should accept array of numbers input and convert to a date object", () => {
+        expect(toDate([2010, 0, 1]) instanceof Date).toBeTruthy();
+        expect(toDate([2010, 0, 1, 0, 0, 0, 0]) instanceof Date).toBeTruthy();
+    });
+
+    it("Should reject array of string as input and return null", () => {
+        expect(toDate(["a", "b", "c"] as any)).toBeNull();
+    });
+
+    it("Should reject unsupported input and return null", () => {
+        expect(toDate({} as any)).toBeNull();
+    });
+
+    it("Should inform user about depracated second param", () => {
+        expect(toDate(new Date(), "test") instanceof Date).toBeTruthy();
+    });
+
+    it("Should return null if value passed is null or undefined", () => {
+        expect(toDate(null)).toBeNull();
     });
 
     it("Should return null when wrong date string is passed", () => {

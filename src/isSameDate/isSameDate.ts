@@ -1,5 +1,4 @@
-import moment from "moment";
-import { clearTime } from "../clearTime/clearTime";
+import { isValidDate } from "../isValidDate";
 
 /**
  * Compare two dates and return true they are the same date ignoring the time
@@ -8,5 +7,9 @@ import { clearTime } from "../clearTime/clearTime";
  * @returns {boolean} True if date are the same
  */
 export function isSameDate(a: Date, b: Date): boolean {
-    return moment(clearTime(a)).isSame(moment(clearTime(b)));
+    if (!isValidDate(a) || !isValidDate(b)) {
+        return false;
+    } else {
+        return a.toLocaleDateString() === b.toLocaleDateString();
+    }
 }

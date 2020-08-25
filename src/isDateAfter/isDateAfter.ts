@@ -1,5 +1,4 @@
-import moment from "moment";
-import { clearTime } from "../clearTime/clearTime";
+import { isValidDate } from "../isValidDate";
 
 /**
  * Compare two dates and return true if the first is greater than the second ignoring the time
@@ -8,5 +7,9 @@ import { clearTime } from "../clearTime/clearTime";
  * @returns {boolean} True if date `a` comes after than date `b`
  */
 export function isDateAfter(a: Date, b: Date): boolean {
-    return moment(clearTime(a)).isAfter(moment(clearTime(b)));
+    if (!isValidDate(a) || !isValidDate(b)) {
+        return a > b;
+    } else {
+        return a.getFullYear() > b.getFullYear() || a.getMonth() > b.getMonth() || a.getDate() > b.getDate();
+    }
 }
