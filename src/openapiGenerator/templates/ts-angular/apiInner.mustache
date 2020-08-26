@@ -25,7 +25,7 @@ export class {{classname}} extends APIHandler {
     public {{nickname}}(params: {
         {{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{^isPrimitiveType}}{{^isFile}}{{/isFile}}{{/isPrimitiveType}}{{{dataType}}};{{#hasMore}}
         {{/hasMore}}{{/allParams}}
-    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, options: HttpOptions = {}): Observable<{{#imports}}{{#.}}{{.}}{{^-last}} | {{/-last}}{{/.}}{{/imports}}{{^imports}}any{{/imports}}> {
+    }{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, options: HttpOptions = {}): Observable<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}any{{/returnType}}> {
         const apiURL: string = this.initAPIURL({{classname}}.urls.{{nickname}}{{#hasPathParams}}, { {{/hasPathParams}}{{#pathParams}}{{baseName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}{{#hasPathParams}} } {{/hasPathParams}}{{^pathParams}}, null{{/pathParams}});
         options = this.initOptions(options, { {{#queryParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}} }, { {{#headerParams}}{{paramName}}: params.{{paramName}}{{#hasMore}}, {{/hasMore}}{{/headerParams}} });{{#formParams}}{{#isFile}}
         const formData: FormData = new FormData();
