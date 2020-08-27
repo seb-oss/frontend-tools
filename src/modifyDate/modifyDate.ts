@@ -41,7 +41,8 @@ export function modifyDate(from: Date, value: number, type: "ADD" | "SUBTRACT", 
       }
 
       const setAccessor: string = `set${rangeName}`;
-      return newDate[setAccessor](newValue);
+      newDate[setAccessor] && newDate[setAccessor](newValue);
+      return newDate
     }
     return new Date();
   }
