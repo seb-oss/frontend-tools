@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "dist",
+        "rootDir": "src",
+        "outDir": "temp",
+        "module": "esnext",
+        "target": "ES6",
+        "lib": ["es2015", "es6", "es7", "dom"],
+        "importHelpers": true,
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true
+    },
+    "exclude": [
+        "node_modules",
+        "dist",
+        "src/**/*.spec.ts",
+        "src/**/*.test.ts",
+        "src/index.ts"
+    ],
+    "include": ["src/**/*.ts"]
+}

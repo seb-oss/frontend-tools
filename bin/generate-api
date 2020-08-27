@@ -1,3 +1,0 @@
-#!/usr/bin/env node
-const { generatorFn } = require("../dist/openapiGenerator/openapiGenerator");
-generatorFn();
