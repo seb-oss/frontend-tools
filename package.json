@@ -2,19 +2,24 @@
     "name": "@sebgroup/frontend-tools",
     "version": "0.0.0-semantically-released",
     "description": "A set of frontend tools",
+    "author": "sebgroup",
     "scripts": {
-        "prebuild": "rimraf dist/*",
+        "clean:dist": "rimraf dist/*",
+        "clean:coverage": "rimraf coverage/*",
+        "prebuild": "npm run clean:dist",
         "build": "rollup -c --environment BUILD:production",
-        "postbuild": "npm run gen:dfiles",
+        "postbuild": "npm run gen:dfiles && node scripts/pre-release.js",
         "gen:dfiles": "tsc -p tsconfig.declaration.json && rm -rf temp",
+        "gen:indexes": "node scripts/indexer.js",
         "copy": "cp package.json dist/ && cp README.md dist/",
         "lint": "tslint -p tsconfig.json",
-        "pretest": "npm run clean:test",
+        "pretest": "npm run clean:coverage",
         "test": "cross-env NODE_ICU_DATA=node_modules/full-icu jest --forceExit --detectOpenHandles",
         "commit": "git-cz",
         "semantic-release": "semantic-release",
         "sanitize": "package-lock-sanitizer && git add package-lock.json"
     },
+    "main": "index.js",
     "publishConfig": {
         "registry": "https://registry.npmjs.org/",
         "access": "public"
@@ -84,7 +89,7 @@
         }
     },
     "release": {
-        "pkgRoot": ".",
+        "pkgRoot": "dist",
         "plugins": [
             "@semantic-release/commit-analyzer",
             "@semantic-release/release-notes-generator",

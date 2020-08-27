@@ -11,8 +11,9 @@ function color(value) {
     const [num, unit] = value.split(" ");
     switch (unit) {
         case "B": return chalk.green(value);
-        case "KB": return chalk.yellow(value);
+        case "KB": return chalk.yellowBright(value);
         case "MB": return chalk.red(value);
+        default: return value;
     }
 }
 
@@ -22,16 +23,18 @@ function calculateByteSize(value) {
         case "B": return parseFloat(num);
         case "KB": return parseFloat(num) * 1e3;
         case "MB": return parseFloat(num) * 1e6;
+        default: return parseFloat(num);
     }
 }
 
 function getReadableSize(value) {
-    if (value < 1e3) {
-        return value.toFixed() + " B";
-    } else if (value < 1e6) {
-        return (value / 1e3).toFixed() + " KB";
-    } else if (value >= 1e6) {
-        return (value / 1e6).toFixed() + " MB";
+    switch (true) {
+        case value < 1e3:
+            return value.toFixed() + " B";
+        case value < 1e6 && value >= 1e3:
+            return (value / 1e3).toFixed() + " KB";
+        case value >= 1e6:
+            return (value / 1e6).toFixed() + " MB";
     }
 }
 

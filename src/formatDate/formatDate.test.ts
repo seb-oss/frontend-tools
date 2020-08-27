@@ -20,8 +20,8 @@ describe("Util: formatDate", () => {
         {
             title: "Should use other locale when passed (en-US)",
             date: "7-12-1987",
-            locale: "en-US",
             result: "July 12, 1987",
+            locale: "en-US",
         },
         {
             title:
@@ -46,6 +46,13 @@ describe("Util: formatDate", () => {
             date: new Date(),
             format: { day: "numeric", month: "numeric" },
             result: `${today.getDate()}/${today.getMonth() + 1}`,
+        },
+        {
+            title: "Should not crash when passing null as format and locale",
+            date: new Date(),
+            format: null,
+            locale: null,
+            result: today.toLocaleString("sv-SE").split(" ")[0],
         },
     ];
     testCases.map(
