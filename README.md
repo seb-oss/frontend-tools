@@ -3,15 +3,27 @@
 [![Build Status](https://github.com/sebgroup/frontend-tools/workflows/CI/badge.svg)](https://github.com/sebgroup/frontend-tools/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/sebgroup/frontend-tools/badge.svg?branch=master)](https://coveralls.io/github/sebgroup/frontend-tools?branch=master)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=sebgroup/frontend-tools)](https://dependabot.com)
+[![npm version](https://badge.fury.io/js/%40sebgroup%2Ffrontend-tools.svg)](https://www.npmjs.com/package/@sebgroup/frontend-tools)
+[![tree shakable](https://img.shields.io/badge/%F0%9F%8C%B2-tree--shakable-brightgreen)]
 
 # **Frontend tools**
 
 A set of frontend utilities that can be used with any javascript application. It's lightweight and intuitive.
 
+This library is **tree-shakable** 🎉.
+
 ## **Installation**
+
+### npm
 
 ```terminal
 npm install @sebgroup/frontend-tools
+```
+
+### yarn
+
+```terminal
+yarn add @sebgroup/frontend-tools
 ```
 
 ## **Usage**
@@ -21,13 +33,13 @@ Using `isStrongPassword` utility as an example, this is how you import it:
 ### ES6
 
 ```typescript
-import { isStrongPassword } from "@sebgroup/frontend-tools/dist/isStrongPassword";
+import { isStrongPassword } from "@sebgroup/frontend-tools";
 ```
 
 ### ES5
 
 ```typescript
-const isStrongPassword = require("@sebgroup/frontend-tools/dist/isStrongPassword");
+const isStrongPassword = require("@sebgroup/frontend-tools");
 ```
 
 ## **How to contribute**
