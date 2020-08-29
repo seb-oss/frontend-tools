@@ -26,7 +26,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - uses: coverallsapp/github-action@master
+      - uses: coverallsapp/github-action@v1
         with:
           github-token: $${{ secrets.GH_TOKEN }}
         env:
