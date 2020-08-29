@@ -13,10 +13,13 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-          registry-url: https://registry.npmjs.org/:_authToken=$NPM_TOKEN
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+        env:
+          CI: true
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} 
       - run: npm run semantic-release
         env:
           CI: true
