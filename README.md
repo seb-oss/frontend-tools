@@ -5,6 +5,8 @@
 [![npm version](https://badge.fury.io/js/%40sebgroup%2Ffrontend-tools.svg)](https://www.npmjs.com/package/@sebgroup/frontend-tools)
 ![tree shakable](https://img.shields.io/badge/%F0%9F%8C%B2-tree--shakable-brightgreen)
 
+**IMPORTANT:** OpenAPI code generator has moved to its own [repository](https://github.com/kherP/swagger-codegen-openapi) and is now being deployed separately. You can view the [npm package](https://www.npmjs.com/package/swagger-codegen-openapi) for more details.
+
 # **Frontend tools**
 
 A set of frontend utilities that can be used with any javascript application. It's lightweight and intuitive.
