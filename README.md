@@ -5,7 +5,7 @@
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=sebgroup/frontend-tools)](https://dependabot.com)
 
 # **Frontend tools**
-
+ 
 A set of frontend utilities that can be used with any javascript application. It's lightweight and intuitive.
 
 ## **Installation**
