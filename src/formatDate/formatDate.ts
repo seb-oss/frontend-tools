@@ -1,3 +1,5 @@
+type DateTimeFormat = Intl.DateTimeFormatOptions;
+
 /**
  * Date formatter
  * @param date The date object or date string
@@ -7,16 +9,14 @@
  */
 export function formatDate(
     date: string | Date,
-    format: Intl.DateTimeFormatOptions = {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    },
+    format: DateTimeFormat = { day: "numeric", month: "long", year: "numeric" },
     locale: string = "sv-SE"
 ): string {
     const parsedDate: number = Date.parse(date as any);
     if (isNaN(parsedDate)) {
         return String(date);
     }
-    return Intl.DateTimeFormat(locale, format).format(new Date(parsedDate));
+    return Intl.DateTimeFormat(locale || "sv-SE", format || {}).format(
+        new Date(parsedDate)
+    );
 }

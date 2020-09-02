@@ -20,12 +20,28 @@ describe("Util: modifyDate", () => {
             range: "month"
         },
         {
+            statement: "Should return today's date if date is null or undefined",
+            date: null,
+            result: clearTime(new Date()),
+            value: 1,
+            type: "ADD",
+            range: "month"
+        },
+        {
             statement: "Should return correct value for addition",
             date: new Date("2019-11-11"),
             result: clearTime(new Date("2019-12-11")),
             value: 1,
             type: "ADD",
             range: "month"
+        },
+        {
+            statement: "Should return correct value for addition",
+            date: new Date("2019-11-11"),
+            result: clearTime(new Date("2019-11-12")),
+            value: 1,
+            type: "ADD",
+            range: "day"
         },
         {
             statement: "Should automatically account for leap years when making changes to dates",
@@ -44,6 +60,14 @@ describe("Util: modifyDate", () => {
             range: "month"
         },
         {
+            statement: "Should return same date back if range is not valid",
+            date: new Date("2019-01-11"),
+            result: clearTime(new Date("2019-01-11")),
+            value: 1,
+            type: "SUBTRACT",
+            range: "abcd"
+        },
+        {
             statement: "Should return today's date if invalid type MULTIPLY passed",
             date: clearTime(new Date("2019-01-11")),
             result: clearTime(new Date()),
@@ -54,8 +78,9 @@ describe("Util: modifyDate", () => {
     ];
     testCases.map((testCase: DateRangeTestCase) => {
         test(`- ${testCase.statement} | result: ${testCase.result}`, () => {
-            const result = clearTime(modifyDate(testCase.date, testCase.value, testCase.type, testCase.range));
-            expect(result).toEqual(testCase.result);
+            const result: Date = modifyDate(testCase.date, testCase.value, testCase.type, testCase.range);
+            expect(clearTime(result)).toEqual(clearTime(testCase.result));
+            expect(result instanceof Date).toBeTruthy();
         });
     });
 });

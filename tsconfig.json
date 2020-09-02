@@ -1,17 +1,10 @@
 {
     "compilerOptions": {
-        "outDir": "./dist",
         "rootDir": "src",
         "module": "esnext",
-        "moduleResolution": "node",
-        "target": "es5",
-        "lib": [
-            "es2015",
-            "es6",
-            "es7",
-            "dom"
-        ],
-        "declaration": true,
+        "moduleResolution": "Node",
+        "target": "ES6",
+        "lib": ["es2015", "es6", "es7", "dom"],
         "sourceMap": true,
         "importHelpers": true,
         "noImplicitReturns": false,
@@ -21,14 +14,6 @@
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true
     },
-    "exclude": [
-        "node_modules",
-        "webpack",
-        "dist",
-        "develop",
-        "**/*.test.ts",
-    ],
-    "types": [
-        "typePatches"
-    ]
+    "exclude": ["node_modules", "webpack", "dist", "develop", "**/*.test.ts"],
+    "types": ["typePatches"]
 }
