@@ -11,13 +11,13 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        node: [ '10', '8' ]
+        node: [ '12', '14' ]
     steps:
       - uses: actions/checkout@v2.0.0
       - name: Setup node
         uses: actions/setup-node@v1.1.0
         with:
-          node-version: ${{ matrix.node }}
+          version: ${{ matrix.node }}
       - name: installing dependencies
         run: npm install
       - name: checking lint
