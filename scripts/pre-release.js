@@ -19,7 +19,6 @@ function writeIndexes() {
         .filter((item) => fs.lstatSync(path.resolve(dist, item)).isDirectory())
         .forEach((item) => fs.copyFileSync(path.resolve(dist, item, "index.d.ts"), path.resolve(dist, item, "index.js")));
 
-    fs.copyFileSync(path.resolve(dist, "index.js"), path.resolve(dist, "index.d.ts"));
     console.log("📄  Generated indexes");
 }
 
