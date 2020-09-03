@@ -18,7 +18,7 @@ if (specific.length) {
     testMatch.push(...extractSpecifics("**/%inject%.test.(ts|js)"))
 } else {
     collectCoverageFrom.push("src/**/*.(ts|js)");
-    testMatch.push("**/*.test.(ts|js)");
+    testMatch.push("**/toCurrency.test.(ts|js)");
 }
 
 collectCoverageFrom.push("!src/index.js");
