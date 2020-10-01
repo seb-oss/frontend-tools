@@ -20,7 +20,8 @@ export function toDate(
         case value instanceof Date: {
             return isValidDate(value as Date) ? value as Date : null;
         };
-        case typeof value === "string" || typeof value === "number": {
+        case typeof value === "string":
+        case typeof value === "number": {
             const newDate: Date = new Date(value as string | number);
             return isValidDate(newDate) ? newDate : null;
         }
