@@ -1,15 +1,14 @@
-const fs = require("fs");
 const path = require("path");
+const fs = require("fs");
 
-function isDirectory(name) {
-    return fs.lstatSync(`${path.resolve("src")}\\${name}`).isDirectory()
-}
+const source = path.resolve(__dirname, "../src");
 
-const utils = fs
-    .readdirSync(path.resolve("src"))
-    .filter(name => isDirectory(name))
-    .map(name => `export * from "./${name}";`);
+const components = fs.readdirSync(source).filter((name) => fs.lstatSync(path.resolve(source, name)).isDirectory() && !name.startsWith("__"));
 
-const indexes = utils.reduce((prev, curr) => prev + "\n" + curr);
+const paths = {};
+components.forEach((name) => {
+    paths[name] = `./src/${name}/index.ts`;
+});
+const indexes = components.map((name) => `./src/${name}/index.ts`);
 
-fs.writeFileSync(`${path.resolve("src")}\\index.ts`, indexes);
+fs.writeFileSync(path.resolve(source, "index.json"), JSON.stringify({ paths, indexes }, null, 4));

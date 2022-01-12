@@ -1,26 +1,51 @@
-import resolve from "@rollup/plugin-node-resolve"
-import rollupTypescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
-import { terser } from "rollup-plugin-terser";
-import json from "@rollup/plugin-json";
-import summary from "rollup-plugin-summary";
+import resolve from "@rollup/plugin-node-resolve";
+import typescript from "rollup-plugin-typescript2";
+import pkg from "./package.json";
+import commonPkg from "../package.json";
 
-export default {
-    input: "src/index.ts",
-    cache: true,
-    output: {
-        dir: "dist",
-        format: "esm",
-        sourcemap: true,
-        esModule: true,
-        preserveModules: true,
-    },
-    plugins: [
-        resolve(),
-        commonjs(),
-        rollupTypescript(),
-        terser(),
-        json(),
-        summary({ warnLow: 3e3 })
-    ]
+const components = require("./src/index.json");
+
+const defaults = {
+    input: ["./src/index.ts", ...components.indexes],
+    external: [...Object.keys(pkg.peerDependencies || {}), ...Object.keys(pkg.dependencies || {}), ...Object.keys(commonPkg.dependencies || {})],
 };
+
+const resolveOnly = [new RegExp(`^((?!${defaults.external.map((item) => `(${item})`).join("|")}).)*$`, "g")];
+
+export default [
+    {
+        ...defaults,
+        plugins: [
+            typescript(),
+            resolve({ resolveOnly }),
+            commonjs(),
+        ],
+        output: {
+            dir: "dist",
+            format: "cjs",
+            entryFileNames: "[name].js",
+            sourcemap: true,
+            esModule: true,
+            exports: "named",
+            preserveModules: true,
+        },
+    },
+    {
+        ...defaults,
+        plugins: [
+            typescript({ compilerOptions: { declarationDir: "dist/esm", outDir: "dist/esm" } }),
+            resolve({ resolveOnly }),
+            commonjs(),
+        ],
+        output: {
+            dir: "dist/esm",
+            format: "esm",
+            entryFileNames: "[name].js",
+            sourcemap: true,
+            esModule: true,
+            exports: "named",
+            preserveModules: true,
+        },
+    },
+];
