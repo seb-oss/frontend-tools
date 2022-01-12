@@ -8,26 +8,39 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+
+      - name: Setup node
+        uses: actions/setup-node@v2
         with:
-          version: 12
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
-      - run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          node-version: 15.x
+
+      - name: Installing dependencies
+        run: npm ci
+
+      - name: Building
+        run: npm run build
+
+      - name: Preparing to publish
+        run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
         env:
           CI: true
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }} 
-      - run: npm run semantic-release
+
+      - name: Publish
+        run: npm run semantic-release
         env:
           CI: true
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: publish coverage
       - uses: coverallsapp/github-action@v1.1.1
         with:
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./coverage/lcov.info
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
