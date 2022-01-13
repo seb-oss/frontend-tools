@@ -1,5 +1,5 @@
 /**
- * Is valid date: Checks if the datye is valid
+ * Is valid date: Checks if the date is valid
  * @returns {boolean} true if the date is a valid date and false if not
  * @param date
  */
