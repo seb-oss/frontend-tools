@@ -4,14 +4,23 @@ export type StorageManagementType = "LOCAL" | "SESSION" | "COOKIE";
 
 export class StorageManagement implements Storage {
     private handler: Storage;
-    get length(): number { return this.keys().length; }
+    get length(): number {
+        return this.keys().length;
+    }
 
     constructor(type: StorageManagementType = "LOCAL") {
         switch (type) {
-            case "LOCAL": this.handler = localStorage; break;
-            case "SESSION": this.handler = sessionStorage; break;
-            case "COOKIE": this.handler = new CookieStorage(); break;
-            default: this.handler = localStorage;
+            case "LOCAL":
+                this.handler = localStorage;
+                break;
+            case "SESSION":
+                this.handler = sessionStorage;
+                break;
+            case "COOKIE":
+                this.handler = new CookieStorage();
+                break;
+            default:
+                this.handler = localStorage;
         }
     }
 

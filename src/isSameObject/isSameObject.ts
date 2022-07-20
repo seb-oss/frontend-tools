@@ -1,11 +1,14 @@
-
 /**
  * Compare if two objects are the same, returns true or false
  * @param type the comparison type
  * @param objectA the first object
  * @param objectB the second object to compare against
  */
-export function isSameObject<T>(objectA: T, objectB: T, deep?: boolean): boolean {
+export function isSameObject<T>(
+    objectA: T,
+    objectB: T,
+    deep?: boolean
+): boolean {
     if (deep) {
         const objAKeys = Object.keys(objectA);
         const objBKeys = Object.keys(objectB);

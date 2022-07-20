@@ -5,5 +5,8 @@
  * @returns {Object} The generated object
  */
 export function arrayToObject(array: Array<any>, keyField: string = ""): any {
-    return Object.assign({}, ...array.map((item, index) => ({ [keyField + index]: item })));
+    return Object.assign(
+        {},
+        ...array.map((item, index) => ({ [keyField + index]: item }))
+    );
 }

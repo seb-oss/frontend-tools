@@ -12,16 +12,18 @@ describe("Util: isBrowserIE", () => {
         {
             statement: "Should return true when browser is ie",
             results: true,
-            mockWindow: { documentMode: {} }
+            mockWindow: { documentMode: {} },
         },
         {
             statement: "Should return false when browser is not ie",
             results: false,
-            mockWindow: {}
+            mockWindow: {},
         },
     ];
     testCases.map((testCase: BrowserDetectorTestCase) => {
-        it(`${testCase.statement} | params: ${JSON.stringify(testCase.mockWindow)} | result: ${String(testCase.results)}`, () => {
+        it(`${testCase.statement} | params: ${JSON.stringify(
+            testCase.mockWindow
+        )} | result: ${String(testCase.results)}`, () => {
             (global as any).document = Object.create(document);
             (global as any).document = testCase.mockWindow;
             expect(isBrowserIE()).toBe(testCase.results);

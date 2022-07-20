@@ -1,7 +1,5 @@
 {
-    "extends": [
-        "tslint:latest"
-    ],
+    "extends": ["tslint:latest"],
     "rules": {
         "ordered-imports": false,
         "jsx-wrap-multiline": false,
@@ -17,20 +15,10 @@
         "prefer-for-of": false,
         "jsx-boolean-value": false,
         "forin": false,
-        "indent": [
-            true,
-            "spaces",
-            4
-        ],
-        "quotemark": [
-            true,
-            "double"
-        ],
+        "indent": [true, "spaces", 4],
+        "quotemark": [true, "double", "avoid-escape"],
         "no-implicit-dependencies": false,
-        "no-unused-expression": [
-            true,
-            "allow-fast-null-checks"
-        ],
+        "no-unused-expression": [true, "allow-fast-null-checks"],
         "max-line-length": [
             true,
             {
@@ -38,14 +26,8 @@
                 "ignore-pattern": "^.*(<svg).*$"
             }
         ],
-        "interface-name": [
-            true,
-            "never-prefix"
-        ],
-        "array-type": [
-            true,
-            "generic"
-        ],
+        "interface-name": [true, "never-prefix"],
+        "array-type": [true, "generic"],
         "no-shadowed-variable": [
             true,
             {

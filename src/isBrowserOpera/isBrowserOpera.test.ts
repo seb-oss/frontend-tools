@@ -12,21 +12,23 @@ describe("Util: isBrowserOpera", () => {
         {
             statement: "Should return true when browser is opera",
             results: true,
-            mockWindow: { opr: { addons: {} } }
+            mockWindow: { opr: { addons: {} } },
         },
         {
             statement: "Should return true when browser is opera",
             results: true,
-            mockWindow: { opera: {} }
+            mockWindow: { opera: {} },
         },
         {
             statement: "Should return false when browser is not opera",
             results: false,
-            mockWindow: {}
+            mockWindow: {},
         },
     ];
     testCases.map((testCase: BrowserDetectorTestCase) => {
-        it(`${testCase.statement} | params: ${JSON.stringify(testCase.mockWindow)} | result: ${String(testCase.results)}`, () => {
+        it(`${testCase.statement} | params: ${JSON.stringify(
+            testCase.mockWindow
+        )} | result: ${String(testCase.results)}`, () => {
             (global as any).window = Object.create(window);
             (global as any).window = testCase.mockWindow;
             expect(isBrowserOpera()).toBe(testCase.results);
