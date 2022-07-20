@@ -23,7 +23,8 @@ if (specific.length) {
     testMatch.push("**/*.test.(ts|js)");
 }
 
-collectCoverageFrom.push("!src/index.js");
+collectCoverageFrom.push("!src/index.(ts|js)");
+collectCoverageFrom.push("!src/**/index.(ts|js)");
 
 module.exports = {
     setupFilesAfterEnv: ["<rootDir>/setupTests.js"],
