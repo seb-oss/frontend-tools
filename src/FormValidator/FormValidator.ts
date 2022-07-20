@@ -16,16 +16,29 @@ export type ValidationSpecs = {
     maxDate?: Date;
 };
 
-export type ModelFieldError<K extends string = "empty", J extends { [key in string | number]: any } = {}> = {
+export type ModelFieldError<
+    K extends string = "empty",
+    J extends { [key in string | number]: any } = {}
+> = {
     errorCode: ValidationErrors | K;
     specs?: ValidationSpecs & J;
 };
 
-export type ModelErrors<T, J extends string = "empty"> = { [K in keyof T]?: ModelFieldError<J>; };
-export type ValidationTypeWithoutSpecs = "required" | "isDate" | "validEmail" | "strongPassword" | "isPhoneNumber";
+export type ModelErrors<T, J extends string = "empty"> = {
+    [K in keyof T]?: ModelFieldError<J>;
+};
+export type ValidationTypeWithoutSpecs =
+    | "required"
+    | "isDate"
+    | "validEmail"
+    | "strongPassword"
+    | "isPhoneNumber";
 export type ValidationTypeWithSpecs = "dateRange" | "valueRange" | "textLength";
-export type ValidationType = ValidationTypeWithoutSpecs | ValidationTypeWithSpecs;
-export type ValidationErrors = "empty"
+export type ValidationType =
+    | ValidationTypeWithoutSpecs
+    | ValidationTypeWithSpecs;
+export type ValidationErrors =
+    | "empty"
     | "invalidDate"
     | "invalidEmail"
     | "weakPassword"
@@ -38,7 +51,10 @@ export type ValidationErrors = "empty"
     | "invalidInput"
     | "invalidPhoneNumber";
 export type FormFieldTypes = "date" | "string" | "number" | "array" | "object";
-type SpecialPick<T, K extends keyof T, P extends keyof T> = Required<Pick<T, K>> | Required<Pick<T, P>> | Required<Pick<T, K | P>>;
+type SpecialPick<T, K extends keyof T, P extends keyof T> =
+    | Required<Pick<T, K>>
+    | Required<Pick<T, P>>
+    | Required<Pick<T, K | P>>;
 
 type CustomValidatorSpec<T> = {
     errorFields: Array<keyof T>;
@@ -61,7 +77,10 @@ class ValidatorModelItem<T> {
 
 export class FormValidator<T> {
     private originalFormObject: T;
-    private formObject: Map<keyof T, ValidatorModelItem<T>> = new Map<keyof T, ValidatorModelItem<T>>();
+    private formObject: Map<keyof T, ValidatorModelItem<T>> = new Map<
+        keyof T,
+        ValidatorModelItem<T>
+    >();
     private formObjectErrors: ModelErrors<T> = {};
     private customValidators: Array<CustomValidatorSpec<T>> = [];
 
@@ -70,7 +89,10 @@ export class FormValidator<T> {
             const clone: T = deepCopy<T>(formObject);
             this.originalFormObject = clone;
             for (const field in clone) {
-                this.formObject.set(field, new ValidatorModelItem<T>(field, clone[field]));
+                this.formObject.set(
+                    field,
+                    new ValidatorModelItem<T>(field, clone[field])
+                );
             }
         }
     }
@@ -81,7 +103,10 @@ export class FormValidator<T> {
      * @important Not matching `ValidationTypeWithoutSpecs` typescript error means that you need to provide a specs object as a third paramenter for the selected type
      * @returns The form validator
      */
-    public addValidation(fields: Array<keyof T>, type: ValidationTypeWithoutSpecs): FormValidator<T>;
+    public addValidation(
+        fields: Array<keyof T>,
+        type: ValidationTypeWithoutSpecs
+    ): FormValidator<T>;
     /**
      * Validates the specified fields based on the validation type
      * @param fields The fields to be validated
@@ -89,7 +114,11 @@ export class FormValidator<T> {
      * @param spec The specifications of the validation (`minDate` and/or `maxDate`)
      * @returns The form validator
      */
-    public addValidation(fields: Array<keyof T>, type: "dateRange", specs: SpecialPick<ValidationSpecs, "minDate", "maxDate">): FormValidator<T>;
+    public addValidation(
+        fields: Array<keyof T>,
+        type: "dateRange",
+        specs: SpecialPick<ValidationSpecs, "minDate", "maxDate">
+    ): FormValidator<T>;
     /**
      * Validates the specified fields based on the validation type
      * @param fields The fields to be validated
@@ -97,7 +126,11 @@ export class FormValidator<T> {
      * @param spec The specifications of the validation (`minLength` and/or `maxLength`)
      * @returns The form validator
      */
-    public addValidation(fields: Array<keyof T>, type: "textLength", specs: SpecialPick<ValidationSpecs, "minLength", "maxLength">): FormValidator<T>;
+    public addValidation(
+        fields: Array<keyof T>,
+        type: "textLength",
+        specs: SpecialPick<ValidationSpecs, "minLength", "maxLength">
+    ): FormValidator<T>;
     /**
      * Validates the specified fields based on the validation type
      * @param fields The fields to be validated
@@ -105,15 +138,32 @@ export class FormValidator<T> {
      * @param spec The specifications of the validation (`minValue` and/or `maxValue`)
      * @returns The form validator
      */
-    public addValidation(fields: Array<keyof T>, type: "valueRange", specs: SpecialPick<ValidationSpecs, "minValue", "maxValue">): FormValidator<T>;
-    public addValidation(fields: Array<keyof T>, type: ValidationType, specs?: ValidationSpecs): FormValidator<T> {
-        if (fields && fields instanceof Array && type && typeof type === "string" && this.isValidType(type)) {
+    public addValidation(
+        fields: Array<keyof T>,
+        type: "valueRange",
+        specs: SpecialPick<ValidationSpecs, "minValue", "maxValue">
+    ): FormValidator<T>;
+    public addValidation(
+        fields: Array<keyof T>,
+        type: ValidationType,
+        specs?: ValidationSpecs
+    ): FormValidator<T> {
+        if (
+            fields &&
+            fields instanceof Array &&
+            type &&
+            typeof type === "string" &&
+            this.isValidType(type)
+        ) {
             if (fields.length) {
                 (fields as Array<keyof T>).map((field: keyof T) => {
                     if (this.formObject.has(field)) {
                         this.formObject.get(field).validations.push(type);
                         if (!isEmpty(specs)) {
-                            this.formObject.get(field).specs = { ...this.formObject.get(field).specs, ...specs };
+                            this.formObject.get(field).specs = {
+                                ...this.formObject.get(field).specs,
+                                ...specs,
+                            };
                         }
                     }
                 });
@@ -136,8 +186,17 @@ export class FormValidator<T> {
      * @returns {FormValidator} The form validator object
      * @example addValidator(["balance", "payment"], ["payment"], (balance: number, payment: number) => { return payment > balance ? "The payment exceeds your balance" : null; });
      */
-    public addCustomValidation(errorFields: Array<keyof T>, validator: () => ModelFieldError<any>): FormValidator<T> {
-        if (errorFields && errorFields instanceof Array && errorFields.length && validator && validator instanceof Function) {
+    public addCustomValidation(
+        errorFields: Array<keyof T>,
+        validator: () => ModelFieldError<any>
+    ): FormValidator<T> {
+        if (
+            errorFields &&
+            errorFields instanceof Array &&
+            errorFields.length &&
+            validator &&
+            validator instanceof Function
+        ) {
             this.customValidators.push({ errorFields, validator });
         }
         return this;
@@ -169,7 +228,11 @@ export class FormValidator<T> {
                 let fieldError: ModelFieldError;
                 let i: number = 0;
                 do {
-                    fieldError = this.validateField(item.value, item.validations[i], item.specs);
+                    fieldError = this.validateField(
+                        item.value,
+                        item.validations[i],
+                        item.specs
+                    );
                     if (!isEmpty(fieldError)) {
                         this.formObjectErrors[item.name] = fieldError;
                     }
@@ -179,14 +242,21 @@ export class FormValidator<T> {
         });
 
         if (this.customValidators.length) {
-            this.customValidators.map((customValidator: CustomValidatorSpec<T>) => {
-                const customValidatorError: ModelFieldError = customValidator.validator(this.originalFormObject);
-                customValidator.errorFields.map((field: keyof T) => {
-                    if (this.formObject.has(field) && !this.getError(field) && customValidatorError) {
-                        this.formObjectErrors[field] = customValidatorError;
-                    }
-                });
-            });
+            this.customValidators.map(
+                (customValidator: CustomValidatorSpec<T>) => {
+                    const customValidatorError: ModelFieldError =
+                        customValidator.validator(this.originalFormObject);
+                    customValidator.errorFields.map((field: keyof T) => {
+                        if (
+                            this.formObject.has(field) &&
+                            !this.getError(field) &&
+                            customValidatorError
+                        ) {
+                            this.formObjectErrors[field] = customValidatorError;
+                        }
+                    });
+                }
+            );
         }
         return this;
     }
@@ -196,25 +266,41 @@ export class FormValidator<T> {
      * @param {ValidatorModelItem} fieldObject The field object stored in the local formObject
      * @returns {string} The error found in the parameter
      */
-    private validateField(value: any, type: ValidationType, specs: ValidationSpecs): ModelFieldError {
+    private validateField(
+        value: any,
+        type: ValidationType,
+        specs: ValidationSpecs
+    ): ModelFieldError {
         let fieldError: ModelFieldError = null;
         // Don't validate an empty field if it's not required
-        const date: Date = new Date(value)
+        const date: Date = new Date(value);
         const empty: boolean = isEmpty(value);
         if (empty && type !== "required") {
             return null;
         }
         const valid: boolean = isValidDate(date);
         switch (type) {
-            case "required": return empty ? { errorCode: "empty" } : null;
-            case "isDate": return valid ? null : { errorCode: "invalidDate" };
+            case "required":
+                return empty ? { errorCode: "empty" } : null;
+            case "isDate":
+                return valid ? null : { errorCode: "invalidDate" };
             case "dateRange":
                 if (valid) {
                     if (specs.minDate) {
-                        fieldError = isDateBefore(date, specs.minDate) ? { errorCode: "beforeMinDate", specs: { minDate: specs.minDate } } : null;
+                        fieldError = isDateBefore(date, specs.minDate)
+                            ? {
+                                  errorCode: "beforeMinDate",
+                                  specs: { minDate: specs.minDate },
+                              }
+                            : null;
                     }
                     if (!fieldError && specs.maxDate) {
-                        fieldError = isDateAfter(date, specs.maxDate) ? { errorCode: "afterMaxDate", specs: { maxDate: specs.maxDate } } : null;
+                        fieldError = isDateAfter(date, specs.maxDate)
+                            ? {
+                                  errorCode: "afterMaxDate",
+                                  specs: { maxDate: specs.maxDate },
+                              }
+                            : null;
                     }
                     return fieldError;
                 } else {
@@ -223,10 +309,22 @@ export class FormValidator<T> {
             case "textLength":
                 if (typeof value === "string") {
                     if (specs.minLength) {
-                        fieldError = value.length < specs.minLength ? { errorCode: "lessThanMinLength", specs: { minLength: specs.minLength } } : null;
+                        fieldError =
+                            value.length < specs.minLength
+                                ? {
+                                      errorCode: "lessThanMinLength",
+                                      specs: { minLength: specs.minLength },
+                                  }
+                                : null;
                     }
                     if (!fieldError && specs.maxLength) {
-                        fieldError = value.length > specs.maxLength ? { errorCode: "moreThanMaxLength", specs: { maxLength: specs.maxLength } } : null;
+                        fieldError =
+                            value.length > specs.maxLength
+                                ? {
+                                      errorCode: "moreThanMaxLength",
+                                      specs: { maxLength: specs.maxLength },
+                                  }
+                                : null;
                     }
                     return fieldError;
                 } else {
@@ -235,18 +333,37 @@ export class FormValidator<T> {
             case "valueRange":
                 if (typeof value === "number") {
                     if (specs.minValue) {
-                        fieldError = value < specs.minValue ? { errorCode: "lessThanMinValue", specs: { minValue: specs.minValue } } : null;
+                        fieldError =
+                            value < specs.minValue
+                                ? {
+                                      errorCode: "lessThanMinValue",
+                                      specs: { minValue: specs.minValue },
+                                  }
+                                : null;
                     }
                     if (!fieldError && specs.maxValue) {
-                        fieldError = value > specs.maxValue ? { errorCode: "moreThanMaxValue", specs: { maxValue: specs.maxValue } } : null;
+                        fieldError =
+                            value > specs.maxValue
+                                ? {
+                                      errorCode: "moreThanMaxValue",
+                                      specs: { maxValue: specs.maxValue },
+                                  }
+                                : null;
                     }
                     return fieldError;
                 } else {
                     return null;
                 }
-            case "validEmail": return isEmail(value) ? null : { errorCode: "invalidEmail" };
-            case "strongPassword": return isStrongPassword(value) ? null : { errorCode: "weakPassword" };
-            case "isPhoneNumber": return isPhoneNumber(value) ? null : { errorCode: "invalidPhoneNumber" };
+            case "validEmail":
+                return isEmail(value) ? null : { errorCode: "invalidEmail" };
+            case "strongPassword":
+                return isStrongPassword(value)
+                    ? null
+                    : { errorCode: "weakPassword" };
+            case "isPhoneNumber":
+                return isPhoneNumber(value)
+                    ? null
+                    : { errorCode: "invalidPhoneNumber" };
         }
     }
 

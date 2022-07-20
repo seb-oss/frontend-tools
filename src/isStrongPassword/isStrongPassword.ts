@@ -9,5 +9,7 @@
  * - Must include at least one number.
  */
 export function isStrongPassword(newPassword: string): boolean {
-    return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,}$/.test(newPassword);
+    return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,}$/.test(
+        newPassword
+    );
 }

@@ -7,11 +7,19 @@ interface TestCase {
 
 describe("Util: randomId", () => {
     const testCases: Array<TestCase> = [
-        { statement: "Should return random id with start with randID", params: "randID" },
-        { statement: "Should return random id with start with seeeddd", params: "seeeddd" },
+        {
+            statement: "Should return random id with start with randID",
+            params: "randID",
+        },
+        {
+            statement: "Should return random id with start with seeeddd",
+            params: "seeeddd",
+        },
     ];
     testCases.map((testCase: TestCase) => {
-        it(`${testCase.statement} | params: ${JSON.stringify(testCase.params)}`, () => {
+        it(`${testCase.statement} | params: ${JSON.stringify(
+            testCase.params
+        )}`, () => {
             expect(randomId(testCase.params)).toMatch(testCase.params);
         });
     });

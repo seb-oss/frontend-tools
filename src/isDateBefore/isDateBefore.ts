@@ -10,6 +10,10 @@ export function isDateBefore(a: Date, b: Date): boolean {
     if (!isValidDate(a) || !isValidDate(b)) {
         return a < b;
     } else {
-        return a.getFullYear() < b.getFullYear() || a.getMonth() < b.getMonth() || a.getDate() < b.getDate();
+        return (
+            a.getFullYear() < b.getFullYear() ||
+            a.getMonth() < b.getMonth() ||
+            a.getDate() < b.getDate()
+        );
     }
 }

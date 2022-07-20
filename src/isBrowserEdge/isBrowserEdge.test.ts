@@ -12,21 +12,23 @@ describe("Util: isBrowserEdge", () => {
         {
             statement: "Should return true when browser is edge",
             results: true,
-            mockWindow: { isIE: false, StyleMedia: {} }
+            mockWindow: { isIE: false, StyleMedia: {} },
         },
         {
             statement: "Should return false when browser is not edge",
             results: false,
-            mockWindow: { isIE: true }
+            mockWindow: { isIE: true },
         },
         {
             statement: "Should return false when browser is not edge",
             results: false,
-            mockWindow: { isIE: true, StyleMedia: {} }
+            mockWindow: { isIE: true, StyleMedia: {} },
         },
     ];
     testCases.map((testCase: BrowserDetectorTestCase) => {
-        it(`${testCase.statement} | params: ${JSON.stringify(testCase.mockWindow)} | result: ${String(testCase.results)}`, () => {
+        it(`${testCase.statement} | params: ${JSON.stringify(
+            testCase.mockWindow
+        )} | result: ${String(testCase.results)}`, () => {
             (global as any).window = Object.create(window);
             (global as any).window = testCase.mockWindow;
             expect(isBrowserEdge()).toBe(testCase.results);

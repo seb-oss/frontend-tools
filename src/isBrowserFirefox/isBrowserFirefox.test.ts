@@ -12,16 +12,18 @@ describe("Util: isBrowserFirefox", () => {
         {
             statement: "Should return true when browser is firefox",
             results: true,
-            mockWindow: { InstallTrigger: true }
+            mockWindow: { InstallTrigger: true },
         },
         {
             statement: "Should return false when browser is not firefox",
             results: false,
-            mockWindow: {}
+            mockWindow: {},
         },
     ];
     testCases.map((testCase: BrowserDetectorTestCase) => {
-        it(`${testCase.statement} | params: ${JSON.stringify(testCase.mockWindow)} | result: ${String(testCase.results)}`, () => {
+        it(`${testCase.statement} | params: ${JSON.stringify(
+            testCase.mockWindow
+        )} | result: ${String(testCase.results)}`, () => {
             (global as any).window = Object.create(window);
             (global as any).window = testCase.mockWindow;
             expect(isBrowserFirefox()).toBe(testCase.results);

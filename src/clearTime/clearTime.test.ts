@@ -28,7 +28,7 @@ describe("Util: modifyDate", () => {
             statement: "Should return 2019-1-11",
             date: new Date("2019-1-11"),
             result: getNewDateAtMidnight("2019-1-11"),
-        }
+        },
     ];
     testCases.map((testCase: TestCase) => {
         test(`- ${testCase.statement} | result: ${testCase.result}`, () => {

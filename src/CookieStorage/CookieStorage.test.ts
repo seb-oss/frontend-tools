@@ -1,12 +1,12 @@
 import { CookieStorage } from ".";
 
-type KeyValuePair = { key: string, value: string };
+type KeyValuePair = { key: string; value: string };
 
 describe("CookieStorage", () => {
     // const test = { key: "TEST", value: "123" };
     const storage: CookieStorage = new CookieStorage();
 
-    beforeEach(() => document = new Document());
+    beforeEach(() => (document = new Document()));
 
     describe("Testing internal public methods", () => {
         const testCases: Array<KeyValuePair> = [
@@ -16,13 +16,20 @@ describe("CookieStorage", () => {
         ];
 
         function setAllTestCases() {
-            testCases.map((item: KeyValuePair) => storage.setItem(item.key, item.value));
+            testCases.map((item: KeyValuePair) =>
+                storage.setItem(item.key, item.value)
+            );
         }
 
         describe("- setItem", () => {
             it("Should set an item to the cookie and return true if successful", () => {
-                const result: boolean = storage.setItem(testCases[0].key, testCases[0].value);
-                expect(document.cookie).toContain(`${testCases[0].key}=${testCases[0].value}`);
+                const result: boolean = storage.setItem(
+                    testCases[0].key,
+                    testCases[0].value
+                );
+                expect(document.cookie).toContain(
+                    `${testCases[0].key}=${testCases[0].value}`
+                );
                 expect(result).toBeTruthy();
             });
 
@@ -31,8 +38,13 @@ describe("CookieStorage", () => {
             });
 
             it("Should allow setting a cookie with options", () => {
-                const expires: Date = new Date(((new Date()).getFullYear() + 2).toString()); // Two years from now
-                const result: boolean = storage.setItem("TEST", "TESTING", { expires, maxAge: 10 * 60 });
+                const expires: Date = new Date(
+                    (new Date().getFullYear() + 2).toString()
+                ); // Two years from now
+                const result: boolean = storage.setItem("TEST", "TESTING", {
+                    expires,
+                    maxAge: 10 * 60,
+                });
                 expect(result).toBeTruthy();
             });
 
@@ -48,7 +60,9 @@ describe("CookieStorage", () => {
         describe("- getItem", () => {
             it("Should get an item from the cookie", () => {
                 storage.setItem(testCases[0].key, testCases[0].value);
-                expect(storage.getItem(testCases[0].key)).toEqual(testCases[0].value);
+                expect(storage.getItem(testCases[0].key)).toEqual(
+                    testCases[0].value
+                );
                 expect(storage.getItem("")).toBeNull();
             });
 
@@ -74,7 +88,9 @@ describe("CookieStorage", () => {
         describe("- hasItem", () => {
             it("Should return true if a given key exists in the cookie", () => {
                 setAllTestCases();
-                testCases.map((item: KeyValuePair) => expect(storage.hasItem(item.key)).toBeTruthy());
+                testCases.map((item: KeyValuePair) =>
+                    expect(storage.hasItem(item.key)).toBeTruthy()
+                );
             });
 
             it("Should return false if there an invalid key is passed", () => {
@@ -100,7 +116,9 @@ describe("CookieStorage", () => {
         describe("- keys", () => {
             it("Should return the keys of the items in the cookie", () => {
                 setAllTestCases();
-                const keys: Array<string> = testCases.map((item: KeyValuePair) => item.key);
+                const keys: Array<string> = testCases.map(
+                    (item: KeyValuePair) => item.key
+                );
                 expect(storage.keys()).toEqual(keys);
                 expect(storage.keys().length).toEqual(testCases.length);
             });
