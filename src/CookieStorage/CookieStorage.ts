@@ -9,7 +9,9 @@ export interface SetItemOptions {
  * Usage is similar to `localStorage` and `sessionStorage`
  */
 export class CookieStorage implements Storage {
-    get length(): number { return this.keys().length; }
+    get length(): number {
+        return this.keys().length;
+    }
 
     /**
      * Retrieve an item from the stored cookie
@@ -20,7 +22,21 @@ export class CookieStorage implements Storage {
         if (!key) {
             return null;
         }
-        return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+        return (
+            decodeURIComponent(
+                document.cookie.replace(
+                    new RegExp(
+                        "(?:(?:^|.*;)\\s*" +
+                            encodeURIComponent(key).replace(
+                                /[\-\.\+\*]/g,
+                                "\\$&"
+                            ) +
+                            "\\s*\\=\\s*([^;]*).*$)|^.*$"
+                    ),
+                    "$1"
+                )
+            ) || null
+        );
     }
 
     /**
@@ -40,11 +56,17 @@ export class CookieStorage implements Storage {
             if (options.expires && options.expires instanceof Date) {
                 expires = "; Expires=" + options.expires.toUTCString();
             }
-            if (options.maxAge && typeof options.maxAge === "number" && options.maxAge !== Infinity) {
+            if (
+                options.maxAge &&
+                typeof options.maxAge === "number" &&
+                options.maxAge !== Infinity
+            ) {
                 maxAge = `; Max-age=${options.maxAge}`;
             }
         }
-        document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}${expires}${maxAge}`;
+        document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(
+            value
+        )}${expires}${maxAge}`;
         return this.hasItem(key);
     }
 
@@ -69,7 +91,11 @@ export class CookieStorage implements Storage {
         if (!key || /^(?:expires|max\-age|path|domain|secure)$/i.test(key)) {
             return false;
         }
-        return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+        return new RegExp(
+            "(?:^|;\\s*)" +
+                encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") +
+                "\\s*\\="
+        ).test(document.cookie);
     }
 
     clear(): void {
@@ -79,7 +105,8 @@ export class CookieStorage implements Storage {
             const cookie: string = cookies[i];
             const eqPos: number = cookie.indexOf("=");
             const name: string = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-            const value: string = eqPos > -1 ? cookie.substr(eqPos + 1, cookie.length) : "";
+            const value: string =
+                eqPos > -1 ? cookie.substr(eqPos + 1, cookie.length) : "";
             document.cookie = `${name}${value ? "=" : ""}; max-age=-1`;
         }
     }
@@ -89,7 +116,12 @@ export class CookieStorage implements Storage {
      * @returns The list of keys in the stored cookie
      */
     keys(): Array<string> {
-        const aKeys: Array<string> = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+        const aKeys: Array<string> = document.cookie
+            .replace(
+                /((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g,
+                ""
+            )
+            .split(/\s*(?:\=[^;]*)?;\s*/);
         for (let nLen: number = aKeys.length, nIdx = 0; nIdx < nLen; nIdx++) {
             aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]);
         }

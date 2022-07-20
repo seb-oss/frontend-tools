@@ -4,5 +4,5 @@
  * @returns {boolean} True if it's primitive, false otherwise
  */
 export function isPrimitive(value: any): boolean {
-    return (value !== Object(value));
+    return value !== Object(value);
 }

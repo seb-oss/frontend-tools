@@ -6,7 +6,7 @@ describe("Util: toLocalDateString", () => {
         const returned: string = toLocalDateString(date);
         const returnedDate: Date = new Date(returned);
         expect(typeof returned === "string").toBeTruthy();
-        expect(returnedDate as any !== "Invalid Date").toBeTruthy();
+        expect((returnedDate as any) !== "Invalid Date").toBeTruthy();
         expect(returnedDate.getFullYear()).toEqual(date.getFullYear());
         expect(returnedDate.getMonth()).toEqual(date.getMonth());
         expect(returnedDate.getDate()).toEqual(date.getDate());

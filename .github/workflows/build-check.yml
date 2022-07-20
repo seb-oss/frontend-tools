@@ -3,22 +3,21 @@ name: Build Check
 on: pull_request
 
 jobs:
-  build_check:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ '12', '14', '15' ]
-    name: Node ${{ matrix.node }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
-      - name: Installing dependencies
-        run: npm ci
-      - name: Testing
-        run: npm test
-      - name: Building
-        run: npm run build
-        
+    build_check:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node: ["12", "14", "15"]
+        name: Node ${{ matrix.node }}
+        steps:
+            - uses: actions/checkout@v2
+            - name: Setup node
+              uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ matrix.node }}
+            - name: Installing dependencies
+              run: npm ci
+            - name: Testing
+              run: npm test
+            - name: Building
+              run: npm run build

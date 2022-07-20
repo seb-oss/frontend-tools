@@ -7,7 +7,11 @@
  */
 export function toLocalDateString(date: Date, locales?: Array<string>): string {
     if (date && date instanceof Date && !!date.toLocaleDateString) {
-        return date.toLocaleDateString(locales, { year: "numeric", month: "long", day: "numeric" });
+        return date.toLocaleDateString(locales, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
     } else {
         return String(date);
     }

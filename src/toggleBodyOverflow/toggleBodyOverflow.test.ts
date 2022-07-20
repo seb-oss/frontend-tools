@@ -4,7 +4,9 @@ describe("Toggle body overflow", () => {
     it("Should toggle overflow class for document body", () => {
         expect(document.body.classList.contains("overflow-hidden")).toBeFalsy();
         toggleBodyOverflow(true);
-        expect(document.body.classList.contains("overflow-hidden")).toBeTruthy();
+        expect(
+            document.body.classList.contains("overflow-hidden")
+        ).toBeTruthy();
         toggleBodyOverflow(false);
         expect(document.body.classList.contains("overflow-hidden")).toBeFalsy();
     });

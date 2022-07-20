@@ -24,14 +24,12 @@ describe("Util: formatDate", () => {
             locale: "en-US",
         },
         {
-            title:
-                "Should return a string of the input if it's an invalid date",
+            title: "Should return a string of the input if it's an invalid date",
             date: "it's a string",
             result: "it's a string",
         },
         {
-            title:
-                "Should correctly format ISO string date without passing input or output formats",
+            title: "Should correctly format ISO string date without passing input or output formats",
             date: "2000-01-23T04:56:07.000+00:00",
             result: "23 januari 2000",
         },

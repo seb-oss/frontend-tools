@@ -8,19 +8,24 @@ const components = require("./src/index.json");
 
 const defaults = {
     input: ["./src/index.ts", ...components.indexes],
-    external: [...Object.keys(pkg.peerDependencies || {}), ...Object.keys(pkg.dependencies || {}), ...Object.keys(commonPkg.dependencies || {})],
+    external: [
+        ...Object.keys(pkg.peerDependencies || {}),
+        ...Object.keys(pkg.dependencies || {}),
+        ...Object.keys(commonPkg.dependencies || {}),
+    ],
 };
 
-const resolveOnly = [new RegExp(`^((?!${defaults.external.map((item) => `(${item})`).join("|")}).)*$`, "g")];
+const resolveOnly = [
+    new RegExp(
+        `^((?!${defaults.external.map((item) => `(${item})`).join("|")}).)*$`,
+        "g"
+    ),
+];
 
 export default [
     {
         ...defaults,
-        plugins: [
-            typescript(),
-            resolve({ resolveOnly }),
-            commonjs(),
-        ],
+        plugins: [typescript(), resolve({ resolveOnly }), commonjs()],
         output: {
             dir: "dist",
             format: "cjs",
@@ -34,7 +39,12 @@ export default [
     {
         ...defaults,
         plugins: [
-            typescript({ compilerOptions: { declarationDir: "dist/esm", outDir: "dist/esm" } }),
+            typescript({
+                compilerOptions: {
+                    declarationDir: "dist/esm",
+                    outDir: "dist/esm",
+                },
+            }),
             resolve({ resolveOnly }),
             commonjs(),
         ],

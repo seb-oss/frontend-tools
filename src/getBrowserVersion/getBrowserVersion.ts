@@ -6,7 +6,10 @@
 export function getBrowserVersion(): number {
     const userAgent: string = navigator.userAgent;
     let temp: RegExpMatchArray;
-    let match: RegExpMatchArray = userAgent.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    let match: RegExpMatchArray =
+        userAgent.match(
+            /(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i
+        ) || [];
 
     if (/trident/i.test(match[1])) {
         temp = /\brv[ :]+(\d+)/g.exec(userAgent) || [];
@@ -20,7 +23,9 @@ export function getBrowserVersion(): number {
         }
     }
 
-    match = match[2] ? [match[1], match[2]] : [navigator.appName, navigator.appVersion, "-?"];
+    match = match[2]
+        ? [match[1], match[2]]
+        : [navigator.appName, navigator.appVersion, "-?"];
     temp = userAgent.match(/version\/(\d+)/i);
 
     if (temp != null) {
