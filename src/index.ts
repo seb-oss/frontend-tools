@@ -5,6 +5,7 @@ export * from "./clearTime";
 export * from "./CookieStorage";
 export * from "./dateDiff";
 export * from "./deepCopy";
+export * from "./downloadFile";
 export * from "./formatDate";
 export * from "./FormValidator";
 export * from "./getBrowserName";
