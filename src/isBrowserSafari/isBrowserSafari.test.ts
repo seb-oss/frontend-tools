@@ -12,26 +12,28 @@ describe("Util: isBrowserSafari", () => {
         {
             statement: "Should return true when browser is safari",
             results: true,
-            mockWindow: { HTMLElement: "constructor" }
+            mockWindow: { HTMLElement: "constructor" },
         },
         {
             statement: "Should return false when browser is not safari",
             results: false,
-            mockWindow: { safari: { pushNotification: false } }
+            mockWindow: { safari: { pushNotification: false } },
         },
         {
             statement: "Should return false when browser is not safari",
             results: false,
-            mockWindow: { safari: undefined }
+            mockWindow: { safari: undefined },
         },
         {
             statement: "Should return false when browser is not safari",
             results: false,
-            mockWindow: {}
+            mockWindow: {},
         },
     ];
     testCases.map((testCase: BrowserDetectorTestCase) => {
-        it(`${testCase.statement} | params: ${JSON.stringify(testCase.mockWindow)} | result: ${String(testCase.results)}`, () => {
+        it(`${testCase.statement} | params: ${JSON.stringify(
+            testCase.mockWindow
+        )} | result: ${String(testCase.results)}`, () => {
             (global as any).window = Object.create(window);
             (global as any).window = testCase.mockWindow;
             expect(isBrowserSafari()).toBe(testCase.results);

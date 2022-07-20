@@ -7,7 +7,9 @@
  */
 export function toggleBodyOverflow(toggle: boolean): void {
     const className: string = "overflow-hidden";
-    const body: HTMLBodyElement = document.getElementsByTagName("body").item(0) as HTMLBodyElement;
+    const body: HTMLBodyElement = document
+        .getElementsByTagName("body")
+        .item(0) as HTMLBodyElement;
     if (toggle !== undefined) {
         if (toggle && !body.classList.contains(className)) {
             body.classList.add(className);
@@ -15,6 +17,8 @@ export function toggleBodyOverflow(toggle: boolean): void {
             body.classList.remove(className);
         }
     } else {
-        console.warn("updateHTMLBodyWhenModalToggles called with invalid toggle");
+        console.warn(
+            "updateHTMLBodyWhenModalToggles called with invalid toggle"
+        );
     }
 }

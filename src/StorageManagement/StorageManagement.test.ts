@@ -54,56 +54,60 @@ describe("Storage management", () => {
                 key: "cookieKey",
                 storageType: "COOKIE",
                 value: "cookie1value",
-                results: "cookie1value"
+                results: "cookie1value",
             },
             {
                 statement: "Should be not able to set cookies with invalid key",
                 key: null,
                 storageType: "COOKIE",
                 value: "cookie1value",
-                results: null
+                results: null,
             },
             {
                 statement: "Should be able to set session with specific key",
                 key: "sessionKey",
                 storageType: "SESSION",
                 value: "session1value",
-                results: "session1value"
+                results: "session1value",
             },
             {
                 statement: "Should be not able to set session with invalid key",
                 key: null,
                 storageType: "SESSION",
                 value: "session1value",
-                results: null
+                results: null,
             },
             {
                 statement: "Should be able to set local with specific key",
                 key: "localKey",
                 storageType: "LOCAL",
                 value: "local1value",
-                results: "local1value"
+                results: "local1value",
             },
             {
                 statement: "Should be not able to set local with invalid key",
                 key: null,
                 storageType: "LOCAL",
                 value: "local1value",
-                results: null
+                results: null,
             },
             {
-                statement: "Should be set to local if invalid storage type is passed",
+                statement:
+                    "Should be set to local if invalid storage type is passed",
                 key: "localKey",
                 storageType: "LOCALasdf" as any,
                 value: "local1value",
-                results: "local1value"
+                results: "local1value",
             },
         ];
         testCases.map((testCase: SetItemMethodTestCase) => {
             it(testCase.statement, () => {
-                const newStorageManagment: StorageManagement = new StorageManagement(testCase.storageType);
+                const newStorageManagment: StorageManagement =
+                    new StorageManagement(testCase.storageType);
                 newStorageManagment.setItem(testCase.key, testCase.value);
-                expect(newStorageManagment.getItem(testCase.key)).toBe(testCase.results);
+                expect(newStorageManagment.getItem(testCase.key)).toBe(
+                    testCase.results
+                );
             });
         });
     });
@@ -127,7 +131,8 @@ describe("Storage management", () => {
                 },
             },
             {
-                statement: "Should be getting null if key is not found in cookie",
+                statement:
+                    "Should be getting null if key is not found in cookie",
                 key: "cookieKey",
                 storageType: "COOKIE",
                 results: null,
@@ -139,47 +144,66 @@ describe("Storage management", () => {
                 },
             },
             {
-                statement: "Should be able to get local storage with specific key",
+                statement:
+                    "Should be able to get local storage with specific key",
                 key: "localStorageKey",
                 storageType: "LOCAL",
                 results: "localStorageValue",
                 mockStorage: () => {
-                    (global as any).localStorage.setItem("localStorageKey", "localStorageValue");
+                    (global as any).localStorage.setItem(
+                        "localStorageKey",
+                        "localStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be getting null if key is not found in local storage",
+                statement:
+                    "Should be getting null if key is not found in local storage",
                 key: "localStorage3Key",
                 storageType: "LOCAL",
                 results: null,
                 mockStorage: () => {
-                    (global as any).localStorage.setItem("localStorage2Key", "localStorageValue");
+                    (global as any).localStorage.setItem(
+                        "localStorage2Key",
+                        "localStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be able to get session storage with specific key",
+                statement:
+                    "Should be able to get session storage with specific key",
                 key: "sessionStorageKey",
                 storageType: "SESSION",
                 results: "sessionStorageValue",
                 mockStorage: () => {
-                    (global as any).sessionStorage.setItem("sessionStorageKey", "sessionStorageValue");
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorageKey",
+                        "sessionStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be getting null if key is not found in session storage",
+                statement:
+                    "Should be getting null if key is not found in session storage",
                 key: "sessionStorage3Key",
                 storageType: "SESSION",
                 results: null,
                 mockStorage: () => {
-                    (global as any).sessionStorage.setItem("sessionStorage2Key", "sessionStorageValue");
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorage2Key",
+                        "sessionStorageValue"
+                    );
                 },
             },
         ];
         testCases.map((testCase: GetItemMethodTestCase) => {
             it(testCase.statement, () => {
                 testCase.mockStorage();
-                const newStorageManagment: StorageManagement = new StorageManagement(testCase.storageType);
-                expect(newStorageManagment.getItem(testCase.key)).toBe(testCase.results);
+                const newStorageManagment: StorageManagement =
+                    new StorageManagement(testCase.storageType);
+                expect(newStorageManagment.getItem(testCase.key)).toBe(
+                    testCase.results
+                );
             });
         });
     });
@@ -204,7 +228,8 @@ describe("Storage management", () => {
                 },
             },
             {
-                statement: "Should be not able to remove cookies if key is not found in cookie",
+                statement:
+                    "Should be not able to remove cookies if key is not found in cookie",
                 key: "cookieKey",
                 storageType: "COOKIE",
                 results: "cookie3Key=cookie1value",
@@ -217,50 +242,73 @@ describe("Storage management", () => {
                 },
             },
             {
-                statement: "Should be able to remove local storage with specific key",
+                statement:
+                    "Should be able to remove local storage with specific key",
                 key: "localStorageKey",
                 storageType: "LOCAL",
                 results: null,
-                document: () => (global as any).localStorage.getItem("localStorageKey"),
+                document: () =>
+                    (global as any).localStorage.getItem("localStorageKey"),
                 mockStorage: () => {
-                    (global as any).localStorage.setItem("localStorageKey", "localStorageValue");
+                    (global as any).localStorage.setItem(
+                        "localStorageKey",
+                        "localStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be not able to remove local storage if key is not found in local storage",
+                statement:
+                    "Should be not able to remove local storage if key is not found in local storage",
                 key: "localStorage3Key",
                 storageType: "LOCAL",
                 results: "localStorageValue",
-                document: () => (global as any).localStorage.getItem("localStorage2Key"),
+                document: () =>
+                    (global as any).localStorage.getItem("localStorage2Key"),
                 mockStorage: () => {
-                    (global as any).localStorage.setItem("localStorage2Key", "localStorageValue");
+                    (global as any).localStorage.setItem(
+                        "localStorage2Key",
+                        "localStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be able to remove session storage with specific key",
+                statement:
+                    "Should be able to remove session storage with specific key",
                 key: "sessionStorageKey",
                 storageType: "SESSION",
                 results: null,
-                document: () => (global as any).sessionStorage.getItem("sessionStorageKey"),
+                document: () =>
+                    (global as any).sessionStorage.getItem("sessionStorageKey"),
                 mockStorage: () => {
-                    (global as any).sessionStorage.setItem("sessionStorageKey", "sessionStorageValue");
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorageKey",
+                        "sessionStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be not able to remove session storage if key is not found in session storage",
+                statement:
+                    "Should be not able to remove session storage if key is not found in session storage",
                 key: "sessionStorage3Key",
                 storageType: "SESSION",
                 results: "sessionStorageValue",
-                document: () => (global as any).sessionStorage.getItem("sessionStorage2Key"),
+                document: () =>
+                    (global as any).sessionStorage.getItem(
+                        "sessionStorage2Key"
+                    ),
                 mockStorage: () => {
-                    (global as any).sessionStorage.setItem("sessionStorage2Key", "sessionStorageValue");
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorage2Key",
+                        "sessionStorageValue"
+                    );
                 },
             },
         ];
         testCases.map((testCase: RemoveItemMethodTestCase) => {
             it(testCase.statement, () => {
                 testCase.mockStorage();
-                const newStorageManagment: StorageManagement = new StorageManagement(testCase.storageType);
+                const newStorageManagment: StorageManagement =
+                    new StorageManagement(testCase.storageType);
                 newStorageManagment.removeItem(testCase.key);
                 expect(testCase.document()).toBe(testCase.results);
             });
@@ -286,28 +334,39 @@ describe("Storage management", () => {
                 },
             },
             {
-                statement: "Should be able to remove local storage with specific key",
+                statement:
+                    "Should be able to remove local storage with specific key",
                 storageType: "LOCAL",
                 results: "",
-                document: () => Object.keys((global as any).localStorage).toString(),
+                document: () =>
+                    Object.keys((global as any).localStorage).toString(),
                 mockStorage: () => {
-                    (global as any).localStorage.setItem("localStorageKey", "localStorageValue");
+                    (global as any).localStorage.setItem(
+                        "localStorageKey",
+                        "localStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be able to remove session storage with specific key",
+                statement:
+                    "Should be able to remove session storage with specific key",
                 storageType: "SESSION",
                 results: "",
-                document: () => Object.keys((global as any).sessionStorage).toString(),
+                document: () =>
+                    Object.keys((global as any).sessionStorage).toString(),
                 mockStorage: () => {
-                    (global as any).sessionStorage.setItem("sessionStorageKey", "sessionStorageValue");
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorageKey",
+                        "sessionStorageValue"
+                    );
                 },
             },
         ];
         testCases.map((testCase: ClearMethodTestCase) => {
             it(testCase.statement, () => {
                 testCase.mockStorage();
-                const newStorageManagment: StorageManagement = new StorageManagement(testCase.storageType);
+                const newStorageManagment: StorageManagement =
+                    new StorageManagement(testCase.storageType);
                 newStorageManagment.clear();
                 expect(testCase.document()).toBe(testCase.results);
             });
@@ -336,8 +395,14 @@ describe("Storage management", () => {
                 storageType: "LOCAL",
                 results: "localStorageKey,localStorage2Key",
                 mockStorage: () => {
-                    (global as any).localStorage.setItem("localStorageKey", "localStorageValue");
-                    (global as any).localStorage.setItem("localStorage2Key", "localStorageValue");
+                    (global as any).localStorage.setItem(
+                        "localStorageKey",
+                        "localStorageValue"
+                    );
+                    (global as any).localStorage.setItem(
+                        "localStorage2Key",
+                        "localStorageValue"
+                    );
                 },
             },
             {
@@ -345,16 +410,25 @@ describe("Storage management", () => {
                 storageType: "SESSION",
                 results: "sessionStorageKey,sessionStorage2Key",
                 mockStorage: () => {
-                    (global as any).sessionStorage.setItem("sessionStorageKey", "sessionStorageValue");
-                    (global as any).sessionStorage.setItem("sessionStorage2Key", "sessionStorageValue");
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorageKey",
+                        "sessionStorageValue"
+                    );
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorage2Key",
+                        "sessionStorageValue"
+                    );
                 },
             },
         ];
         testCases.map((testCase: KeysMethodTestCase) => {
             it(testCase.statement, () => {
                 testCase.mockStorage();
-                const newStorageManagment: StorageManagement = new StorageManagement(testCase.storageType);
-                expect(newStorageManagment.keys().toString()).toBe(testCase.results);
+                const newStorageManagment: StorageManagement =
+                    new StorageManagement(testCase.storageType);
+                expect(newStorageManagment.keys().toString()).toBe(
+                    testCase.results
+                );
             });
         });
     });
@@ -366,7 +440,8 @@ describe("Storage management", () => {
         });
         const testCases: Array<KeyMethodTestCase> = [
             {
-                statement: "Should be able to get key of cookie with valid index",
+                statement:
+                    "Should be able to get key of cookie with valid index",
                 storageType: "COOKIE",
                 index: 0,
                 results: "cookieKey",
@@ -378,7 +453,8 @@ describe("Storage management", () => {
                 },
             },
             {
-                statement: "Should be not able to get key of cookie with invalid index",
+                statement:
+                    "Should be not able to get key of cookie with invalid index",
                 storageType: "COOKIE",
                 index: 2,
                 results: undefined,
@@ -390,51 +466,82 @@ describe("Storage management", () => {
                 },
             },
             {
-                statement: "Should be able to get key of local storage with valid index",
+                statement:
+                    "Should be able to get key of local storage with valid index",
                 storageType: "LOCAL",
                 results: "localStorageKey",
                 index: 0,
                 mockStorage: () => {
-                    (global as any).localStorage.setItem("localStorageKey", "localStorageValue");
-                    (global as any).localStorage.setItem("localStorage2Key", "localStorageValue");
+                    (global as any).localStorage.setItem(
+                        "localStorageKey",
+                        "localStorageValue"
+                    );
+                    (global as any).localStorage.setItem(
+                        "localStorage2Key",
+                        "localStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be not able to get key of local storage with invalid index",
+                statement:
+                    "Should be not able to get key of local storage with invalid index",
                 storageType: "LOCAL",
                 results: undefined,
                 index: 2,
                 mockStorage: () => {
-                    (global as any).localStorage.setItem("localStorageKey", "localStorageValue");
-                    (global as any).localStorage.setItem("localStorage2Key", "localStorageValue");
+                    (global as any).localStorage.setItem(
+                        "localStorageKey",
+                        "localStorageValue"
+                    );
+                    (global as any).localStorage.setItem(
+                        "localStorage2Key",
+                        "localStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be able to get key of session storage with valid index",
+                statement:
+                    "Should be able to get key of session storage with valid index",
                 storageType: "SESSION",
                 results: "sessionStorageKey",
                 index: 0,
                 mockStorage: () => {
-                    (global as any).sessionStorage.setItem("sessionStorageKey", "sessionStorageValue");
-                    (global as any).sessionStorage.setItem("sessionStorage2Key", "sessionStorageValue");
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorageKey",
+                        "sessionStorageValue"
+                    );
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorage2Key",
+                        "sessionStorageValue"
+                    );
                 },
             },
             {
-                statement: "Should be not able to get key of session storage with invalid index",
+                statement:
+                    "Should be not able to get key of session storage with invalid index",
                 storageType: "SESSION",
                 results: undefined,
                 index: 2,
                 mockStorage: () => {
-                    (global as any).sessionStorage.setItem("sessionStorageKey", "sessionStorageValue");
-                    (global as any).sessionStorage.setItem("sessionStorage2Key", "sessionStorageValue");
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorageKey",
+                        "sessionStorageValue"
+                    );
+                    (global as any).sessionStorage.setItem(
+                        "sessionStorage2Key",
+                        "sessionStorageValue"
+                    );
                 },
             },
         ];
         testCases.map((testCase: KeyMethodTestCase) => {
             it(testCase.statement, () => {
                 testCase.mockStorage();
-                const newStorageManagment: StorageManagement = new StorageManagement(testCase.storageType);
-                expect(newStorageManagment.key(testCase.index)).toBe(testCase.results);
+                const newStorageManagment: StorageManagement =
+                    new StorageManagement(testCase.storageType);
+                expect(newStorageManagment.key(testCase.index)).toBe(
+                    testCase.results
+                );
             });
         });
     });

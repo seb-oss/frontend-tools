@@ -17,15 +17,16 @@ describe("Util: modifyDate", () => {
             result: clearTime(new Date()),
             value: 1,
             type: "DIVIDE",
-            range: "month"
+            range: "month",
         },
         {
-            statement: "Should return today's date if date is null or undefined",
+            statement:
+                "Should return today's date if date is null or undefined",
             date: null,
             result: clearTime(new Date()),
             value: 1,
             type: "ADD",
-            range: "month"
+            range: "month",
         },
         {
             statement: "Should return correct value for addition",
@@ -33,7 +34,7 @@ describe("Util: modifyDate", () => {
             result: clearTime(new Date("2019-12-11")),
             value: 1,
             type: "ADD",
-            range: "month"
+            range: "month",
         },
         {
             statement: "Should return correct value for addition",
@@ -41,15 +42,16 @@ describe("Util: modifyDate", () => {
             result: clearTime(new Date("2019-11-12")),
             value: 1,
             type: "ADD",
-            range: "day"
+            range: "day",
         },
         {
-            statement: "Should automatically account for leap years when making changes to dates",
+            statement:
+                "Should automatically account for leap years when making changes to dates",
             date: new Date("2020-02-29"),
             result: clearTime(new Date("2021-03-01")),
             value: 1,
             type: "ADD",
-            range: "year"
+            range: "year",
         },
         {
             statement: "Should return correct value for substraction",
@@ -57,7 +59,7 @@ describe("Util: modifyDate", () => {
             result: clearTime(new Date("2018-12-11")),
             value: 1,
             type: "SUBTRACT",
-            range: "month"
+            range: "month",
         },
         {
             statement: "Should return same date back if range is not valid",
@@ -65,20 +67,26 @@ describe("Util: modifyDate", () => {
             result: clearTime(new Date("2019-01-11")),
             value: 1,
             type: "SUBTRACT",
-            range: "abcd"
+            range: "abcd",
         },
         {
-            statement: "Should return today's date if invalid type MULTIPLY passed",
+            statement:
+                "Should return today's date if invalid type MULTIPLY passed",
             date: clearTime(new Date("2019-01-11")),
             result: clearTime(new Date()),
             value: 1,
             type: "MULTIPLY",
-            range: "month"
-        }
+            range: "month",
+        },
     ];
     testCases.map((testCase: DateRangeTestCase) => {
         test(`- ${testCase.statement} | result: ${testCase.result}`, () => {
-            const result: Date = modifyDate(testCase.date, testCase.value, testCase.type, testCase.range);
+            const result: Date = modifyDate(
+                testCase.date,
+                testCase.value,
+                testCase.type,
+                testCase.range
+            );
             expect(clearTime(result)).toEqual(clearTime(testCase.result));
             expect(result instanceof Date).toBeTruthy();
         });
