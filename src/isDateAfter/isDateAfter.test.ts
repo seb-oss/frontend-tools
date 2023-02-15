@@ -22,7 +22,7 @@ describe("Util: isDateAfter", () => {
         },
         {
             statement: "Should return true if date1 is after date2",
-            date1: new Date("2019-12-11"),
+            date1: new Date("2019-12-01"),
             date2: new Date("2019-11-11"),
             result: true,
         },
@@ -39,7 +39,8 @@ describe("Util: isDateAfter", () => {
             result: false,
         },
         {
-            statement: "Should ignore the time and return false if the two dates are equal",
+            statement:
+                "Should ignore the time and return false if the two dates are equal",
             date1: new Date("2019-11-11 23:00:00"),
             date2: new Date("2019-11-11 11:00:00"),
             result: false,
