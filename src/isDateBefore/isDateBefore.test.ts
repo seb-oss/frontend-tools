@@ -28,8 +28,8 @@ describe("Util: isDateBefore", () => {
         },
         {
             statement: "Should return false if date1 is not before date2",
-            date1: new Date("2020-12-28"),
-            date2: new Date("2020-12-25"),
+            date1: new Date("2023-03-04"),
+            date2: new Date("2023-02-15"),
             result: false,
         },
         {
