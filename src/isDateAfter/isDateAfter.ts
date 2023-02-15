@@ -7,9 +7,9 @@ import { isValidDate } from "../isValidDate";
  * @returns {boolean} True if date `a` comes after than date `b`
  */
 export function isDateAfter(a: Date, b: Date): boolean {
-    if (!isValidDate(a) || !isValidDate(b)) {
-        return a > b;
-    } else {
+    if (isValidDate(a) && isValidDate(b)) {
         return a.setHours(0, 0, 0).valueOf() > b.setHours(0, 0, 0).valueOf();
     }
+
+    return a > b;
 }
