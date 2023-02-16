@@ -38,6 +38,13 @@ describe("Util: isDateBefore", () => {
             date2: new Date("2020-01-01"),
             result: false,
         },
+        {
+            statement:
+                "Should ignore the time and return false if the two dates are equal",
+            date1: new Date("2019-11-11 23:00:00"),
+            date2: new Date("2019-11-11 11:00:00"),
+            result: false,
+        },
     ];
     testCases.map((testCase: TestCase) => {
         test(`- ${testCase.statement} | params: ${JSON.stringify({
